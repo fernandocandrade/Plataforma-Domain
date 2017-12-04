@@ -1,6 +1,6 @@
 var restify = require('restify');
 var server = restify.createServer();
-
+var mapper = require('./mapper.js');
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
@@ -56,9 +56,14 @@ server.post('/:entity/all', (req, res, next)=>{
     }).catch(console.error);
 });
 
-server.get('/:entity/:id', (req, res, next)=>{
-    model[req.params.entity].findById(req.params.id).then(entity => {
-        res.send(entity);
+server.get('/:appId/:entity/:id', (req, res, next)=>{    
+    var appId = req.params.appId;
+    var mappedEntity = req.params.entity;
+    var entity = mapper.getModelName(appId,mappedEntity);
+    var projection = mapper.getProjection(appId,mappedEntity)[mappedEntity];
+    model[entity].findAll(projection).then(result => {
+        var fullMapped = mapper.applyFunctions(appId,mappedEntity,result.map(r => r.toJSON()));
+        res.send(fullMapped);        
         next();
     }).catch((e)=>{
         res.send("error");

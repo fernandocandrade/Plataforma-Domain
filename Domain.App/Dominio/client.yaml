@@ -5,5 +5,9 @@ tb_client:
     - integer
   nm_client:
     - string
+  cpf:
+    - string
+  lst_name:
+    - string
   hasMany:
     - tb_account
