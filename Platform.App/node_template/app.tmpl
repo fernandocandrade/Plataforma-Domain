@@ -28,6 +28,8 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
     {{name}}: { type: {{type}} {{#if primaryKey}}, primaryKey: {{primaryKey}}{{/if}}{{#if autoIncrement}}, autoIncrement: {{autoIncrement}}  {{/if}} } {{/join}}
     ,start_date:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     end_date:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
+},{
+    timestamps: false
 });
 
 {{/each}}
