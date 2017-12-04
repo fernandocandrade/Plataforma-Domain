@@ -1,9 +1,9 @@
-client:
+tb_client:
   id:
     - primary key
     - auto increment
     - integer
-  name:
+  nm_client:
     - string
   hasMany:
-    - account
+    - tb_account

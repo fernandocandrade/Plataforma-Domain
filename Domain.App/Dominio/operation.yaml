@@ -1,9 +1,9 @@
-operation:
-  account_origin:
+tb_operation:
+  acc_origin:
     - integer
     - primary key
-  account_dest:
+  acc_dest:
     - integer
     - primary key
-  type:
+  tp_operation:
     - string
