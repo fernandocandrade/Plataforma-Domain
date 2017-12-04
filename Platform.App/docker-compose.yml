@@ -1,0 +1,12 @@
+version: "2"
+services:  
+  postgres:
+        image: postgres:latest
+        container_name: "postgres"        
+        ports:
+            - 5432:5432        
+  adminer:
+        image: adminer:latest
+        container_name: "adminer"        
+        ports:
+            - 8080:8080        
