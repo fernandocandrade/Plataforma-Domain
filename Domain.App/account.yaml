@@ -1,0 +1,9 @@
+account:
+  id:
+    - primary key
+    - auto increment
+    - integer
+  balance:
+    - integer
+  belongsTo:
+    - client

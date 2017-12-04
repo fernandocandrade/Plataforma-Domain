@@ -1,0 +1,9 @@
+client:
+  id:
+    - primary key
+    - auto increment
+    - integer
+  name:
+    - string
+  hasMany:
+    - account

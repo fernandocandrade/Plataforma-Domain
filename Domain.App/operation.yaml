@@ -1,0 +1,9 @@
+operation:
+  account_origin:
+    - integer
+    - primary key
+  account_dest:
+    - integer
+    - primary key
+  type:
+    - string
