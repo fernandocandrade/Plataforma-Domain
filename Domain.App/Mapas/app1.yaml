@@ -14,7 +14,7 @@ cliente:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome
 conta:
-  model: tb_accounts
+  model: tb_account
   fields:
     saldo:
       column: vl_balance

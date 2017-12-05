@@ -1,8 +1,12 @@
 var fs = require("fs");
 var yaml = require('js-yaml');
 function print(obj){
- typeof(obj) === "object" && console.log(JSON.stringify(obj));
- typeof(obj) === "string" && console.log(obj);
+  if (typeof(obj) === "object"){
+    console.log(JSON.stringify(obj));
+  }else{
+    console.log(obj);
+  }
+ 
 }
 module.exports = (function(){
   var self = {};
@@ -65,13 +69,29 @@ module.exports = (function(){
     return self.projectionCache[processId];    
   };
   
-  self.applyFunctions = (processId,mapName,modelList)=>{    
+  self.applyTransformations = (processId,mapName,modelList)=>{    
     var accumulator = {};
     if (!self.functionsMap[processId] || !self.functionsMap[processId][mapName]){
       return modelList;
     }
     return modelList.map(model => {              
         var modelJson = model.toJSON();
+        modelJson._metadata = {};
+        modelJson._metadata.type = mapName;
+        //processa substituições de includes
+        var includes = self.includesMap[processId][mapName];
+        for (var include in includes){ 
+          var modelApplied = self.modelCache[processId][mapName]["fields"][include].model;
+          var attrBase = self.modelCache[processId][modelApplied].model;
+          var keyToRename =  Object.keys(modelJson).find(s => s.indexOf(attrBase) >= 0);
+          modelJson[include] = modelJson[keyToRename].map(c => {
+            c._metadata = {};
+            c._metadata.type = modelApplied;
+            return c;
+          });          
+          delete modelJson[keyToRename];          
+        }
+        //processa atributos calculados
         for(var calcProp in self.functionsMap[processId][mapName]){
           if (accumulator[calcProp] === undefined){
             accumulator[calcProp] = {};
