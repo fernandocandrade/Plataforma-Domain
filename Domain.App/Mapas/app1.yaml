@@ -6,7 +6,7 @@ cliente:
       required: true
     sobrenome:
       column: lst_name
-      required: true
+      required: true    
     nomeCompleto:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome

@@ -1,6 +1,5 @@
 var fs = require("fs");
 var yaml = require('js-yaml');
-const basePath = "../../Domain.App";
 module.exports = (function(){
   var self = {};
   self.modelCache = {};
@@ -11,7 +10,7 @@ module.exports = (function(){
     if (self.modelCache[processId]){
       return self.modelCache[processId];
     }
-    var _map = yaml.safeLoad(fs.readFileSync(basePath+"/Mapas/"+processId+".yaml"));
+    var _map = yaml.safeLoad(fs.readFileSync("maps/"+processId+".yaml"));
     self.modelCache[processId] = _map;
     return _map;
   };
@@ -44,17 +43,20 @@ module.exports = (function(){
   
   self.applyFunctions = (processId,mapName,modelList)=>{    
     var accumulator = {};
-    return modelList.map(model => {       
-       if (self.functionsMap[processId] && self.functionsMap[processId][mapName]){          
-          for(var calcProp in self.functionsMap[processId][mapName]){
-            if (accumulator[calcProp] === undefined){
-              accumulator[calcProp] = {};
-            }
-            var fn = eval(self.functionsMap[processId][mapName][calcProp].eval);
-            model[calcProp] = fn(model,accumulator);
+    if (!self.functionsMap[processId] || !self.functionsMap[processId][mapName]){
+      return modelList;
+    }
+    return modelList.map(model => {              
+        var modelJson = model.toJSON();
+        for(var calcProp in self.functionsMap[processId][mapName]){
+          if (accumulator[calcProp] === undefined){
+            accumulator[calcProp] = {};
           }
-        }
-        return model;
+          var fn = eval(self.functionsMap[processId][mapName][calcProp].eval);
+          
+          modelJson[calcProp] = fn(modelJson,accumulator[calcProp]);
+        }       
+        return modelJson;
     });    
   }
 

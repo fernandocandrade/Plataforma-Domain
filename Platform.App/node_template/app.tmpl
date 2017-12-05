@@ -62,10 +62,10 @@ server.get('/:appId/:entity/:id', (req, res, next)=>{
     var entity = mapper.getModelName(appId,mappedEntity);
     var projection = mapper.getProjection(appId,mappedEntity)[mappedEntity];
     model[entity].findAll(projection).then(result => {
-        var fullMapped = mapper.applyFunctions(appId,mappedEntity,result.map(r => r.toJSON()));
-        res.send(fullMapped);        
+        var fullMapped = mapper.applyFunctions(appId,mappedEntity,result);
+        res.send(fullMapped);
         next();
-    }).catch((e)=>{
+    }).catch(e =>{
         res.send("error");
         next();
     });
