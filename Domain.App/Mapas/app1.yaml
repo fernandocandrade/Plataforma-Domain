@@ -6,8 +6,16 @@ cliente:
       required: true
     sobrenome:
       column: lst_name
-      required: true    
+      required: true
+    contas:
+      type: include
+      model: conta
     nomeCompleto:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome
-    
+conta:
+  model: tb_accounts
+  fields:
+    saldo:
+      column: vl_balance
+

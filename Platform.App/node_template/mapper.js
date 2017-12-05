@@ -1,10 +1,15 @@
 var fs = require("fs");
 var yaml = require('js-yaml');
+function print(obj){
+ typeof(obj) === "object" && console.log(JSON.stringify(obj));
+ typeof(obj) === "string" && console.log(obj);
+}
 module.exports = (function(){
   var self = {};
   self.modelCache = {};
   self.projectionCache = {};
   self.functionsMap = {};
+  self.includesMap = {};
 
   self.getMapperByProcessId = (processId)=>{
     if (self.modelCache[processId]){
@@ -13,6 +18,20 @@ module.exports = (function(){
     var _map = yaml.safeLoad(fs.readFileSync("maps/"+processId+".yaml"));
     self.modelCache[processId] = _map;
     return _map;
+  };
+
+  self.getIncludes = (processId,mapName,ormModel) => {
+    var includeMap = self.includesMap[processId][mapName];
+    var query = [];
+    for(var includeProp in includeMap){
+      var sqlObj = {};      
+      var mappedAttr = includeMap[includeProp].model;
+      var ormName = self.modelCache[processId][mappedAttr].model;
+      sqlObj.model = ormModel[ormName];            
+      sqlObj.attributes  = self.getProjection(processId)[mappedAttr].attributes;      
+      query.push(sqlObj);
+    }
+    return query;
   };
 
   self.getProjection = (processId)=>{
@@ -33,6 +52,11 @@ module.exports = (function(){
           self.functionsMap[processId][mappedModel] = {};
           self.functionsMap[processId][mappedModel][field] = fieldObj;
           continue;//ignora campos calculados
+        }else if (fieldObj.type && fieldObj.type === "include"){
+          self.includesMap[processId] = {}
+          self.includesMap[processId][mappedModel] = {};
+          self.includesMap[processId][mappedModel][field] = fieldObj;
+          continue;//ignora campos de include
         }
         var proj = [fieldObj.column,field];
         projections[mappedModel].attributes.push(proj);        
