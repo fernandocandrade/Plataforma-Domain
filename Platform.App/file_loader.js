@@ -5,7 +5,7 @@ module.exports = (function(){
     self.getFileNames = function(path){
         self.root = path;
         var filesToLoad = [];
-        fs.readdirSync(path).forEach(file => {
+        fs.readdirSync(path+"Dominio").forEach(file => {
             if(file.endsWith(".yaml")){
                 filesToLoad.push(file);
             }            
@@ -14,7 +14,7 @@ module.exports = (function(){
     }
 
     self.readFile = function(fileName){
-        return yaml.safeLoad(fs.readFileSync(self.root +fileName));
+        return yaml.safeLoad(fs.readFileSync(self.root+"Dominio/" +fileName));
     };
     return self;
 })();
