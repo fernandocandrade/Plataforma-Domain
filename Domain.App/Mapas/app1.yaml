@@ -13,6 +13,10 @@ cliente:
     nomeCompleto:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome
+  filters:
+    byName:
+      nome: nome
+
 conta:
   model: tb_account
   fields:

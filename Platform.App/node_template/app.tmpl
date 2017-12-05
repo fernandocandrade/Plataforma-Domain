@@ -61,7 +61,14 @@ server.get('/:appId/:entity', (req, res, next)=>{
     var mappedEntity = req.params.entity;
     var entity = mapper.getModelName(appId,mappedEntity);
     var projection = mapper.getProjection(appId,mappedEntity)[mappedEntity];
-    projection.include = mapper.getIncludes(appId,mappedEntity,model);    
+    projection.include = mapper.getIncludes(appId,mappedEntity,model);
+    if (projection.include.length == 0){
+        delete projection.include;
+    }
+    projection.where = mapper.getFilters(appId,mappedEntity,req);
+    if (Object.keys(projection.where).length === 0){
+        delete projection.where;
+    }
     model[entity].findAll(projection).then(result => {
         var fullMapped = mapper.applyTransformations(appId,mappedEntity,result);
         res.send(fullMapped);

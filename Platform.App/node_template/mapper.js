@@ -32,7 +32,7 @@ module.exports = (function(){
       var mappedAttr = includeMap[includeProp].model;
       var ormName = self.modelCache[processId][mappedAttr].model;
       sqlObj.model = ormModel[ormName];            
-      sqlObj.attributes  = self.getProjection(processId)[mappedAttr].attributes;      
+      sqlObj.attributes = self.getProjection(processId)[mappedAttr].attributes;      
       query.push(sqlObj);
     }
     return query;
@@ -103,6 +103,20 @@ module.exports = (function(){
         return modelJson;
     });    
   }
+
+  self.getFilters = (processId,mapName,request) => {
+    var filters = self.modelCache[processId][mapName]["filters"];   
+    var filter = filters[request.query["filter"]];
+    var query = {};
+    for(var columnMapName in filter){
+      var queryFieldParam = filter[columnMapName];
+      var ormModelName = self.modelCache[processId][mapName]["fields"][columnMapName].column;
+      if (request.query[queryFieldParam]){        
+        query[ormModelName] = request.query[queryFieldParam];
+      }
+    }
+    return query;
+  };
 
   self.getModelName = (processId,mapName)=>{    
     var _map = self.getMapperByProcessId(processId);
