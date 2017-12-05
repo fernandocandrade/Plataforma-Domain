@@ -56,16 +56,18 @@ server.post('/:entity/all', (req, res, next)=>{
     }).catch(console.error);
 });
 
-server.get('/:appId/:entity/:id', (req, res, next)=>{    
+server.get('/:appId/:entity', (req, res, next)=>{    
     var appId = req.params.appId;
     var mappedEntity = req.params.entity;
     var entity = mapper.getModelName(appId,mappedEntity);
     var projection = mapper.getProjection(appId,mappedEntity)[mappedEntity];
+    projection.include = mapper.getIncludes(appId,mappedEntity,model);    
     model[entity].findAll(projection).then(result => {
-        var fullMapped = mapper.applyFunctions(appId,mappedEntity,result);
+        var fullMapped = mapper.applyTransformations(appId,mappedEntity,result);
         res.send(fullMapped);
         next();
     }).catch(e =>{
+        console.log(e);
         res.send("error");
         next();
     });
