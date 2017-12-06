@@ -1,13 +1,5 @@
 var fs = require("fs");
 var yaml = require('js-yaml');
-function print(obj){
-  if (typeof(obj) === "object"){
-    console.log(JSON.stringify(obj));
-  }else{
-    console.log(obj);
-  }
- 
-}
 
 String.prototype.replaceAll = String.prototype.replaceAll || function(needle, replacement) {
   return this.split(needle).join(replacement);
