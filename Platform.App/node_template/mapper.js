@@ -109,21 +109,6 @@ module.exports = (function(){
     });    
   }
 
-  self.getFilters1 = (processId,mapName,request) => {
-    var filters = self.modelCache[processId][mapName]["filters"];
-    print(filters);    
-    var filter = filters[request.query["filter"]];
-    var query = {};
-    for(var columnMapName in filter){
-      var queryFieldParam = filter[columnMapName];
-      var ormModelName = self.modelCache[processId][mapName]["fields"][columnMapName].column;
-      if (request.query[queryFieldParam]){        
-        query[ormModelName] = request.query[queryFieldParam];
-      }
-    }
-    return query;
-  };
-
   self.getFilters = (processId,mapName,request) => {
     var filters = self.modelCache[processId][mapName]["filters"];
     if (!request.query["filter"]){
