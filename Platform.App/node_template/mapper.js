@@ -8,6 +8,11 @@ function print(obj){
   }
  
 }
+
+String.prototype.replaceAll = String.prototype.replaceAll || function(needle, replacement) {
+  return this.split(needle).join(replacement);
+};
+
 module.exports = (function(){
   var self = {};
   self.modelCache = {};
@@ -104,8 +109,9 @@ module.exports = (function(){
     });    
   }
 
-  self.getFilters = (processId,mapName,request) => {
-    var filters = self.modelCache[processId][mapName]["filters"];   
+  self.getFilters1 = (processId,mapName,request) => {
+    var filters = self.modelCache[processId][mapName]["filters"];
+    print(filters);    
     var filter = filters[request.query["filter"]];
     var query = {};
     for(var columnMapName in filter){
@@ -116,6 +122,20 @@ module.exports = (function(){
       }
     }
     return query;
+  };
+
+  self.getFilters = (processId,mapName,request) => {
+    var filters = self.modelCache[processId][mapName]["filters"];
+    if (!request.query["filter"]){
+      return {};
+    }
+    var filter = filters[request.query["filter"]];
+    var str = JSON.stringify(filter);
+    Object.keys(request.query).forEach(r => str = str.replaceAll(":"+r,request.query[r]));
+
+    var fields = Object.keys(self.modelCache[processId][mapName]["fields"]);
+    fields.forEach(f => str = str.replaceAll(f,self.modelCache[processId][mapName]["fields"][f].column));
+    return JSON.parse(str);
   };
 
   self.getModelName = (processId,mapName)=>{    

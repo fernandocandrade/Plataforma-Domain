@@ -14,8 +14,14 @@ cliente:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome
   filters:
-    byName:
-      nome: nome
+    byName:l
+      nome: :nome
+    umOuOutro:      
+      $or:
+        - nome:
+            $eq: :nome1
+        - nome:
+            $eq: :nome2
 
 conta:
   model: tb_account
