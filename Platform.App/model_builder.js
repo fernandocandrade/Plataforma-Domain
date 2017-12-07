@@ -1,25 +1,13 @@
 const Sequelize = require('sequelize');
 var Handlebars = require('handlebars');
 
-Handlebars.registerHelper( "join", function( obj, sep, options ) {
-    
+Handlebars.registerHelper( "join", function( obj, sep, options ) {    
     return Object.keys(obj).map(function( item ) {        
         return options.fn( obj[item] );
     }).join( sep );
 });
 
 var fs = require("fs");
-const sequelize = new Sequelize('app', 'postgres', 'example', {
-    host: 'localhost',
-    dialect: 'postgres',
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    },
-    operatorsAliases: false
-  });
 
 module.exports = (function(){
     var self = {};
@@ -64,7 +52,7 @@ module.exports = (function(){
             self.compileTable(self.model.tables[t]);
         });
 
-        var source = fs.readFileSync("node_template/app.tmpl").toString();
+        var source = fs.readFileSync("node_template/model/domain.tmpl").toString();
         var template = Handlebars.compile(source);
         var obj = { "model":self.sequelizeModel, "relations":self.model.relationships};        
         var compiled = template(obj);

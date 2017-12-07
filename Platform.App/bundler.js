@@ -11,13 +11,20 @@ module.exports = (function(){
         }
         fs.mkdirSync("bundle");
         fs.mkdirSync("bundle/maps");
+        fs.mkdirSync("bundle/mapper");
+        fs.mkdirSync("bundle/api");
+        fs.mkdirSync("bundle/model");
         ncp("node_template", "bundle", function (err) {
             if (err) {
             return console.error(err);
             }
-            fs.writeFileSync("bundle/app.js",compiled);
-            fs.unlinkSync("bundle/app.tmpl");            
-            ncp(root+"Mapas","bundle/maps",callback);
+            fs.writeFileSync("bundle/model/domain.js",compiled);
+            fs.unlinkSync("bundle/model/domain.tmpl");
+            ncp(root+"Mapas","bundle/maps",()=>{
+                ncp("./mapper","bundle/mapper",()=>{
+                    ncp("./api","bundle/api",callback);
+                });
+            });
         });
         
     }

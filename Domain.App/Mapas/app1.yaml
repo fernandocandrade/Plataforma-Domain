@@ -14,7 +14,7 @@ cliente:
       type: function
       eval: (client,acc)=> client.nome + " " + client.sobrenome
   filters:
-    byName:l
+    byName:
       nome: :nome
     umOuOutro:      
       $or:
