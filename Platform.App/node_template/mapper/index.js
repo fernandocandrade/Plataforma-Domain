@@ -62,11 +62,7 @@ class Index{
         return this.modelCache[appId];
     }
 
-    getMapByAppIdAndName(appId,name)  {
-        console.log(appId)
-        console.log("---------------");
-        console.log(name);
-        console.log(this.modelCache[appId]);
+    getMapByAppIdAndName(appId,name)  {        
         return this.modelCache[appId][name];
     }
 

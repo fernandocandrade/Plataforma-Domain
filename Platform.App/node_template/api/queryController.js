@@ -20,13 +20,7 @@ class QueryController{
         projection.where = mapper.getFilters(appId,mappedEntity,req);
         if (Object.keys(projection.where).length === 0){
             delete projection.where;
-        }
-        console.log(entity);
-        console.log("---------------------")
-        console.log(domain[entity]);
-        console.log("---------------------")
-        console.log(projection);
-        console.log("---------------------")
+        }                
         domain[entity].findAll(projection).then(result => {
             var fullMapped = mapper.applyRuntimeFields(appId,mappedEntity,result);
             res.send(fullMapped);
