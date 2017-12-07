@@ -22,7 +22,7 @@ module.exports = (function(){
   };
 
   self.getIncludes = (processId,mapName,ormModel) => {
-    var includeMap = self.includesMap[processId][mapName];
+    var includeMap = this.getIncludes(processId,mapName);
     var query = [];
     for(var includeProp in includeMap){
       var sqlObj = {};      

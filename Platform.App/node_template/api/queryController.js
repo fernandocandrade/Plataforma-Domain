@@ -13,11 +13,11 @@ class QueryController{
         var mappedEntity = req.params.entity;
         var entity = mapperIndex.getModelName(appId,mappedEntity);
         var projection = mapperIndex.getProjection(appId,mappedEntity)[mappedEntity];
-        projection.include = mapperIndex.getIncludes(appId,mappedEntity,domain);
+        projection.include = mapper.getIncludes(appId,mappedEntity,domain);
         if (projection.include.length == 0){
             delete projection.include;
         }
-        projection.where = mapperIndex.getFilters(appId,mappedEntity,req);
+        projection.where = mapper.getFilters(appId,mappedEntity,req);
         if (Object.keys(projection.where).length === 0){
             delete projection.where;
         }

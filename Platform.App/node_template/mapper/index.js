@@ -63,6 +63,10 @@ class Index{
     }
 
     getMapByAppIdAndName(appId,name)  {
+        console.log(appId)
+        console.log("---------------");
+        console.log(name);
+        console.log(this.modelCache[appId]);
         return this.modelCache[appId][name];
     }
 
@@ -78,9 +82,17 @@ class Index{
         return this.modelCache[processId][mapName]["filters"];        
     };
 
+    getFields(processId,mapName) {
+        return this.modelCache[processId][mapName]["fields"];        
+    };
+
     getModelName(processId,mapName){    
         var _map = this.getMapByAppId(processId);
         return _map[mapName].model;
+    }
+
+    getFunctions(processId,mapName){
+        return this.functionsMap[processId][mapName];
     }
 
     hasFunctions(processId, mapName){
