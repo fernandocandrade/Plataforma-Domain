@@ -24,8 +24,19 @@ class Index{
     //faz o parse do yaml do mapper para popular 
     //as estruturas de dados em memoria
     parse(register) {
-        this.modelCache[register.appName] = register.map;
+        this.modelCache[register.appName] = register.map;        
+        this.applyDefaultFields(register);
         this.generateIndex(register);
+    }
+
+    //Por padrao todo atributo id é adicionado ao mapa
+    applyDefaultFields(register){
+        for (var entity in register.map){
+            if (!register.map[entity].fields.id){
+                register.map[entity].fields.id = {};
+                register.map[entity].fields.id.column = "id";    
+            }
+        }
     }
 
     //Monta todo o index para facilitar a conversao entre modelos
