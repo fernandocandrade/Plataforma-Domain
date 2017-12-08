@@ -9,7 +9,7 @@ const sequelize = new Sequelize('app', 'postgres', '', {
     acquire: 30000,
     idle: 10000
   },
-  logging: false,
+  logging: true,
   operatorsAliases: true
   
 });
@@ -32,10 +32,13 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
 
 //Declaring relationship between models
 
+var associations = {};
+
 {{#each relations}}
-model["{{0}}"].{{1}}(model["{{2}}"]);
+associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}'});
 {{/each}}
 
+model["associations"] = associations;
 
 //Sincronize database
 sequelize.sync();

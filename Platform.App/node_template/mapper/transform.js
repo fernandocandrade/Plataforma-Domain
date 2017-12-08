@@ -79,7 +79,8 @@ class Transform {
             var sqlObj = {};      
             var mappedAttr = includeMap[includeProp].model;
             var ormName = this.index.getMapByAppIdAndName(processId,mappedAttr).model;            
-            sqlObj.model = ormModel[ormName];            
+            sqlObj.model = ormModel[ormName];
+            sqlObj.as = ormName; 
             sqlObj.attributes = this.index.getProjection(processId)[mappedAttr].attributes;
             query.push(sqlObj);
         }

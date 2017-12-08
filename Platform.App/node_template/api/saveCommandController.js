@@ -13,7 +13,10 @@ class SaveCommandController{
         var entities = req.body;
         var domainEntities = entities.map(e => translator.toDomain(req.params["appId"],e));        
         var track = new ChangeTrackPolicy(domainEntities);
-        res.send(track.tracked());
+        track.apply(s =>{
+            res.send(s);
+        });
+        
     }
 }
 
