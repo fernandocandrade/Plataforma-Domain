@@ -8,16 +8,24 @@ class ChangeTrackPolicy {
         this.domainOperations = {};
         this.domainOperations.toCreate = [];
         this.domainOperations.toUpdate = [];
-        this.domainOperations.toDelete = [];
-        //Fiz assim para fazer tudo com apenas 1 for
+        this.domainOperations.toDelete = [];        
+        this.flatTrack(this.domainOperations,domainEntities);        
+    }
+
+    flatTrack(domainOperations, domainEntities){
         domainEntities.forEach(entity => {
             if (entity._metadata.changingTracking === "created"){
                 this.domainOperations.toCreate.push(entity);
-            }else if (entity._metadata.changingTracking === "updated"){
+            } else if (entity._metadata.changingTracking === "updated"){
                 this.domainOperations.toUpdate.push(entity);
-            }else if (entity._metadata.changingTracking === "deleted"){
+            } else if (entity._metadata.changingTracking === "deleted"){
                 this.domainOperations.toDelete.push(entity);
             }
+            /*Object.keys(entity)
+            .filter(s => Array.isArray(entity[s]))
+            .map(p => entity[p])
+            .forEach(o => this.flatTrack(domainOperations,o));*/
+            
         });
     }
 
@@ -39,6 +47,7 @@ class ChangeTrackPolicy {
 
     apply(callback){
         var converter = new SequelizeModelConverter();
+        
         this.domainOperations.toCreate.forEach(obj=>{            
             var type = obj._metadata.type;
             var associations = converter.getAssociations(obj);
@@ -46,8 +55,20 @@ class ChangeTrackPolicy {
             domain[type].create(obj,{
                 include:includes
             }).then(callback);            
-        });        
-
+        });
+        console.log("---------------------------------------------------");
+        this.domainOperations.toUpdate.forEach(obj=>{            
+            var type = obj._metadata.type;
+            var associations = converter.getAssociations(obj);
+            var includes = associations.map(relation => domain["associations"][relation]);
+            domain[type].update(obj,{
+                where:{
+                    id:obj.id
+                },
+                include:includes
+            }).then(()=>{});            
+            callback();
+        });
 
     }
 }
