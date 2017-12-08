@@ -6,6 +6,7 @@
 var MapLoader    = require("./load.js");
 var MapIndex     = require("./index.js");
 var MapTransform = require("./transform.js");
+var MapTranslator = require("./translator.js");
 
 class Builder{
      build (){        
@@ -13,10 +14,12 @@ class Builder{
         var index = new MapIndex(maps);
         
         var transform = new MapTransform(index);
-
+        var translator = new MapTranslator(index,transform);
+        
         var facade = {};
         facade.index = index;
         facade.transform = transform;
+        facade.translator = translator;
         return facade;
      }
 }

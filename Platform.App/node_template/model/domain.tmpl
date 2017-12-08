@@ -11,6 +11,7 @@ const sequelize = new Sequelize('app', 'postgres', '', {
   },
   logging: false,
   operatorsAliases: true
+  
 });
 
 var model = {};
@@ -20,10 +21,11 @@ var model = {};
 model["{{@key}}"] = sequelize.define('{{@key}}', {
     {{#join . ","}}
     {{name}}: { type: {{type}} {{#if primaryKey}}, primaryKey: {{primaryKey}}{{/if}}{{#if autoIncrement}}, autoIncrement: {{autoIncrement}}  {{/if}} } {{/join}}
-    ,start_date:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    end_date:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
+    
 },{
-    timestamps: false
+    timestamps: true,
+    freezeTableName: true,
+    paranoid:true
 });
 
 {{/each}}

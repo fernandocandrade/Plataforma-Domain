@@ -7,6 +7,10 @@ class Transform {
         return from.split(needle).join(replacement);
     }
 
+    replaceAllAtributes(from,needle,replacement){
+        return this.replaceAll(from,"\""+needle+"\":","\""+replacement+"\":")
+    }
+
     //Aplica os atributos calculados num resultado de consulta
     //do banco de dados
     applyRuntimeFields (processId,mapName,modelList) {    

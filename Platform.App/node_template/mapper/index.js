@@ -106,6 +106,28 @@ class Index{
         return this.functionsMap[processId] && this.functionsMap[processId][mapName];
     }
 
+    //retorna uma lista com o mapeamento 1 para 1 do mapa para dominio
+    //ex [["nome","vl_name"]]
+    columnsFromMapType(processId,mapName){
+        var fieldObj = this.modelCache[processId][mapName].fields;
+        var list = [];
+        for (var mapColumn in fieldObj){            
+            var reference = fieldObj[mapColumn].column;
+            if (!reference){
+                reference = fieldObj[mapColumn].type;
+            }
+            if (reference === "include"){
+                reference = this.getModelName(processId,fieldObj[mapColumn].model);
+            }
+            if (reference === "function"){
+                continue;
+            }
+            list.push([mapColumn,reference]);
+            
+        }
+        return list;
+    }
+
 }
 
  module.exports = Index;
