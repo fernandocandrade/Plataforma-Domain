@@ -12,6 +12,7 @@
   "dependencies": {
     "handlebars": "^4.0.11",
     "js-yaml": "^3.10.0",
+    "mocha": "^4.0.1",
     "pg": "^7.4.0",
     "pg-hstore": "^2.3.2",
     "restify": "^6.3.4",

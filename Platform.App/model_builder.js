@@ -7,6 +7,14 @@ Handlebars.registerHelper( "join", function( obj, sep, options ) {
     }).join( sep );
 });
 
+Handlebars.registerHelper( "eq", function( lvalue, rvalue, options ) {           
+    if (lvalue != rvalue) {
+        return options.inverse(this)
+    } else {
+        return options.fn(this)
+    }
+});
+
 var fs = require("fs");
 
 module.exports = (function(){

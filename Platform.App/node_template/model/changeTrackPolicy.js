@@ -1,32 +1,13 @@
 
-var domain = require("./domain.js");
+var domain = require("./domain");
+var ArrayUtils = require("../utils/array")
+
 var SequelizeModelConverter = require("./sequelizeModelConverter.js");
 
 class ChangeTrackPolicy {
     //recebe a lista de todas as entidades de dominio que chegaram na API
     constructor(domainEntities){
-        this.domainOperations = {};
-        this.domainOperations.toCreate = [];
-        this.domainOperations.toUpdate = [];
-        this.domainOperations.toDelete = [];        
-        this.flatTrack(this.domainOperations,domainEntities);        
-    }
-
-    flatTrack(domainOperations, domainEntities){
-        domainEntities.forEach(entity => {
-            if (entity._metadata.changingTracking === "created"){
-                this.domainOperations.toCreate.push(entity);
-            } else if (entity._metadata.changingTracking === "updated"){
-                this.domainOperations.toUpdate.push(entity);
-            } else if (entity._metadata.changingTracking === "deleted"){
-                this.domainOperations.toDelete.push(entity);
-            }
-            /*Object.keys(entity)
-            .filter(s => Array.isArray(entity[s]))
-            .map(p => entity[p])
-            .forEach(o => this.flatTrack(domainOperations,o));*/
-            
-        });
+        this.entities = domainEntities;        
     }
 
     tracked(){
@@ -45,32 +26,47 @@ class ChangeTrackPolicy {
         return this.domainOperations.toCreate;
     }
 
-    apply(callback){
-        var converter = new SequelizeModelConverter();
-        
-        this.domainOperations.toCreate.forEach(obj=>{            
-            var type = obj._metadata.type;
-            var associations = converter.getAssociations(obj);
-            var includes = associations.map(relation => domain["associations"][relation]);
-            domain[type].create(obj,{
-                include:includes
-            }).then(callback);            
-        });
-        console.log("---------------------------------------------------");
-        this.domainOperations.toUpdate.forEach(obj=>{            
-            var type = obj._metadata.type;
-            var associations = converter.getAssociations(obj);
-            var includes = associations.map(relation => domain["associations"][relation]);
-            domain[type].update(obj,{
-                where:{
-                    id:obj.id
-                },
-                include:includes
-            }).then(()=>{});            
-            callback();
-        });
-
+    apply(callback){        
+        this.cascadePersist(this.entities, callback);
     }
+
+    cascadePersist(entities, callback){
+        var converter = new SequelizeModelConverter();
+        var arrayUtils = new ArrayUtils();        
+        arrayUtils.asyncEach(entities,(item,next)=>{            
+            var type = item._metadata.type;
+            var operation = item._metadata.changeTrack;
+            this.persist(item,(result)=>{
+                var children = Object.keys(item).filter(p => Array.isArray(item[p]));
+                if (children.length > 0){
+                    arrayUtils.asyncEach(children,(j,_next)=>{                    
+                        var posSave = item[j].map(k => {                  
+                            k[type+"Id"] = result.id;
+                            return k;
+                        });
+                        this.cascadePersist(posSave,_next);
+                    },next);
+                }else{
+                    next();
+                }
+            });                   
+        },callback);        
+    }
+
+    persist(item,callback){
+        if (!item._metadata.changeTrack){
+            callback(item);
+        }else{
+            var type = item._metadata.type;
+            var operation = item._metadata.changeTrack;         
+            //aqui eu devo salvar o pai
+            domain[type].create(item).then((result)=>{
+                callback(result.dataValues);
+            });
+        }        
+        
+    }
+
 }
 
 module.exports = ChangeTrackPolicy;

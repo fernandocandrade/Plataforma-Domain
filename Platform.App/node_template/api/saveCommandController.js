@@ -10,13 +10,18 @@ var translator = facade.translator;
 
 class SaveCommandController{
     persist(req,res,next){
-        var entities = req.body;
+        var entities = req.body;        
         var domainEntities = entities.map(e => translator.toDomain(req.params["appId"],e));        
-        var track = new ChangeTrackPolicy(domainEntities);
-        track.apply(s =>{
-            res.send(s);
-        });
-        
+        var track = new ChangeTrackPolicy(domainEntities);        
+        var before = new Date().getTime();
+        console.log("------------------------------------");
+        track.apply(s =>{            
+            var after = new Date().getTime();
+            console.log("Tempo de execucao do change track")
+            console.log((after - before)+" ms");
+            res.send("dados salvos");
+            console.log("------------------------------------");
+        });        
     }
 }
 

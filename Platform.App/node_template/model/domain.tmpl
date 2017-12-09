@@ -14,6 +14,7 @@ const sequelize = new Sequelize('app', 'postgres', '', {
   
 });
 
+
 var model = {};
 
 //Declaring models with Sequelize
@@ -24,8 +25,7 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
     
 },{
     timestamps: true,
-    freezeTableName: true,
-    paranoid:true
+    freezeTableName: true    
 });
 
 {{/each}}
@@ -33,11 +33,13 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
 //Declaring relationship between models
 
 var associations = {};
-
 {{#each relations}}
-associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}'});
+{{#eq this.[1] "belongsTo"}}
+associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{2}}Id'});
+{{else}}
+associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{0}}Id' });
+{{/eq}}
 {{/each}}
-
 model["associations"] = associations;
 
 //Sincronize database
