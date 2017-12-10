@@ -54,13 +54,25 @@ class ChangeTrackPolicy {
     }
 
     persist(item,callback){
-        if (!item._metadata.changeTrack){
+        var operation = item._metadata.changeTrack;
+        if (!operation){
             callback(item);
         }else{
             var type = item._metadata.type;
-            var operation = item._metadata.changeTrack;         
-            //aqui eu devo salvar o pai
-            domain[type].create(item).then((result)=>{
+            var toExecute;
+            if ("create" === operation){
+                toExecute = domain[type].create(item);
+            }else if ("update" === operation){
+                toExecute = domain[type].update(item,{where:{id:item.id}});
+            }else if ("destroy" === operation){
+                var clone = JSON.parse(JSON.stringify(item));
+                clone.where = {};
+                clone.where.id = item.id;
+                toExecute = domain[type].destroy(clone);
+            }else{
+                throw "invalid change track operation";
+            }
+            toExecute.then((result)=>{
                 callback(result.dataValues);
             });
         }        
