@@ -20,11 +20,14 @@ var model = {};
 //Declaring models with Sequelize
 {{#each model}}
 model["{{@key}}"] = sequelize.define('{{@key}}', {
+    rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+    id: { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  },
     {{#join . ","}}
-    {{name}}: { type: {{type}} {{#if primaryKey}}, primaryKey: {{primaryKey}}{{/if}}{{#if autoIncrement}}, autoIncrement: {{autoIncrement}}  {{/if}} } {{/join}}
-    
+    {{name}}: { type: {{type}} } {{/join}}
+    , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    data_fim_vigencia:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
 },{
-    timestamps: true,
+    timestamps: false,
     freezeTableName: true    
 });
 

@@ -31,11 +31,16 @@ class Index{
 
     //Por padrao todo atributo id é adicionado ao mapa
     applyDefaultFields(register){
-        for (var entity in register.map){
-            if (!register.map[entity].fields.id){
-                register.map[entity].fields.id = {};
-                register.map[entity].fields.id.column = "id";    
+        var addAttr = (attr)=>{
+            if (!register.map[entity].fields[attr]){
+                register.map[entity].fields[attr] = {};
+                register.map[entity].fields[attr].column = attr;    
             }
+        };
+        
+        for (var entity in register.map){
+            addAttr("id");
+            addAttr("rid");            
         }
     }
 

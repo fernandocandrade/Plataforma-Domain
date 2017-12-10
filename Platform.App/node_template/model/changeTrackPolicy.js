@@ -41,7 +41,7 @@ class ChangeTrackPolicy {
                 if (children.length > 0){
                     arrayUtils.asyncEach(children,(j,_next)=>{                    
                         var posSave = item[j].map(k => {                  
-                            k[type+"Id"] = result.id;
+                            k[type+"Id"] = result.rid;
                             return k;
                         });
                         this.cascadePersist(posSave,_next);
@@ -63,11 +63,11 @@ class ChangeTrackPolicy {
             if ("create" === operation){
                 toExecute = domain[type].create(item);
             }else if ("update" === operation){
-                toExecute = domain[type].update(item,{where:{id:item.id}});
+                toExecute = domain[type].update(item,{where:{rid:item.rid}});
             }else if ("destroy" === operation){
                 var clone = JSON.parse(JSON.stringify(item));
                 clone.where = {};
-                clone.where.id = item.id;
+                clone.where.rid = item.rid;
                 toExecute = domain[type].destroy(clone);
             }else{
                 throw "invalid change track operation";
