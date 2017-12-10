@@ -28,7 +28,21 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
     data_fim_vigencia:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
 },{
     timestamps: false,
-    freezeTableName: true    
+    freezeTableName: true,
+    scopes:{
+      vigencia: function (referencia) {
+        return {
+          where: {
+            data_inicio_vigencia: {
+              $lte: referencia
+            },
+            data_fim_vigencia:{
+              $gte: referencia
+            }
+          }
+        }
+      }
+    }   
 });
 
 {{/each}}
