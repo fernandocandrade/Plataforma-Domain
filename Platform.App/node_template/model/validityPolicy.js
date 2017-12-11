@@ -22,6 +22,7 @@ class ValidityPolicy {
         var toCreate = this.clone(obj);
         delete toCreate.rid;
         domain[obj._metadata.type].create(toCreate).then(callback).catch((e)=>{
+            console.log(e);
             fallback(e);
         });
     }
@@ -42,7 +43,6 @@ class ValidityPolicy {
     }
 
     query(projection,callback,fallback){
-        console.log(projection);
         domain[this.entity]
         .scope({method:["vigencia",this.referenceDate]})
         .findAll(projection).then(result => {
