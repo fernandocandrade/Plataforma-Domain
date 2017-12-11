@@ -30,7 +30,7 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
     timestamps: false,
     freezeTableName: true,
     scopes:{
-      vigencia: function (referencia) {
+      vigencia: function (referencia){
         return {
           where: {
             data_inicio_vigencia: {

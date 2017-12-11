@@ -1,9 +1,11 @@
 var MapBuilder = require("../mapper/builder.js");
 var facade = new MapBuilder().build();
-var domain = require("../model/domain.js")
-
 var mapperIndex = facade.index;
 var mapper = facade.transform;
+
+var domain = require("../model/domain.js")
+var ValidityPolicy = require("../model/validityPolicy");
+
 
 class QueryController{
     
@@ -20,16 +22,16 @@ class QueryController{
         projection.where = mapper.getFilters(appId,mappedEntity,req);
         if (Object.keys(projection.where).length === 0){
             delete projection.where;
-        }                
-        domain[entity].findAll(projection).then(result => {
-            var fullMapped = mapper.applyRuntimeFields(appId,mappedEntity,result);
-            res.send(fullMapped);
+        }
+        var vigencia = new ValidityPolicy(appId,mappedEntity,entity);
+        vigencia.query(projection, (result)=>{
+            res.send(result);
             next();
-        }).catch(e =>{
+        }, (e)=>{
             console.log(e);
             res.send("error");
             next();
-        });
+        });        
     }    
 }
 
