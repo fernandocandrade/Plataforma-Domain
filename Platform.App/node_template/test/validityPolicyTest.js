@@ -15,9 +15,11 @@ vigencia.create(obj,(created)=>{
             console.log("objetos iguais");
         }
         found.nm_client = "Modificado";
-        vigencia.updateById(found,(s)=>{
+        found._metadata = obj._metadata;
+        vigencia.update(found,(s)=>{
             console.log("objeto atualizado");
-            vigencia.findById(found,(r)=>{
+
+            vigencia.findById(found,(r)=>{    
                 if(r.nm_client === found.nm_client){
                     console.log("buscou a versão mais atual");
                     
@@ -30,8 +32,9 @@ vigencia.create(obj,(created)=>{
         console.log(e);
         console.log("Erro ao buscar por ID");
     });
-    console.log(id);
-},()=>{
+    
+},(e)=>{
+    console.log(e);
     console.log("Falha ao criar registro");
 });
 

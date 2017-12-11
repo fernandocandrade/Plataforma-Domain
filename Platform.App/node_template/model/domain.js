@@ -1,3 +1,7 @@
+
+//Temporario vou remover do git este arquivo
+
+
 const Sequelize = require('sequelize');
 
 const sequelize = new Sequelize('app', 'postgres', '', {

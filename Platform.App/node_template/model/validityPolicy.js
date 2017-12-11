@@ -1,48 +1,91 @@
-var ArrayUtils = require("../utils/array")
-var ValidityPolicy = require("./validityPolicy");
+var domain = require("./domain");
 
-class ChangeTrackPolicy {
-    //recebe a lista de todas as entidades de dominio que chegaram na API
-    constructor(domainEntities){
-        this.entities = domainEntities;
-                
-    }    
-    
-    apply(callback){        
-        this.cascadePersist(this.entities, callback);
+class ValidityPolicy {
+
+
+    constructor(appId,mappedEntity, entity){
+        this.referenceDate = new Date();
+        this.appId = appId;
+        this.mappedEntity = mappedEntity;
+        this.entity = entity;
+
     }
 
-    cascadePersist(entities, callback){
-        var arrayUtils = new ArrayUtils();        
-        arrayUtils.asyncEach(entities,(item,next)=>{            
-            var type = item._metadata.type;
-            var operation = item._metadata.changeTrack;
-            this.persist(item,(result)=>{
-                var children = Object.keys(item).filter(p => Array.isArray(item[p]));
-                if (children.length > 0){
-                    arrayUtils.asyncEach(children,(j,_next)=>{                    
-                        var posSave = item[j].map(k => {                  
-                            k[type+"Id"] = result.rid;
-                            return k;
-                        });
-                        this.cascadePersist(posSave,_next);
-                    },next);
-                }else{
-                    next();
+    clone(obj){
+        return JSON.parse(JSON.stringify(obj));
+    }
+    create(obj,callback,fallback){
+        //só por garantia
+        var toCreate = this.clone(obj);
+        delete toCreate.rid;
+        domain[obj._metadata.type].create(toCreate).then(callback).catch((e)=>{
+            fallback(e);
+        });
+    }
+
+    /**
+     * Quando for atualizar um objeto nos temos que buscar a versão corrente
+     * mudar a data de fim de vigencia para a data atual
+     * criar um novo registro com sendo o vigente atual
+     */
+    update(obj,callback,fallback){
+        var db = domain[obj._metadata.type];
+        this.destroy(obj,()=>{
+            delete obj.rid;
+            db.create(obj).then((updated)=>{
+                callback(updated.dataValues);
+            }).catch(fallback);    
+        },fallback);        
+    }
+
+
+    /**
+     * O processo de exclusão faz o seguinte:
+     * Busca o registro vigente e atualiza a data_fim_vigência para a data atual
+     */
+    destroy(obj,callback,fallback){
+        var db = domain[obj._metadata.type];
+        this.findById(obj,(current)=>{
+            current.data_fim_vigencia = new Date();
+            db.update(current,{
+                where:{
+                    rid:current.rid
                 }
-            });                   
-        },callback);        
+            }).then((updated)=>{
+                callback(updated.dataValues);
+            }).catch(fallback);
+        },fallback);
     }
 
-    persist(item,callback){        
-        if (!item._metadata.changeTrack){
-            callback(item);
+    findById(obj,callback,fallback){
+        domain[obj._metadata.type].scope({method:["vigencia",this.referenceDate]})
+        .findOne({
+            where:{
+                id:obj.id
+            },
+            order:[['data_fim_vigencia','DESC']]
+        }).then((r)=> callback(r.dataValues))
+        .catch(fallback);
+    }
+
+
+    apply(item,callback,fallback){
+        var operation = item._metadata.changeTrack;
+        var type = item._metadata.type;
+        var toExecute;
+        if ("create" === operation){
+            toExecute = this.create(item,callback,fallback);
+        }else if ("update" === operation){
+            toExecute = this.update(item,callback,fallback);
+        }else if ("destroy" === operation){            
+            toExecute = this.destroy(item,callback,fallback);
         }else{
-            var vigencia = new ValidityPolicy();
-            vigencia.apply(item,callback);            
-        }
+            throw "invalid change track operation";
+        }        
     }
 
+
+    
 }
 
-module.exports = ChangeTrackPolicy;
+module.exports = ValidityPolicy;
