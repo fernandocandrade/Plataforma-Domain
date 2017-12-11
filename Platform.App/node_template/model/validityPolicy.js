@@ -1,4 +1,7 @@
 var domain = require("./domain");
+var MapBuilder = require("../mapper/builder.js");
+var facade = new MapBuilder().build();
+var mapper = facade.transform;
 
 class ValidityPolicy {
 
@@ -38,6 +41,17 @@ class ValidityPolicy {
         },fallback);        
     }
 
+    query(projection,callback,fallback){
+        domain[this.entity]
+        .scope({method:["vigencia",this.referenceDate]})
+        .findAll(projection).then(result => {
+            var fullMapped = mapper.applyRuntimeFields(this.appId,this.mappedEntity,result);
+            callback(fullMapped);
+        }).catch(e =>{
+            fallback(e);
+        });
+    }
+
 
     /**
      * O processo de exclusão faz o seguinte:
@@ -52,7 +66,7 @@ class ValidityPolicy {
                     rid:current.rid
                 }
             }).then((updated)=>{
-                callback(updated.dataValues);
+                callback(obj);
             }).catch(fallback);
         },fallback);
     }
