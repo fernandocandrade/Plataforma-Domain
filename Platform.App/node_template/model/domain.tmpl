@@ -42,22 +42,39 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
           }
         }
       }
-    }   
+    },
+    indexes: [
+        {
+            unique: true,
+            fields: ['rid', 'id']
+        }
+    ]   
 });
 
 {{/each}}
 
-//Declaring relationship between models
-
-var associations = {};
 {{#each relations}}
-{{#eq this.[1] "belongsTo"}}
-associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{2}}Id'});
-{{else}}
-associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{0}}Id' });
+
+{{#eq this.[1] "hasMany"}}
+model["{{0}}_has_{{2}}"] = sequelize.define('{{0}}_has_{{2}}', {
+  rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+  {{0}}Id:{ 
+    type: Sequelize.UUID
+  },
+  {{2}}Id:{ 
+    type: Sequelize.UUID
+
+  }  
+},{
+  timestamps: false,
+  freezeTableName: true  
+});
 {{/eq}}
+
 {{/each}}
-model["associations"] = associations;
+
+
+
 
 //Sincronize database
 sequelize.sync();

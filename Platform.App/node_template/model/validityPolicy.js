@@ -42,6 +42,7 @@ class ValidityPolicy {
     }
 
     query(projection,callback,fallback){
+        console.log(projection);
         domain[this.entity]
         .scope({method:["vigencia",this.referenceDate]})
         .findAll(projection).then(result => {
