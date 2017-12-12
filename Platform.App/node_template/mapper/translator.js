@@ -1,10 +1,22 @@
+
+/**
+ * @class Translator
+ * @description esta classe é responsável por fazer algumas traduções 
+ * entre os modelos de dominio e de mapeamento
+ */
 class Translator {
     
     constructor(index, transform){
         this.index = index;
         this.transform = transform;   
     }
-    
+    /**
+     * 
+     * @param {String} processId id da aplicação
+     * @param {Object} mapped objeto de dados mapeado
+     * @description converte um objeto de dados mapeados para um objeto de dados de dominio
+     * @return {Object}
+     */
     toDomain(processId, mapped){        
         var mapType = mapped._metadata.type;
         var map = this.index.getMapByAppIdAndName(processId,mapType);
@@ -27,7 +39,13 @@ class Translator {
         });
         return translated;
     }
-
+    /**
+     * 
+     * @param {String} processId id da aplicação
+     * @param {Object} mapped objeto de dados de dominio
+     * @description converte um objeto de dados de dominio para um objeto de dados mapeados
+     * @return {Object}
+     */
     toMap(processId, mapped){                
         var mapType = this.index.getMapTypeByDomainType(processId,mapped._metadata.type);
         var map = this.index.getMapByAppIdAndName(processId,mapType);

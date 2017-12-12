@@ -6,10 +6,18 @@ var mapper = facade.transform;
 var domain = require("../model/domain.js")
 var ValidityPolicy = require("../model/validityPolicy");
 
-
+/**
+ * @description É o controlador para as operações de leitura do dominio
+ */
 class QueryController{
     
-    //Faz a busca baseda num mapa, num app e numa entidade de um subdominio
+    /**
+     * @method getEntityByAppId
+     * @param {Request} req Objeto de request od restify
+     * @param {Response} res Objeto de response do Restify
+     * @description Busca uma entidade de dominio mapeada
+     * Para isso nós fazemos as transformações do modelo mapeado para o modelo de dominio
+     */
     getEntityByAppId(req,res,next){
         var appId = req.params.appId;
         var mappedEntity = req.params.entity;

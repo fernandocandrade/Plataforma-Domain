@@ -1,5 +1,17 @@
+/**
+ * @class ArrayUtils
+ * @description Esta classe é responsável por ter alguns métodos helpers para lidar com array
+ */
 class ArrayUtils{
 
+    /**
+     * 
+     * @param {Array} arr lista de objetos
+     * @param {Function} callback funcao chamada a cada iteração do array
+     * @param {Function} done funcao chamada após a ultima iteração do array
+     * @description este método faz um forEach de forma assincrona para facilitar
+     * a iteração em arrays cujo o processamento de cada item é obrigatoriamente assincrono
+     */
     asyncEach(arr, callback,done) {
         var current = 0;        
         function next(){
