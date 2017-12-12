@@ -39,8 +39,7 @@ class Index{
         };
         
         for (var entity in register.map){
-            addAttr("id");
-            addAttr("rid");            
+            addAttr("id");                    
         }
     }
 

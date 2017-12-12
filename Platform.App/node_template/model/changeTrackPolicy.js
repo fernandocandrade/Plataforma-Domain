@@ -8,13 +8,13 @@ class ChangeTrackPolicy {
                 
     }    
     
-    apply(callback){        
-        this.cascadePersist(this.entities, callback);
+    apply(callback,fallback){        
+        this.cascadePersist(this.entities, callback,fallback);
     }
 
-    cascadePersist(entities, callback){
+    cascadePersist(entities, callback,fallback){
         var arrayUtils = new ArrayUtils();        
-        arrayUtils.asyncEach(entities,(item,next)=>{            
+        arrayUtils.asyncEach(entities,(item,next,stop)=>{            
             var type = item._metadata.type;
             var operation = item._metadata.changeTrack;
             this.persist(item,(result)=>{
@@ -46,21 +46,21 @@ class ChangeTrackPolicy {
                 }else{
                     next();
                 }
+            },(e)=>{
+                stop();
+                typeof(fallback)=== "function" && fallback(e);
             });                   
         },()=>{
             callback(entities);
         });
     }
 
-    persist(item,callback){        
+    persist(item,callback,fallback){        
         if (!item._metadata.changeTrack){
             callback(item);
         }else{
             var vigencia = new ValidityPolicy();
-            vigencia.apply(item,callback,(e)=>{
-                console.log("ERRRRRRRRO");
-                console.log(e);
-            });            
+            vigencia.apply(item,callback,fallback);            
         }
     }
 

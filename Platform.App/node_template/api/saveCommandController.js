@@ -19,8 +19,10 @@ class SaveCommandController{
             var after = new Date().getTime();
             console.log("Tempo de execucao do change track")
             console.log((after - before)+" ms");
-            res.send("dados salvos");
+            res.send(s);
             console.log("------------------------------------");
+        },(err)=>{
+            res.send(400,{message:err});
         });        
     }
 }
