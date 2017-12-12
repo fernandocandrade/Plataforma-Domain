@@ -5,5 +5,3 @@ tb_client:
     - string
   lst_name:
     - string
-  hasMany:
-    - tb_account

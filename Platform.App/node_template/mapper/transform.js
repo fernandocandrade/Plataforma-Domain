@@ -60,6 +60,9 @@ class Transform {
     //Aplica os filtros do mapa no modelo de dominio
     getFilters(processId,mapName,request){
         var filters = this.index.getFilters(processId,mapName);
+        if (!filters){
+            return {};
+        }
         var filter = filters[request.query["filter"]];
         if (!filter){
             return {};

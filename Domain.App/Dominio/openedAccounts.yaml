@@ -1,0 +1,5 @@
+tb_opened_account:  
+  client_id:
+    - uuid
+  account_id:
+    - uuid  

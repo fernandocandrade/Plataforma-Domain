@@ -87,7 +87,10 @@ class Index{
     }
 
     getIncludes(processId,mapName) {
-        return this.includesMap[processId][mapName];        
+        if (this.includesMap[processId])
+            return this.includesMap[processId][mapName];
+        else
+            return [];
     };
     
     getFilters(processId,mapName) {

@@ -61,6 +61,10 @@ class ValidityPolicy {
     destroy(obj,callback,fallback){
         var db = domain[obj._metadata.type];
         this.findById(obj,(current)=>{
+            if(current === null){
+                fallback("entity " + obj._metadata.type + " with id: " + obj.id + " not found");
+                return;
+            }
             current.data_fim_vigencia = new Date();
             db.update(current,{
                 where:{
@@ -79,7 +83,13 @@ class ValidityPolicy {
                 id:obj.id
             },
             order:[['data_fim_vigencia','DESC']]
-        }).then((r)=> callback(r.dataValues))
+        }).then((r)=> {
+            if (r && r.dataValues){
+                callback(r.dataValues)
+            }else{
+                callback(null);
+            }
+        })
         .catch(fallback);
     }
 
