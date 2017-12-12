@@ -29,9 +29,9 @@ module.exports = (function(){
             }
             fs.writeFileSync(root+"bundle/model/domain.js",compiled);
             fs.unlinkSync(root+"bundle/model/domain.tmpl");
-            ncp(domainAppRoot+"Mapas","bundle/maps",()=>{
-                ncp("./mapper","bundle/mapper",()=>{
-                    ncp("./api","bundle/api",callback);
+            ncp(domainAppRoot+"Mapas",root+"bundle/maps",()=>{
+                ncp(root+"node_template/mapper",root+"bundle/mapper",()=>{
+                    ncp(root +"node_template/api",root+"bundle/api",callback);
                 });
             });
         });
