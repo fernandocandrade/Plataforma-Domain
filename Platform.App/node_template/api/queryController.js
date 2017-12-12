@@ -29,7 +29,7 @@ class QueryController{
             next();
         }, (e)=>{
             console.log(e);
-            res.send("error");
+            res.send(400,{message:e});
             next();
         });        
     }    

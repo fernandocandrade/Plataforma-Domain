@@ -25,6 +25,9 @@ conta:
   fields:
     saldo:
       column: vl_balance
+  filters:
+    byId:
+      id: :id
 
 contaAssociada:
   model: tb_opened_account
@@ -33,4 +36,10 @@ contaAssociada:
       column: account_id
     cliente: 
       column: client_id
-
+  filters:
+    byId:
+      id: :id
+    byCliente:
+      cliente: :clienteId
+    byConta:
+      conta: :contaId

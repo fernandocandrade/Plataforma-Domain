@@ -18,34 +18,8 @@ class ChangeTrackPolicy {
             var type = item._metadata.type;
             var operation = item._metadata.changeTrack;
             this.persist(item,(result)=>{
-                item.id = result.id;                
-                var children = Object.keys(item).filter(p => Array.isArray(item[p]));
-                if (children.length > 0){
-                    arrayUtils.asyncEach(children,(j,_next)=>{                        
-                        this.cascadePersist(item[j],(itemsPersisted)=>{
-                            //Apos salvar os filhos
-                            //e necessario linkar o Pai com o Filho atraves de uma tabela de relacionamento                            
-                            arrayUtils.asyncEach(itemsPersisted,(curItemPersisted,next)=>{
-                                //existe uma relacao
-                                //type has j
-                                var relationshipTable = type + "_has_"+j;
-                                var relationship = {};
-                                relationship[type+"Id"] = result.id;
-                                relationship[j+"Id"] = curItemPersisted.id;                                
-                                domain[relationshipTable].findOne({where: relationship}).then(r =>{
-                                    if (r === null){
-                                        domain[relationshipTable].create(relationship).then(next);
-                                    }else{
-                                        //caso ja exista o relacionamento eu nao faço nada
-                                        next();
-                                    }
-                                });
-                            },_next);
-                        });
-                    },next);
-                }else{
-                    next();
-                }
+                item.id = result.id;
+                next();
             },(e)=>{
                 stop();
                 typeof(fallback)=== "function" && fallback(e);

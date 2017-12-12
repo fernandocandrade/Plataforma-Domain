@@ -13,7 +13,8 @@ class Index{
         this.modelCache = {};
         this.projectionCache = {};
         this.functionsMap = {};
-        this.includesMap = {};        
+        this.includesMap = {};
+        this.entityToMap = {};        
         if (Array.isArray(this.maps)){
             this.maps.forEach((r)=>this.parse(r));
             return;
@@ -49,8 +50,10 @@ class Index{
         var _map = register.map;        
         this.projectionCache[processId] = {};
         var projections = this.projectionCache[processId];
+        this.entityToMap[processId] = {};
         for(var mappedModel in _map){
           var entity = _map[mappedModel].model;
+          this.entityToMap[processId][entity] = mappedModel;
           projections[mappedModel] = {};
           projections[mappedModel].attributes = [];
           for(var field in _map[mappedModel].fields){
@@ -113,6 +116,9 @@ class Index{
         return this.functionsMap[processId] && this.functionsMap[processId][mapName];
     }
 
+    getMapTypeByDomainType(processId,domainType){
+        return this.entityToMap[processId][domainType];
+    }
     //retorna uma lista com o mapeamento 1 para 1 do mapa para dominio
     //ex [["nome","vl_name"]]
     columnsFromMapType(processId,mapName){
