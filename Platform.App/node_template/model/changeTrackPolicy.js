@@ -1,82 +1,65 @@
-
-var domain = require("./domain");
 var ArrayUtils = require("../utils/array")
+var ValidityPolicy = require("./validityPolicy");
+var domain = require("./domain");
 
-var SequelizeModelConverter = require("./sequelizeModelConverter.js");
-
+/**
+ * @class ChangeTrackPolicy
+ * @description esta classe é responsável pelo change track das entidades
+ */
 class ChangeTrackPolicy {
-    //recebe a lista de todas as entidades de dominio que chegaram na API
+    //recebe a lista de todas as entidades de dominio que chegaram na API    
     constructor(domainEntities){
-        this.entities = domainEntities;        
+        this.entities = domainEntities;
+                
+    }    
+    /**
+     * 
+     * @param {Function} callback callback de sucesso da aplicação de change track
+     * @param {Function} fallback callback de falha da aplicação de change track
+     * @description aplica o change track na lista de entidades passadas no construtor
+     */
+    apply(callback,fallback){        
+        this.cascadePersist(this.entities, callback,fallback);
     }
 
-    tracked(){
-        return this.domainOperations;
-    }
-
-    deleted(){
-        return this.domainOperations.toDelete;
-    }
-
-    updated(){
-        return this.domainOperations.toUpdate;
-    }
-
-    created(){
-        return this.domainOperations.toCreate;
-    }
-
-    apply(callback){        
-        this.cascadePersist(this.entities, callback);
-    }
-
-    cascadePersist(entities, callback){
-        var converter = new SequelizeModelConverter();
+    /**
+     * 
+     * @param {*} entities lista de entidades à serem aplicadas o change track
+     * @param {Function} callback callback de sucesso da aplicação de change track
+     * @param {Function} fallback callback de falha da aplicação de change track
+     * @description aplica o change track em cascata na lista de entidades
+     */
+    cascadePersist(entities, callback,fallback){
         var arrayUtils = new ArrayUtils();        
-        arrayUtils.asyncEach(entities,(item,next)=>{            
+        arrayUtils.asyncEach(entities,(item,next,stop)=>{            
             var type = item._metadata.type;
             var operation = item._metadata.changeTrack;
             this.persist(item,(result)=>{
-                var children = Object.keys(item).filter(p => Array.isArray(item[p]));
-                if (children.length > 0){
-                    arrayUtils.asyncEach(children,(j,_next)=>{                    
-                        var posSave = item[j].map(k => {                  
-                            k[type+"Id"] = result.id;
-                            return k;
-                        });
-                        this.cascadePersist(posSave,_next);
-                    },next);
-                }else{
-                    next();
-                }
+                item.id = result.id;
+                next();
+            },(e)=>{
+                stop();
+                typeof(fallback)=== "function" && fallback(e);
             });                   
-        },callback);        
+        },()=>{
+            callback(entities);
+        });
     }
-
-    persist(item,callback){
-        var operation = item._metadata.changeTrack;
-        if (!operation){
+    /**
+     * 
+     * @param {Object} item entidade de dados
+     * @param {Function} callback callback de sucesso da aplicação de change track
+     * @param {Function} fallback callback de falha da aplicação de change track
+     * @description faz a lógica de persistência, para ignorar caso não haja modificação
+     * ou aplicar a modificação necessária usando política de vigência
+     */
+    persist(item,callback,fallback){        
+        if (!item._metadata.changeTrack){
             callback(item);
         }else{
-            var type = item._metadata.type;
-            var toExecute;
-            if ("create" === operation){
-                toExecute = domain[type].create(item);
-            }else if ("update" === operation){
-                toExecute = domain[type].update(item,{where:{id:item.id}});
-            }else if ("destroy" === operation){
-                var clone = JSON.parse(JSON.stringify(item));
-                clone.where = {};
-                clone.where.id = item.id;
-                toExecute = domain[type].destroy(clone);
-            }else{
-                throw "invalid change track operation";
-            }
-            toExecute.then((result)=>{
-                callback(result.dataValues);
-            });
-        }        
-        
+            var vigencia = new ValidityPolicy();
+            vigencia.apply(item,callback,fallback);            
+        }
     }
 
 }

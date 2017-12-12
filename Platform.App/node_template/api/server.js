@@ -1,3 +1,10 @@
+/**
+ * @description o server.js é o ponto de entrada para a aplicação de dominio
+ * ele configura o restfiy e as rotas, faz a associação das rotas com os controladores
+ * e sobe o servidor http
+ */
+
+
 var restify = require('restify');
 var QueryController = require('./queryController.js');
 var SaveCommandController = require('./saveCommandController.js');

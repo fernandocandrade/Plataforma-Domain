@@ -1,13 +1,7 @@
-tb_client:
-  id:
-    - primary key
-    - auto increment
-    - integer
+tb_client:  
   nm_client:
     - string
   cpf:
     - string
   lst_name:
     - string
-  hasMany:
-    - tb_account

@@ -8,11 +8,20 @@
 
 var fs = require("fs");
 var yaml = require('js-yaml');
-
+/**
+ * @class Loader
+ * @description Esta classe é responsavel por carregar os mapas
+ * inicialmente o mapas serão arquivos dentro do mesmo diretório da aplicação
+ * mas posteriormente os arquivos de mapas virão da api core
+ */
 class Loader{
 
-    //No caso da POC estamos lendo o arquivo de maps do disco mesmo
-    //mas depois iremos alterar este metodo para ler os mapas da API Core
+    
+    /**
+    * @description No caso da POC estamos lendo o arquivo de maps do disco mesmo
+    * mas depois iremos alterar este metodo para ler os mapas da API Core
+    * @returns {Array<Object>} Lista de objetos json dos mapas
+    */
     getMaps() {
         var maps = [];
         fs.readdirSync("../maps").forEach(file => {

@@ -1,9 +1,3 @@
-tb_account:
-  id:
-    - primary key
-    - auto increment
-    - integer
+tb_account:  
   vl_balance:
     - integer
-  belongsTo:
-    - tb_client

@@ -8,7 +8,16 @@ var MapIndex     = require("./index.js");
 var MapTransform = require("./transform.js");
 var MapTranslator = require("./translator.js");
 
+/**
+ * @class Builder
+ * @description Esta classe é responsável por configurar e montar os mapas da aplicação
+ */
 class Builder{
+
+     /**
+      * @method build
+      * @description 
+      */
      build (){        
         var maps = new MapLoader().getMaps();
         var index = new MapIndex(maps);

@@ -9,7 +9,7 @@ const sequelize = new Sequelize('app', 'postgres', '', {
     acquire: 30000,
     idle: 10000
   },
-  logging: true,
+  logging: false,
   operatorsAliases: true
   
 });
@@ -20,27 +20,61 @@ var model = {};
 //Declaring models with Sequelize
 {{#each model}}
 model["{{@key}}"] = sequelize.define('{{@key}}', {
+    rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+    id: { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  },
     {{#join . ","}}
-    {{name}}: { type: {{type}} {{#if primaryKey}}, primaryKey: {{primaryKey}}{{/if}}{{#if autoIncrement}}, autoIncrement: {{autoIncrement}}  {{/if}} } {{/join}}
-    
+    {{name}}: { type: {{type}} } {{/join}}
+    , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    data_fim_vigencia:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
 },{
-    timestamps: true,
-    freezeTableName: true    
+    timestamps: false,
+    freezeTableName: true,
+    scopes:{
+      vigencia: function (referencia){
+        return {
+          where: {
+            data_inicio_vigencia: {
+              $lte: referencia
+            },
+            data_fim_vigencia:{
+              $gte: referencia
+            }
+          }
+        }
+      }
+    },
+    indexes: [
+        {
+            unique: true,
+            fields: ['rid', 'id']
+        }
+    ]   
 });
 
 {{/each}}
 
-//Declaring relationship between models
-
-var associations = {};
 {{#each relations}}
-{{#eq this.[1] "belongsTo"}}
-associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{2}}Id'});
-{{else}}
-associations["{{0}}.{{2}}"] = model["{{0}}"].{{1}}(model["{{2}}"],{as: '{{2}}', foreignKey: '{{0}}Id' });
+
+{{#eq this.[1] "hasMany"}}
+model["{{0}}_has_{{2}}"] = sequelize.define('{{0}}_has_{{2}}', {
+  rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+  {{0}}Id:{ 
+    type: Sequelize.UUID
+  },
+  {{2}}Id:{ 
+    type: Sequelize.UUID
+
+  }  
+},{
+  timestamps: false,
+  freezeTableName: true  
+});
 {{/eq}}
+
 {{/each}}
-model["associations"] = associations;
+
+
+
 
 //Sincronize database
 sequelize.sync();
