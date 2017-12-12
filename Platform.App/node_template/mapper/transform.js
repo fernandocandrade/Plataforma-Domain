@@ -18,8 +18,11 @@ class Transform {
         if (!this.index.hasFunctions(processId,mapName)){
             return modelList;
         }        
-        return modelList.map(model => {              
-            var modelJson = model.toJSON();
+        return modelList.map(model => {
+            var modelJson = model;
+            if (typeof(model["toJSON"]) === "function"){
+                modelJson = model.toJSON();
+            }            
             modelJson._metadata = {};
             modelJson._metadata.type = mapName;            
             this.applyIncludeFields(modelJson,processId,mapName);

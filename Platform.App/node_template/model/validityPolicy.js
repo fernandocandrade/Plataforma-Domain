@@ -34,9 +34,13 @@ class ValidityPolicy {
      */
     update(obj,callback,fallback){
         var db = domain[obj._metadata.type];
-        this.destroy(obj,()=>{
-            delete obj.rid;
-            db.create(obj).then((updated)=>{
+        this.destroy(obj,(curr)=>{
+            //preserva as colunas que ja existiam preenchidas na versao anterior
+            //lembrando q dependendo do mapa o usuario ira alterar apenas alguns campos
+            Object.keys(obj).map(p => curr[p] = obj[p]);
+            delete curr.rid;
+            delete curr.data_fim_vigencia;
+            db.create(curr).then((updated)=>{
                 callback(updated.dataValues);
             }).catch(fallback);    
         },fallback);        
@@ -70,8 +74,9 @@ class ValidityPolicy {
                 where:{
                     rid:current.rid
                 }
-            }).then((updated)=>{
-                callback(obj);
+            }).then((updated)=>{                                
+                callback(current);
+                
             }).catch(fallback);
         },fallback);
     }

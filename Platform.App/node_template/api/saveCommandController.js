@@ -20,7 +20,7 @@ class SaveCommandController{
             console.log("Tempo de execucao do change track")
             console.log((after - before)+" ms");
             var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))
-            var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,final));            
+            var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));
             res.send(finalMap);
             console.log("------------------------------------");
         },(err)=>{
