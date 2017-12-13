@@ -9,6 +9,32 @@ Esta aplicação sobe um servidor http e expõe alguns serviços rest para consu
 * NodeJS
 * Npm
 
+
+### Conexão com o banco de dados
+A string de conexão com o banco de dados pode ser configurada no [template do domínio](https://github.com/ONSBR/Plataforma-Domain/blob/master/Platform.App/node_template/model/domain.tmpl) por padrão as configurações do banco são:
+* banco de dados -> 'app'
+* usuario -> 'postgres'
+* senha -> ''
+* host -> 'localhost'
+
+Caso queira mudar as configurações de conexão você deve modificar o seguinte trecho de código:
+
+```js
+const sequelize = new Sequelize('<nome do banco>', '<usuario>', '<senha>', {
+  host: '<host>',
+  dialect: 'postgres',
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  logging: false,
+  operatorsAliases: true
+  
+});
+```
+
 ### Executando a aplicação de domínio
 
 Após o processo de compilação da aplicação você deve entrar dentro da pasta "bundle"
