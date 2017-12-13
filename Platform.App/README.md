@@ -38,19 +38,16 @@ const sequelize = new Sequelize('<nome do banco>', '<usuario>', '<senha>', {
 ### Executando a aplicação de domínio
 
 Após o processo de compilação da aplicação você deve entrar dentro da pasta "bundle"
-
-```sh
-$ cd bundle/api
-```
-
 Antes de executar a aplicação é necessário instalar todas as dependências necessárias para a execução do projeto.
 Para isso você deve executar o seguinte comando:
 
 ```sh
+$ cd bundle
 $ npm install
+$ cd api
 ```
 
-Para executar a aplicação, apontando para a aplicação Domain.App você deve executar o seguinte comando:
+Para executar a aplicação você deve executar o seguinte comando:
 ```sh
 $ node server.js
 ```
