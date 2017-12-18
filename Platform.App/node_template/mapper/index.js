@@ -112,8 +112,12 @@ class Index{
      * @description retorna o mapa de uma entidade especifica para uma aplicação e entidade passada no parâmetro
      * @returns {Object} mapa da aplicação :appId da entidade :name
      */
-    getMapByAppIdAndName(processId,name)  {        
-        return this.modelCache[processId][name];
+    getMapByAppIdAndName(processId,name)  {
+        if(this.modelCache[processId] != undefined) {
+            return this.modelCache[processId][name];
+        } else {
+            throw "Process not found:" + processId
+        }        
     }
     /**
      * 

@@ -23,8 +23,16 @@ class SaveCommandController{
  * modelo de dominio, logo após aplicamos o change track para criar/atualizar/exluir entidades
      */
     persist(req,res,next){
-        var entities = req.body;        
-        var domainEntities = entities.map(e => translator.toDomain(req.params["appId"],e));        
+        var entities = req.body;
+        try {
+            var domainEntities = entities.map(e => translator.toDomain(req.params["appId"],e));        
+        } catch (error) {
+            res.send(400,{message:error});
+            console.log("------------------------------------");
+            console.log("Error " + error);
+            console.log("------------------------------------");
+            return;
+        }
         var track = new ChangeTrackPolicy(domainEntities);        
         var before = new Date().getTime();
         console.log("------------------------------------");
