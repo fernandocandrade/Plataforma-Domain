@@ -22,6 +22,7 @@ var model = {};
 model["{{@key}}"] = sequelize.define('{{@key}}', {
     rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
     id: { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  },
+    instance_id: { type: Sequelize.UUID },
     {{#join . ","}}
     {{name}}: { type: {{type}} } {{/join}}
     , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
