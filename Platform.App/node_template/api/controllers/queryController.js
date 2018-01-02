@@ -3,7 +3,6 @@ var facade = new MapBuilder().build();
 var mapperIndex = facade.index;
 var mapper = facade.transform;
 
-var domain = require("../../model/domain.js")
 var ValidityPolicy = require("../../model/validityPolicy");
 
 /**
@@ -11,6 +10,10 @@ var ValidityPolicy = require("../../model/validityPolicy");
  */
 class QueryController{
     
+    constructor(domain){
+        this.domain = domain;
+    }
+
     /**
      * @method getEntityByAppId
      * @param {Request} req Objeto de request od restify
@@ -23,7 +26,7 @@ class QueryController{
         var mappedEntity = req.params.entity;
         var entity = mapperIndex.getModelName(appId,mappedEntity);
         var projection = mapperIndex.getProjection(appId,mappedEntity)[mappedEntity];
-        projection.include = mapper.getIncludes(appId,mappedEntity,domain);
+        projection.include = mapper.getIncludes(appId,mappedEntity,this.domain);
         if (projection.include.length == 0){
             delete projection.include;
         }

@@ -9,6 +9,7 @@ config.load().then((conf)=>{
     const sequelize = new Sequelize('postgres', conf.database.user, conf.database.password, {
         dialect: 'postgres',
         host: conf.database.host,
+        logging: true,
       });      
     const database = conf.database.name;
     
@@ -16,19 +17,28 @@ config.load().then((conf)=>{
         var exist = c[1].rowCount > 0;
         if(!exist){
             sequelize.query(`CREATE DATABASE "${database}";`).then(() => {
-                startServer(); 
+                require("./model/domain.js").then(domain =>{
+                    console.log("Synchronizing database")
+                    domain["_engine"].sync();
+                    startServer(); 
+                    sequelize.close();
+                });
             }).catch(e => console.log(e));
         }else{
-            startServer();
+            require("./model/domain.js").then(domain =>{          
+                startServer(); 
+                sequelize.close();
+            });
         }
     })
 });
 
 function startServer(){
-    var server = require("./api/server");
-    server.listen(9090, function() {
-        console.log('%s listening at %s', server.name, server.url);
-    });
+    require("./api/server").then(server => {
+        server.listen(9090, function() {
+            console.log('%s listening at %s', server.name, server.url);
+        });
+    });    
 }
 
 

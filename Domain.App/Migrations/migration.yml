@@ -1,15 +1,3 @@
-create_table:
-  log:
-    id:
-      - primary key
-      - auto increment
-      - integer
-    level:
-      - string
-    message:
-      - text
-
-
 add_column:
   table:
     - "client"

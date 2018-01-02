@@ -7,7 +7,6 @@
     /**
      * 
      * @return {Promise} retorna uma promessa com os dados de configuração d aplicação
-     * @param {*} fallback 
      */
     load() {
         var cnf = {};
