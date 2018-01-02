@@ -133,11 +133,13 @@ Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 ```
 
 Exemplo de busca de uma entidade sem filtro.
+Para consultar dados no passado é necessário passar o Header Reference-Date com o formato de data em Unix timestamp
 
 ```http
 GET /app1/cliente HTTP/1.1
 Host: localhost:9090
 Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
+Reference-Date: 1514915012965
 ```
 
 Exemplo de busca de uma entidade com filtro.
@@ -146,6 +148,7 @@ Exemplo de busca de uma entidade com filtro.
 GET /app1/contaAssociada?filter=byCliente&clienteId=29c125c4-b7c0-4d80-8c40-90284891e3db HTTP/1.1
 Host: localhost:9090
 Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
+Reference-Date: 1514915012965
 ```
 
 
