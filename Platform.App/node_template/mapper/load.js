@@ -24,9 +24,9 @@ class Loader{
     */
     getMaps() {
         var maps = [];
-        fs.readdirSync("../maps").forEach(file => {
+        fs.readdirSync("./maps").forEach(file => {
             if(file.endsWith(".yaml")){                
-                var _map = yaml.safeLoad(fs.readFileSync("../maps/"+file));
+                var _map = yaml.safeLoad(fs.readFileSync("./maps/"+file));
                 var obj = {};
                 obj.appName = file.replace(".yaml","");
                 obj.map = _map;
