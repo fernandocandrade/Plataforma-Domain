@@ -17,23 +17,8 @@ A string de conexão com o banco de dados pode ser configurada no [template do d
 * senha -> ''
 * host -> 'localhost'
 
-Caso queira mudar as configurações de conexão você deve modificar o seguinte trecho de código:
+Caso queira mudar as configurações de conexão você deve modificar a classe Environment dentro do pacote env.
 
-```js
-const sequelize = new Sequelize('<nome do banco>', '<usuario>', '<senha>', {
-  host: '<host>',
-  dialect: 'postgres',
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
-  logging: false,
-  operatorsAliases: true
-  
-});
-```
 
 ### Executando a aplicação de domínio
 
@@ -44,15 +29,14 @@ Para isso você deve executar o seguinte comando:
 ```sh
 $ cd bundle
 $ npm install
-$ cd api
 ```
 
 Para executar a aplicação você deve executar o seguinte comando:
 ```sh
-$ node server.js
+$ node main.js
 ```
 
-Ao subir a aplicação o Sequelize irá sincronizar automaticamente com o banco de dados, criando as respectivas tabelas de dominio.
+Ao subir a aplicação o Sequelize irá sincronizar automaticamente com o banco de dados, criando as respectivas tabelas de dominio. Caso você ainda não tenha criado o banco de dados, a aplicação irá criar um de forma automática.
 
 ### API de Domínio
 
