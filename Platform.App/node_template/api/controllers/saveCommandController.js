@@ -39,7 +39,7 @@ class SaveCommandController{
             console.log("------------------------------------");
             return;
         }
-        var track = new ChangeTrackPolicy(domainEntities);        
+        var track = new ChangeTrackPolicy(domainEntities, req.validityPolicy);        
         var before = new Date().getTime();
         console.log("------------------------------------");
         track.apply(persisted =>{            
