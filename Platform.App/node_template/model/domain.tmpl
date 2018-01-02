@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 const sequelize = new Sequelize('app', 'postgres', '', {
-  host: 'localhost',
+  host: process.env.POSTGRES_HOST || 'localhost',
   dialect: 'postgres',
   pool: {
     max: 5,

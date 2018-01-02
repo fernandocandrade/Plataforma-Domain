@@ -10,4 +10,6 @@ COPY . .
 
 EXPOSE 9090
 
-CMD [ "node", "app.js" ]
+RUN chmod +x /usr/src/app/executeApp.sh
+
+CMD [ "/usr/src/app/executeApp.sh" ]
