@@ -76,6 +76,7 @@ Exemplo para a criação de um registro da entidade cliente.
 POST /app1/persist HTTP/1.1
 Host: localhost:9090
 Content-Type: application/json
+Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 
 [
     {
@@ -95,6 +96,7 @@ Exemplo para a alteração de um registro da entidade cliente.
 POST /app1/persist HTTP/1.1
 Host: localhost:9090
 Content-Type: application/json
+Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 
 [
     {
@@ -115,6 +117,7 @@ Exemplo para a exclusão de um registro da entidade cliente.
 POST /app1/persist HTTP/1.1
 Host: localhost:9090
 Content-Type: application/json
+Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 
 [
     {
@@ -134,6 +137,7 @@ Exemplo de busca de uma entidade sem filtro.
 ```http
 GET /app1/cliente HTTP/1.1
 Host: localhost:9090
+Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 ```
 
 Exemplo de busca de uma entidade com filtro.
@@ -141,6 +145,7 @@ Exemplo de busca de uma entidade com filtro.
 ```http
 GET /app1/contaAssociada?filter=byCliente&clienteId=29c125c4-b7c0-4d80-8c40-90284891e3db HTTP/1.1
 Host: localhost:9090
+Instance-Id: fe93a9a8-84d9-41ec-a056-e4606a72fbdd
 ```
 
 
