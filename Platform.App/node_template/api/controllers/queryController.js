@@ -1,10 +1,10 @@
-var MapBuilder = require("../mapper/builder.js");
+var MapBuilder = require("../../mapper/builder.js");
 var facade = new MapBuilder().build();
 var mapperIndex = facade.index;
 var mapper = facade.transform;
 
-var domain = require("../model/domain.js")
-var ValidityPolicy = require("../model/validityPolicy");
+var domain = require("../../model/domain.js")
+var ValidityPolicy = require("../../model/validityPolicy");
 
 /**
  * @description É o controlador para as operações de leitura do dominio

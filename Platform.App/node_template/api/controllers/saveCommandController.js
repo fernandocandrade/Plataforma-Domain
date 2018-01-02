@@ -1,8 +1,8 @@
 
-var MapBuilder = require("../mapper/builder.js");
-var ChangeTrackPolicy = require("../model/changeTrackPolicy.js");
+var MapBuilder = require("../../mapper/builder.js");
+var ChangeTrackPolicy = require("../../model/changeTrackPolicy.js");
 var facade = new MapBuilder().build();
-var domain = require("../model/domain.js")
+var domain = require("../../model/domain.js");
 
 var mapperIndex = facade.index;
 var mapper = facade.transform;
@@ -24,8 +24,14 @@ class SaveCommandController{
      */
     persist(req,res,next){
         var entities = req.body;
+                
         try {
-            var domainEntities = entities.map(e => translator.toDomain(req.params["appId"],e));        
+            var domainEntities = entities.map(e => {
+                var translatedEntity = translator.toDomain(req.params["appId"],e);
+                translatedEntity.instance_id = req.instanceId;
+                return translatedEntity;
+            });
+            
         } catch (error) {
             res.send(400,{message:error});
             console.log("------------------------------------");
