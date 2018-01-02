@@ -1,16 +1,14 @@
 var ArrayUtils = require("../utils/array")
-var ValidityPolicy = require("./validityPolicy");
 var domain = require("./domain");
-
 /**
  * @class ChangeTrackPolicy
  * @description esta classe é responsável pelo change track das entidades
  */
 class ChangeTrackPolicy {
     //recebe a lista de todas as entidades de dominio que chegaram na API    
-    constructor(domainEntities){
+    constructor(domainEntities,vigencia){
         this.entities = domainEntities;
-                
+        this.vigencia = vigencia;
     }    
     /**
      * 
@@ -57,8 +55,7 @@ class ChangeTrackPolicy {
         if (!item._metadata.changeTrack){
             callback(item);
         }else{
-            var vigencia = new ValidityPolicy();
-            vigencia.apply(item,callback,fallback);            
+            this.vigencia.apply(item,callback,fallback);            
         }
     }
 

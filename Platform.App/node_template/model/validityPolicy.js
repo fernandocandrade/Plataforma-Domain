@@ -10,18 +10,34 @@ var mapper = facade.transform;
 class ValidityPolicy {
 
     /**
+     * @param {Date} date data de referência da vigência
+     * @param {Boolean} currentScope flag q indica se a vigência será aplicada para dados atuais 
+     * ou no passado    
+     */
+    constructor(date, currentScope){
+        this.referenceDate = date;
+        this.currentScope = currentScope;
+    }
+
+   /**
      * 
      * @param {String} appId id da aplicação
      * @param {String} mappedEntity nome da entidade mapeada
      * @param {String} entity nome da entidade de dominio correspondente a entidade mapeada
      */
-    constructor(appId,mappedEntity, entity){
-        this.referenceDate = new Date();
+    setQueryContext(appId,mappedEntity,entity){
         this.appId = appId;
         this.mappedEntity = mappedEntity;
         this.entity = entity;
-
     }
+
+    /**
+     * @param {Date} date data de referência para a aplicação da vigência
+     */
+    setReferenceDate(date){
+        this.referenceDate = date;
+    }
+
     /**
      * 
      * @param {Object} obj 
@@ -64,6 +80,7 @@ class ValidityPolicy {
             Object.keys(obj).map(p => curr[p] = obj[p]);
             delete curr.rid;
             delete curr.data_fim_vigencia;
+            delete curr.data_inicio_vigencia;
             db.create(curr).then((updated)=>{
                 callback(updated.dataValues);
             }).catch(fallback);    
@@ -78,14 +95,23 @@ class ValidityPolicy {
      * a vigência baseada numa data de referência
      */
     query(sequelizeQuery,callback,fallback){
+        
         domain[this.entity]
-        .scope({method:["vigencia",this.referenceDate]})
+        .scope({method:[this.scope(),this.referenceDate]})
         .findAll(sequelizeQuery).then(result => {
             var fullMapped = mapper.applyRuntimeFields(this.appId,this.mappedEntity,result);
             callback(fullMapped);
         }).catch(e =>{
             fallback(e);
         });
+    }
+
+    scope(){
+        var scope = "current";        
+        if (!this.currentScope){
+            scope = "old";
+        }
+        return scope;
     }
 
     /**
@@ -101,8 +127,8 @@ class ValidityPolicy {
             if(current === null){
                 fallback("entity " + obj._metadata.type + " with id: " + obj.id + " not found");
                 return;
-            }
-            current.data_fim_vigencia = new Date();
+            } 
+            current.data_fim_vigencia = new Date();           
             db.update(current,{
                 where:{
                     rid:current.rid
@@ -122,7 +148,7 @@ class ValidityPolicy {
      * @description retorna um objeto by id aplicando o escopo de vigência
      */
     findById(obj,callback,fallback){
-        domain[obj._metadata.type].scope({method:["vigencia",this.referenceDate]})
+        domain[obj._metadata.type].scope({method:[this.scope(),this.referenceDate]})
         .findOne({
             where:{
                 id:obj.id

@@ -9,7 +9,7 @@ const sequelize = new Sequelize('app', 'postgres', '', {
     acquire: 30000,
     idle: 10000
   },
-  logging: false,
+  logging: true,
   operatorsAliases: true
   
 });
@@ -26,12 +26,12 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
     {{#join . ","}}
     {{name}}: { type: {{type}} } {{/join}}
     , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    data_fim_vigencia:{ type: Sequelize.DATE, defaultValue: new Date("9999-12-31") }
+    data_fim_vigencia:{ type: Sequelize.DATE }
 },{
     timestamps: false,
     freezeTableName: true,
     scopes:{
-      vigencia: function (referencia){
+      old: function (referencia){
         return {
           where: {
             data_inicio_vigencia: {
@@ -39,6 +39,15 @@ model["{{@key}}"] = sequelize.define('{{@key}}', {
             },
             data_fim_vigencia:{
               $gte: referencia
+            }
+          }
+        }
+      },
+      current: function (referencia){
+        return {
+          where: {            
+            data_fim_vigencia:{
+              $eq:null
             }
           }
         }

@@ -6,14 +6,21 @@
 
 
 var restify = require('restify');
-var QueryController = require('./controllers/queryController.js');
-var SaveCommandController = require('./controllers/saveCommandController.js');
-var RequireInstanceIdMiddleware = require('./middlewares/requireInstanceId.js');
+var QueryController = require('./controllers/queryController');
+var SaveCommandController = require('./controllers/saveCommandController');
+var RequireInstanceIdMiddleware = require('./middlewares/requireInstanceId');
+var ConfigureValidityPolicyMiddleware = require('./middlewares/configureValidityPolicy');
+
 var server = restify.createServer();
+//Configure
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
-server.use(RequireInstanceIdMiddleware);
 
+//Middlewares
+server.use(RequireInstanceIdMiddleware);
+server.use(ConfigureValidityPolicyMiddleware);
+
+//Routing
 var query = new QueryController();
 var command = new SaveCommandController();
 server.get('/:appId/:entity', query.getEntityByAppId);

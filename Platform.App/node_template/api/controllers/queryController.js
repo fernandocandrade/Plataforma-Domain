@@ -31,8 +31,8 @@ class QueryController{
         if (Object.keys(projection.where).length === 0){
             delete projection.where;
         }
-        var vigencia = new ValidityPolicy(appId,mappedEntity,entity);
-        vigencia.query(projection, (result)=>{
+        req.validityPolicy.setQueryContext(appId,mappedEntity,entity);        
+        req.validityPolicy.query(projection, (result)=>{
             res.send(result);
             next();
         }, (e)=>{
