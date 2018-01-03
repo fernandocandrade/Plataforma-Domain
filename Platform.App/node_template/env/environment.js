@@ -13,7 +13,7 @@
         var cnf = {};
         cnf.database = {};
         cnf.database.name = "app";
-        cnf.database.host = "localhost";
+        cnf.database.host = process.env.POSTGRES_HOST || "localhost";
         cnf.database.user = "postgres";
         cnf.database.password = "";
         var p1 = new Promise(function(resolve, reject) {

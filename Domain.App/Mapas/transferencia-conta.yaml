@@ -1,0 +1,12 @@
+transferencia:
+  model: tb_operation
+  fields:
+    contaOrigem:
+      column: acc_origin
+      required: true
+    contaDestino:
+      column: acc_dest      
+      required: true
+    tipoOperacao:
+      column: tp_operation
+      required: true
