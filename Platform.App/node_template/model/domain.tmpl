@@ -7,7 +7,6 @@ const Sequelize = require('sequelize');
 var domainPromise = new Promise(function(resolve, reject) {  
   var model = {};
   config.load().then((conf)=>{
-    console.log("AAA");
     const sequelize = new Sequelize(conf.database.name, conf.database.user, conf.database.password, {
       host: conf.database.host,
       dialect: 'postgres',
@@ -17,10 +16,19 @@ var domainPromise = new Promise(function(resolve, reject) {
         acquire: 30000,
         idle: 10000
       },
-      logging: true,
+      logging: false,
       operatorsAliases: true
       
     });    
+
+    model["migration_history"] = sequelize.define('migration_history', {
+        id: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+        name: { type: Sequelize.STRING }                
+    },{
+        timestamps: true,
+        freezeTableName: true                   
+    });
+  
 
     //Declaring models with Sequelize
     {{#each model}}
@@ -87,7 +95,8 @@ var domainPromise = new Promise(function(resolve, reject) {
     {{/eq}}
 
     {{/each}}    
-    model["_engine"] = sequelize; 
+    model["_engine"] = sequelize;
+    model["_dataTypes"] = Sequelize; 
     resolve(model);
   });  
 });

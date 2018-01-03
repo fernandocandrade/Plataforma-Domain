@@ -1,6 +1,4 @@
 add_column:
-  table:
-    - "client"
-  column:
-    lastName:
-      - string
+  table: "tb_client"
+  columns:
+    address: string

@@ -19,6 +19,7 @@ module.exports = (function(){
             rimraf.sync(root+"bundle",fs);    
         }
         fs.mkdirSync(root+"bundle");
+        fs.mkdirSync(root+"bundle/migrations");
         fs.mkdirSync(root+"bundle/maps");
         fs.mkdirSync(root+"bundle/mapper");
         fs.mkdirSync(root+"bundle/api");
@@ -31,7 +32,9 @@ module.exports = (function(){
             fs.unlinkSync(root+"bundle/model/domain.tmpl");
             ncp(domainAppRoot+"Mapas",root+"bundle/maps",()=>{
                 ncp(root+"node_template/mapper",root+"bundle/mapper",()=>{
-                    ncp(root +"node_template/api",root+"bundle/api",callback);
+                    ncp(root +"node_template/api",root+"bundle/api",()=>{
+                        ncp(domainAppRoot+"Migrations",root+"bundle/migrations",callback);
+                    });
                 });
             });
         });

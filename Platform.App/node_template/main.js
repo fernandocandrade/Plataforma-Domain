@@ -9,7 +9,7 @@ config.load().then((conf)=>{
     const sequelize = new Sequelize('postgres', conf.database.user, conf.database.password, {
         dialect: 'postgres',
         host: conf.database.host,
-        logging: true,
+        logging: false,
       });      
     const database = conf.database.name;
     
@@ -26,8 +26,12 @@ config.load().then((conf)=>{
             }).catch(e => console.log(e));
         }else{
             require("./model/domain.js").then(domain =>{          
-                startServer(); 
-                sequelize.close();
+                var MigrationManager = require("./utils/migrationManager");
+                var mm = new MigrationManager(domain);
+                mm.migrate().then(()=>{
+                    startServer(); 
+                    sequelize.close();
+                })                
             });
         }
     })
