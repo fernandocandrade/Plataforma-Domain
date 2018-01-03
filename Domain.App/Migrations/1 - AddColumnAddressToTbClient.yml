@@ -1,4 +1,5 @@
 add_column:
   table: "tb_client"
   columns:
-    address: string
+    address: 
+      type: string

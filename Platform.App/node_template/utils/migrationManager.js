@@ -6,9 +6,34 @@
 var ArrayUtils = require("./array");
 class MigrationManager{
 
+    seqTypeMap()  {
+        var dataTypes = this.domain["_dataTypes"];
+        return {
+            "string":dataTypes.STRING,
+            "integer":dataTypes.INTEGER,
+            "char":dataTypes.CHAR,
+            "text":dataTypes.TEXT,
+            "bigint":dataTypes.BIGINT,
+            "float":dataTypes.FLOAT,
+            "real":dataTypes.REAL,
+            "double":dataTypes.DOUBLE,
+            "decimal":dataTypes.DECIMAL,
+            "boolean":dataTypes.BOOLEAN,
+            "time":dataTypes.TIME,
+            "date":dataTypes.DATE,
+            "hstore":dataTypes.HSTORE,
+            "json":dataTypes.JSON,
+            "jsonb":dataTypes.JSONB,
+            "blob":dataTypes.BLOB,
+            "uuid":dataTypes.UUID,
+            "uuidV1":dataTypes.UUIDV1,
+            "uuidV4":dataTypes.UUIDV4
+        }
+    };
+
     constructor(domain){
         this.arrayUtils = new ArrayUtils();
-        this.domain = domain;
+        this.domain = domain;                
     }
 
     /**
@@ -17,14 +42,11 @@ class MigrationManager{
      * @param {String} columnName nome da nova colune
      * @param {String} type tipo de dados da coluna
      */
-    add_column(table, columnName, type){
-        var promise = new Promise((resolve,reject)=>{
-            var sql = this.domain["_engine"];
-            var dataTypes = this.domain["_dataTypes"];
-            sql.queryInterface.addColumn(table,columnName,{ type: dataTypes.STRING })
-            .then(resolve).catch(reject);
-        });
-        return promise;
+    addColumn(table, columnName, colDef){
+        var sql = this.domain["_engine"];
+        var dataTypes = this.domain["_dataTypes"];
+        colDef.type = this.seqTypeMap()[colDef.type];    
+        return sql.queryInterface.addColumn(table,columnName,colDef);
     }
     /**
      * 
@@ -36,11 +58,29 @@ class MigrationManager{
     dropColumn(table,column){
         var promise = new Promise((resolve,reject)=>{
             var sql = this.domain["_engine"];
-            var dataTypes = this.domain["_dataTypes"];
             sql.queryInterface.removeColumn(table,columnName)
             .then(resolve).catch(reject);
         });
         return promise;
+    }
+
+    /**
+     * 
+     * @param {String} table nome da tabela de dominio
+     * @param {String} columns array de colunas da tabela
+     * @description cria uma tabela no banco de dados com as infromações da migration
+     */
+    createTable(table,columns){        
+        var sql = this.domain["_engine"];
+        Object.keys(columns).forEach(c => {
+            columns[c].type = this.seqTypeMap()[columns[c].type];
+        });
+        return sql.queryInterface.createTable(table,columns);
+    }
+
+    dropTable(table){        
+        var sql = this.domain["_engine"];
+        return sql.queryInterface.dropTable(table);
     }
 
     /**
@@ -106,6 +146,7 @@ class MigrationManager{
                         next();
                     });
                 },()=>{
+                    list = list.sort();
                     resolve(list);
                 })
             });
@@ -152,20 +193,59 @@ class MigrationManager{
      * @return {Promise}
      */
     execute(migration){
-        var promise = new Promise((resolve,reject)=>{            
+        var promise = new Promise((resolve,reject)=>{                        
+            if (migration.command["add_column"]){
+                this.executeAddColumnCommand(migration).then(resolve).catch(reject);
+            }else if (migration.command["create_table"]){
+                this.executeCreateTableCommand(migration).then(resolve).catch(reject);
+            }
+        });
+        return promise;
+    }
+
+    /**
+     * 
+     * @param {Object} migration é o objeto de migração que será executado
+     * @description Executa o comando de migração add_column
+     * @return {Promise}
+     */
+    executeAddColumnCommand(migration){
+        var promise = new Promise((resolve,reject)=>{                        
             var table = migration.command["add_column"].table;             
-            var cols = Object.keys(migration.command["add_column"].columns);
-            this.arrayUtils.asyncEach(cols,(col,nextCol)=>{
-                this.add_column(table,col,migration.command["add_column"].columns[col])
-                .then(()=>{
-                    this.updateMigrationHistory(migration.name)
-                    .then(nextCol)
-                    .catch((e)=>{
-                        console.log(e);
-                        this.dropColumn(table,col).then(nextCol).catch(nextCol);
-                    });
+            var cols = Object.keys(migration.command["add_column"].columns);            
+            this.arrayUtils.asyncEach(cols,(col,nextCol,stop)=>{
+                this.addColumn(table,col,migration.command["add_column"].columns[col])
+                .then(nextCol).catch(()=>{
+                    this.dropColumn(table,col).then(stop).catch(stop);
                 });
-            },resolve);
+            },()=>{
+                this.updateMigrationHistory(migration.name)
+                .then(resolve)
+                .catch(reject);
+            });
+        });
+        return promise;
+    }
+
+    /**
+     * 
+     * @param {Object} migration é o objeto de migração que será executado
+     * @description Executa o comando de migração add_column
+     * @return {Promise}
+     */
+    executeCreateTableCommand(migration){
+        var promise = new Promise((resolve,reject)=>{                        
+            var table = migration.command["create_table"].name;
+            this.createTable(table,migration.command["create_table"].columns)
+            .then(()=>{
+                this.updateMigrationHistory(migration.name)
+                .then(resolve)
+                .catch((e)=>{
+                    console.log(e);
+                    this.dropTable(table).then(nextCol).catch(nextCol);
+                });
+            }).catch(resolve);
+            
         });
         return promise;
     }
