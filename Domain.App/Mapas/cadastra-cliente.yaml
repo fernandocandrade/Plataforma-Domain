@@ -1,0 +1,21 @@
+cliente:
+  model: tb_client
+  fields:
+    nome:
+      column: nm_client
+      required: true
+    sobrenome:
+      column: lst_name
+      required: true    
+    nomeCompleto:
+      type: function
+      eval: (client,acc)=> client.nome + " " + client.sobrenome
+  filters:
+    byName:
+      nome: :nome
+    umOuOutro:      
+      $or:
+        - nome:
+            $eq: :nome1
+        - nome:
+            $eq: :nome2
