@@ -1,4 +1,3 @@
-var domain = require("./domain");
 var MapBuilder = require("../mapper/builder.js");
 var facade = new MapBuilder().build();
 var mapper = facade.transform;
@@ -13,10 +12,12 @@ class ValidityPolicy {
      * @param {Date} date data de referência da vigência
      * @param {Boolean} currentScope flag q indica se a vigência será aplicada para dados atuais 
      * ou no passado    
+     * @param {Object} domain domain é o objeto de dominio do sequelize
      */
-    constructor(date, currentScope){
+    constructor(date, currentScope, domain){
         this.referenceDate = date;
         this.currentScope = currentScope;
+        this.domain = domain;
     }
 
    /**
@@ -59,7 +60,7 @@ class ValidityPolicy {
         //só por garantia
         var toCreate = this.clone(obj);
         delete toCreate.rid;
-        domain[obj._metadata.type].create(toCreate).then(callback).catch((e)=>{
+        this.domain[obj._metadata.type].create(toCreate).then(callback).catch((e)=>{
             fallback(e);
         });
     }
@@ -73,7 +74,7 @@ class ValidityPolicy {
      * criar um novo registro com sendo o vigente atual
      */    
     update(obj,callback,fallback){
-        var db = domain[obj._metadata.type];
+        var db = this.domain[obj._metadata.type];
         this.destroy(obj,(curr)=>{
             //preserva as colunas que ja existiam preenchidas na versao anterior
             //lembrando q dependendo do mapa o usuario ira alterar apenas alguns campos
@@ -96,7 +97,7 @@ class ValidityPolicy {
      */
     query(sequelizeQuery,callback,fallback){
         
-        domain[this.entity]
+        this.domain[this.entity]
         .scope({method:[this.scope(),this.referenceDate]})
         .findAll(sequelizeQuery).then(result => {
             var fullMapped = mapper.applyRuntimeFields(this.appId,this.mappedEntity,result);
@@ -122,7 +123,7 @@ class ValidityPolicy {
      * Busca o registro vigente e atualiza a data_fim_vigência para a data atual
      */
     destroy(obj,callback,fallback){
-        var db = domain[obj._metadata.type];
+        var db = this.domain[obj._metadata.type];
         this.findById(obj,(current)=>{
             if(current === null){
                 fallback("entity " + obj._metadata.type + " with id: " + obj.id + " not found");
@@ -148,7 +149,7 @@ class ValidityPolicy {
      * @description retorna um objeto by id aplicando o escopo de vigência
      */
     findById(obj,callback,fallback){
-        domain[obj._metadata.type].scope({method:[this.scope(),this.referenceDate]})
+        this.domain[obj._metadata.type].scope({method:[this.scope(),this.referenceDate]})
         .findOne({
             where:{
                 id:obj.id

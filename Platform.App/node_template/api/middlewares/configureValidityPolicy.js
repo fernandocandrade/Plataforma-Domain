@@ -1,4 +1,5 @@
 var ValidityPolicy = require("../../model/validityPolicy");
+var domainPromise = require("../../model/domain");
 
 /**
  * 
@@ -14,8 +15,10 @@ module.exports = function(req,res,next){
         refDate = new Date(parseInt(req.header("Reference-Date")));
         currentScope = false;
     }
-    var validityPolicy = new ValidityPolicy(refDate, currentScope);
-    req.validityPolicy = validityPolicy;
-    res.header("Reference-Date",refDate.getTime());
-    return next();
+    domainPromise.then(domain =>{
+        var validityPolicy = new ValidityPolicy(refDate, currentScope, domain);
+        req.validityPolicy = validityPolicy;
+        res.header("Reference-Date",refDate.getTime());
+        next();
+    })   
 }

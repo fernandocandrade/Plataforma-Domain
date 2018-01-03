@@ -2,7 +2,6 @@
 var MapBuilder = require("../../mapper/builder.js");
 var ChangeTrackPolicy = require("../../model/changeTrackPolicy.js");
 var facade = new MapBuilder().build();
-var domain = require("../../model/domain.js");
 
 var mapperIndex = facade.index;
 var mapper = facade.transform;
@@ -13,6 +12,10 @@ var translator = facade.translator;
  * @description Classe responsável por persistir as entidades mapeadas no dominio
  */
 class SaveCommandController{
+
+    constructor (domain){
+        this.domain = domain;
+    }
     /**
      * @method persist
      * @param {Request} req Objeto de request do restify

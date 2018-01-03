@@ -116,3 +116,34 @@ byId:
 No exemplo acima, existe um filtro de nome "byId" que vai associar um parâmetro de nome id ao campo id da entidade mapeada.
 
 A aplicação de domínio não depende de nenhuma tecnologia específica tudo é feito de forma declarativa através de arquivos YAML.
+
+### Migrações
+
+Migrações são operações de mudanças físicas no banco de dados, para a plataforma será possível
+executar dois tipo de migração: adicionar colunas, criar tabelas.
+As migrações são executadas no startup da aplicação
+
+Exemplo de migração para adicionar colunas:
+```yaml
+add_column:
+  table: "tb_client"
+  columns:
+    address: 
+      type: string
+```
+
+Exemplo de migração para adicionar uma tabela:
+```yaml
+create_table:
+  name: tb_address
+  columns:
+    client_id: 
+      type: string
+    street: 
+      type: string
+    number: 
+      type: integer
+    zipCode:
+      type: string
+```
+

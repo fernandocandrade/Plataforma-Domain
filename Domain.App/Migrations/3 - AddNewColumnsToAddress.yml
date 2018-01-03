@@ -1,0 +1,7 @@
+add_column:
+  table: tb_address
+  columns:
+    complement:
+      type: string
+    phoneNumber:
+      type: string      

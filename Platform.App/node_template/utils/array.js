@@ -8,6 +8,7 @@ class ArrayUtils{
      * 
      * @param {Array} arr lista de objetos
      * @param {Function} callback funcao chamada a cada iteração do array
+     * Esta função irá receber como parâmetros <<item do array>>,<<função next>>,<<função stop>>
      * @param {Function} done funcao chamada após a ultima iteração do array
      * @description este método faz um forEach de forma assincrona para facilitar
      * a iteração em arrays cujo o processamento de cada item é obrigatoriamente assincrono
