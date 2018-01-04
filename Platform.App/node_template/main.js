@@ -20,7 +20,7 @@ config.load().then((conf)=>{
                 require("./model/domain.js").then(domain =>{
                     console.log("Synchronizing database")
                     domain["_engine"].sync();
-                    startServer(); 
+                    startServer(conf.http.port); 
                     sequelize.close();
                 });
             }).catch(e => console.log(e));
@@ -29,7 +29,7 @@ config.load().then((conf)=>{
                 var MigrationManager = require("./utils/migrationManager");
                 var mm = new MigrationManager(domain);
                 mm.migrate().then(()=>{
-                    startServer(); 
+                    startServer(conf.http.port); 
                     sequelize.close();
                 })                
             });
@@ -37,9 +37,9 @@ config.load().then((conf)=>{
     })
 });
 
-function startServer(){
+function startServer(port){
     require("./api/server").then(server => {
-        server.listen(9090, function() {
+        server.listen(port, function() {
             console.log('%s listening at %s', server.name, server.url);
         });
     });    

@@ -75,6 +75,13 @@ class MigrationManager{
         Object.keys(columns).forEach(c => {
             columns[c].type = this.seqTypeMap()[columns[c].type];
         });
+        var Sequelize = this.domain["_dataTypes"];
+        //campos obrigatórios
+        columns["rid"] = { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   };
+        columns["id"] = { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  };
+        columns["instance_id"] = { type: Sequelize.UUID };
+        columns["data_inicio_vigencia"] = { type: Sequelize.DATE, defaultValue: Sequelize.NOW };
+        columns["data_fim_vigencia"] = { type: Sequelize.DATE };        
         return sql.queryInterface.createTable(table,columns);
     }
 

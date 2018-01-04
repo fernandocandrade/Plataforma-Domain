@@ -1,3 +1,5 @@
 node_modules/
 bundle/
 .vscode/
+Platform.Cli/node_template/
+plataforma.instance.lock

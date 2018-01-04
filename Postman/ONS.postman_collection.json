@@ -1,0 +1,258 @@
+{
+	"info": {
+		"name": "ONS",
+		"_postman_id": "80039b3d-ac16-77b9-f34f-647e4fb4277f",
+		"description": "Collection para os projetos do ONS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Plataforma",
+			"description": "",
+			"item": [
+				{
+					"name": "Domain",
+					"description": "",
+					"item": [
+						{
+							"name": "Consulta com filtro",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {},
+								"url": {
+									"raw": "http://localhost:9090/cadastra-conta/cliente?filter=umOuOutro&nome1=Phlippe&nome2=Maria",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9090",
+									"path": [
+										"cadastra-conta",
+										"cliente"
+									],
+									"query": [
+										{
+											"key": "filter",
+											"value": "umOuOutro",
+											"equals": true
+										},
+										{
+											"key": "nome1",
+											"value": "Phlippe",
+											"equals": true
+										},
+										{
+											"key": "nome2",
+											"value": "Maria",
+											"equals": true
+										}
+									]
+								},
+								"description": null
+							},
+							"response": []
+						},
+						{
+							"name": "Retorna Cliente sem Filtro",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Instance-Id",
+										"value": "fe93a9a8-84d9-41ec-a056-e4606a72fbdd"
+									}
+								],
+								"body": {},
+								"url": {
+									"raw": "http://localhost:9090/cadastra-conta/cliente",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9090",
+									"path": [
+										"cadastra-conta",
+										"cliente"
+									]
+								},
+								"description": null
+							},
+							"response": []
+						},
+						{
+							"name": "Busca Com Filtro",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {},
+								"url": {
+									"raw": "http://localhost:9090/app1/cliente?filter=byName&nome=Phlippe",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9090",
+									"path": [
+										"app1",
+										"cliente"
+									],
+									"query": [
+										{
+											"key": "filter",
+											"value": "byName",
+											"equals": true
+										},
+										{
+											"key": "nome",
+											"value": "Phlippe",
+											"equals": true
+										}
+									]
+								},
+								"description": null
+							},
+							"response": []
+						},
+						{
+							"name": "Persist Domain",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Instance-Id",
+										"value": "fe93a9a8-84d9-41ec-a056-e4606a72fbdd"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"nome\": \"Fulano\",\n        \"sobrenome\": \"de Tal 4\",\n        \"_metadata\": {\n            \"type\": \"cliente\",\n            \"changeTrack\":\"create\"\n        }\n    }\n]"
+								},
+								"url": {
+									"raw": "http://localhost:9090/cadastra-conta/persist",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9090",
+									"path": [
+										"cadastra-conta",
+										"persist"
+									]
+								},
+								"description": null
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "ProcessMemory",
+					"description": "",
+					"item": [
+						{
+							"name": "Nova Instancia MemProc",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"contexto\":\"aqui\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:9091/transferencia/create",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9091",
+									"path": [
+										"transferencia",
+										"create"
+									]
+								},
+								"description": null
+							},
+							"response": []
+						},
+						{
+							"name": "Ultimo Estado MemProc",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {},
+								"url": {
+									"raw": "http://localhost:9091/:guid/head",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9091",
+									"path": [
+										":guid",
+										"head"
+									],
+									"variable": [
+										{
+											"key": "guid",
+											"value": ""
+										}
+									]
+								},
+								"description": null
+							},
+							"response": []
+						},
+						{
+							"name": "Commit Nova versao da MemProc",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"context\":\"aqui\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:9091/:guid/commit",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9091",
+									"path": [
+										":guid",
+										"commit"
+									],
+									"variable": [
+										{
+											"key": "guid",
+											"value": ""
+										}
+									]
+								},
+								"description": null
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		}
+	]
+}

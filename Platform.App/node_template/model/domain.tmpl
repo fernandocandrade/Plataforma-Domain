@@ -7,7 +7,7 @@ const Sequelize = require('sequelize');
 var domainPromise = new Promise(function(resolve, reject) {  
   var model = {};
   config.load().then((conf)=>{
-    const sequelize = new Sequelize(conf.database.name, conf.database.user, conf.database.password, {
+    const sequelize = new Sequelize("{{database_name}}", conf.database.user, conf.database.password, {
       host: conf.database.host,
       dialect: 'postgres',
       pool: {
