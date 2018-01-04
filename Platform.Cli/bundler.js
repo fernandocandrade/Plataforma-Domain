@@ -3,6 +3,7 @@ var ncp = require("ncp").ncp;
 var rimraf = require("rimraf");
 var shell = require("shelljs");
 var os = require("os");
+var Ports = require("./services/ports");
 ncp.limit = 16;
 //var root = process.cwd()+"/";
 var root = os.tmpdir() + "/";
@@ -23,10 +24,11 @@ module.exports = (function(){
      * para o formato Sequelize
      */
     self.generate = (compiled, domainAppRoot, callback)=>{                
+        var portManager = new Ports();        
         var id = "plataforma_"+uuidv4();
         var instance = {};
         instance.id = id;
-        instance.port = 9092;
+        instance.port = portManager.getNextAvailablePort();
         if (fs.existsSync(domainAppRoot+"/plataforma.instance.lock")){
             instance = JSON.parse(fs.readFileSync(domainAppRoot+"/plataforma.instance.lock","UTF-8"));
             shell.rm("-rf",root+instance.id);
