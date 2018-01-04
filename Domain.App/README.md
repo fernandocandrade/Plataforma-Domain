@@ -147,3 +147,8 @@ create_table:
       type: string
 ```
 
+### Execução
+Para executar a aplicação de domínio você precisa instalar o Platform.Cli na sua máquina em seguida de dentro do diretório da sua aplicação você pode executar o seguinte comando:
+```sh
+$ plataforma --run
+```
