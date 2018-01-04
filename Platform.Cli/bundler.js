@@ -23,7 +23,8 @@ module.exports = (function(){
      */
     self.generate = (compiled, domainAppRoot, callback)=>{
         if (fs.existsSync(root+"bundle")){
-            rimraf.sync(root+"bundle",fs);    
+            shell.rm("-rf",root+"bundle");
+            //rimraf.sync(root+"bundle",fs);    
         }
         shell.cp("-R",baseTemplate+"node_template",root+"bundle");        
         fs.writeFileSync(root+"bundle/model/domain.js",compiled);
