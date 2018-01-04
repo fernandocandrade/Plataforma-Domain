@@ -20,7 +20,7 @@ $ npm link
 
 Para criar uma aplicação de domínio executar o comando abaixo e preencher as informações da nova aplicação que forem solicitadas
 ```sh
-$ plataforma -n domain
+$ plataforma --new domain
 ```
 
 Para executar uma aplicação execute o comando abaixo
