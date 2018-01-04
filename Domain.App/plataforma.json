@@ -1,0 +1,9 @@
+{
+    "app": {
+        "type": "domain",
+        "name": "Domain.App",
+        "version": "0.0.1",
+        "description": "Aplica√√o basica de testes",
+        "author": "Philippe Moneda"
+    }
+}
