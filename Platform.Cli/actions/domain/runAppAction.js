@@ -17,8 +17,8 @@ module.exports = class RunAppAction{
         shell.cp("-R","node_template",cliPath);
         shell.cd(currentPath);        
         console.log("Starting building App");
-        this.buildApp.build(config,()=>{
-            shell.cd(os.tmpdir()+"/bundle");
+        this.buildApp.build(config,(id)=>{
+            shell.cd(os.tmpdir()+"/"+id);
             console.log("Installing dependencies");
             shell.exec("npm install");
             console.log("Running app");

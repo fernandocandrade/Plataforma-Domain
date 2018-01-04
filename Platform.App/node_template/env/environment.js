@@ -20,7 +20,9 @@ var fs = require("fs");
         cnf.database.host = process.env.POSTGRES_HOST || "localhost";
         cnf.database.user = "postgres";
         cnf.database.password = "";
-        cnf.http.port = 9090;
+        //cnf.http.port = 9090;
+        var instanceConfig = JSON.parse(fs.readFileSync("plataforma.instance.lock"));
+        cnf.http.port = instanceConfig.port || 9090;
         var p1 = new Promise(function(resolve, reject) {
             resolve(cnf);
         });
