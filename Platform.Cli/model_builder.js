@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 var Handlebars = require('handlebars');
-var root = "../Platform.App/";
+var root = __dirname +"/";
 Handlebars.registerHelper( "join", function( obj, sep, options ) {    
     return Object.keys(obj).map(function( item ) {        
         return options.fn( obj[item] );

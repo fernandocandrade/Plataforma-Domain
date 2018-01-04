@@ -10,21 +10,27 @@
 var FileLoader = require("./file_loader.js");
 var ModelBuilder = require("./model_builder.js");
 var Bundler = require("./bundler.js");
-//var root = "../Domain.App/";
-//var files = FileLoader.getFileNames(root)
+
 var runAppAction    = new (require("./actions/runAppAction"));
 var createAppAction = new (require("./actions/createAppAction"));
 var deployAppAction = new (require("./actions/deployAppAction"));
 var program = require('commander');
-
+var fs = require("fs");
+var os = require("os");
 program
   .version('0.0.1')
   .option('-r, --run', 'Run local App')
-  .option('-c, --create [type]', 'Creates a new App')
+  .option('-n, --new [type]', 'Creates a new App')
   .option('-d, --deploy [env]', 'Deploy App')
   .parse(process.argv);
+
+if(!fs.existsSync("plataforma.json")){
+    console.log("Não é uma aplicação de plataforma válida");
+    process.exit(-1);
+}
+
 if (program.run) runAppAction.exec();
-if (program.create) createAppAction.exec(program.create);
+if (program.new) createAppAction.exec(program.new);
 if (program.deploy) deployAppAction.exec(program.deploy);
 
 /**
@@ -39,13 +45,4 @@ if (program.deploy) deployAppAction.exec(program.deploy);
  *  - Compila a aplicação e joga dentro do ambiente da plataforma
  * 
  */
-
-
-
-/*files.forEach((f)=>ModelBuilder.loadModel(FileLoader.readFile(f)))
-//compilou o template para o modelo do Node com Sequelize
-var compiled = ModelBuilder.compile();
-Bundler.generate(compiled,root,()=>{
-    console.log("done!");    
-});*/
 

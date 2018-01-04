@@ -4,7 +4,7 @@ module.exports = class CreateDomainAppAction{
      * @method create
      * @description Monta a estrutura básica de uma aplicação de dominio
      * */ 
-    create(){
+    create(type){
         var shell = require('shelljs');
         
         var inquirer = require('inquirer');
@@ -12,12 +12,12 @@ module.exports = class CreateDomainAppAction{
         
         var plataforma = {};
         plataforma.app = {};
-        
+        plataforma.app.type = "domain";
         inquirer.prompt(this.getQuestions()).then(answers => {
             var name = answers["nome"];
             var path = process.cwd()+"/"+name;
             plataforma.app.name = name;
-            shell.mkdir('-p', path+'/Dominio',path+'/Migrations');
+            shell.mkdir('-p', path+'/Dominio',path+'/Migrations',path+'/Mapas');
             
             plataforma.app.version = answers["versao_plataforma"];
             plataforma.app.description = answers["descricao"];
