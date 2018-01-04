@@ -2,7 +2,7 @@
  * Esta action cria toda a estrutura de diretórios para a App
  * bem como o arquivo de configuração local
  */
-const CreateDomainAppAction = require("./createDomainAppAction")
+const CreateDomainAppAction = require("./domain/createAppAction")
  module.exports = class CreateAppAction{     
     
     constructor(){
