@@ -14,15 +14,21 @@ Antes de executar a aplicação é necessário instalar todas as dependências n
 Para isso você deve executar o seguinte comando:
 ```sh
 $ npm install
+#disponibiliza o cliente para ser executado em outros diretórios
+$ npm link
 ```
 
-Para executar o compilador, apontando para a aplicação Domain.App você deve executar o seguinte comando:
+Para criar uma aplicação de domínio executar o comando abaixo e preencher as informações da nova aplicação que forem solicitadas
 ```sh
-$ node atom.js
+$ plataforma -n domain
 ```
 
-Ao final da execução execute o seguinte comando para verificar se o pacote da aplicação foi gerado corretamente.
+Para executar uma aplicação execute o comando abaixo
 ```sh
-$ ls ../Platform.App
+$ plataforma --run
 ```
-Se a sua sáida gerou um diretório chamado "bundle" dentro da pasta Platform.App significa que o compilador executou com sucesso.
+
+Em caso de dúvidas execute o seguinte comando
+```sh
+$ plataforma --help
+```
