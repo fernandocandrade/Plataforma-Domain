@@ -20,10 +20,9 @@ var program = require('commander');
 program
   .version('0.0.1')
   .option('-r, --run', 'Run local App')
-  .option('-c, --create [name]', 'Creates a new App')
+  .option('-c, --create [type]', 'Creates a new App')
   .option('-d, --deploy [env]', 'Deploy App')
   .parse(process.argv);
-
 if (program.run) runAppAction.exec();
 if (program.create) createAppAction.exec(program.create);
 if (program.deploy) deployAppAction.exec(program.deploy);
