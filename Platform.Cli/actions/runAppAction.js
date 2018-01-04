@@ -10,6 +10,10 @@ module.exports = class RunAppAction{
         this.runDomainApp = new RunDomainApp();
     }
     exec(){
+        if(!fs.existsSync("plataforma.json")){
+            console.log("Não é uma aplicação de plataforma válida");
+            process.exit(-1);
+        }
         var root = process.cwd();
         var config = this.getConfig(root);
         switch (config.app.type){

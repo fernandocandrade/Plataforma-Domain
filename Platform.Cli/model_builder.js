@@ -65,7 +65,7 @@ module.exports = (function(){
      * para JavaScript/Sequelize através de um template definido 
      * dentro da pasta Platform.App/node_template/model/domain.tmpl
      */
-    self.compile = ()=>{
+    self.compile = (appName)=>{
         var tables = keys(self.model.tables);
         tables.forEach(t => {
             self.compileTable(self.model.tables[t]);
@@ -73,7 +73,7 @@ module.exports = (function(){
 
         var source = fs.readFileSync(root+"node_template/model/domain.tmpl").toString();
         var template = Handlebars.compile(source);
-        var obj = { "model":self.sequelizeModel, "relations":self.model.relationships};        
+        var obj = {"database_name":appName, "model":self.sequelizeModel, "relations":self.model.relationships};        
         var compiled = template(obj);
         return compiled;
     };

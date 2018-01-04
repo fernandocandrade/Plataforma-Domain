@@ -35,38 +35,10 @@ module.exports = (function(){
         shell.cp("-R",domainAppRoot+"Mapas/",root+"bundle/");
         shell.mv(root+"bundle/Mapas/",root+"bundle/maps");
 
+
+        shell.cp(domainAppRoot+"/plataforma.json",root+"bundle/");
         callback();
     }
-
-    /**
-       self.generate = (compiled, domainAppRoot, callback)=>{
-        if (fs.existsSync(root+"bundle")){
-            rimraf.sync(root+"bundle",fs);    
-        }
-        fs.mkdirSync(root+"bundle");
-        fs.mkdirSync(root+"bundle/migrations");
-        fs.mkdirSync(root+"bundle/maps");
-        fs.mkdirSync(root+"bundle/mapper");
-        fs.mkdirSync(root+"bundle/api");
-        fs.mkdirSync(root+"bundle/model");
-        ncp(baseTemplate+"node_template", root+"bundle", function (err) {
-            if (err) {
-            return console.error(err);
-            }
-            fs.writeFileSync(root+"bundle/model/domain.js",compiled);
-            fs.unlinkSync(root+"bundle/model/domain.tmpl");
-            console.log(domainAppRoot);
-            ncp(domainAppRoot+"Mapas",root+"bundle/maps",()=>{
-                ncp(baseTemplate+"node_template/mapper",root+"bundle/mapper",()=>{
-                    ncp(baseTemplate +"node_template/api",root+"bundle/api",()=>{
-                        ncp(domainAppRoot+"Migrations",root+"bundle/migrations",callback);
-                    });
-                });
-            });
-        });
-        
-    }
-     */
 
     return self;
 })();

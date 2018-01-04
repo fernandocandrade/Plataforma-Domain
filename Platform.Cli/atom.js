@@ -17,6 +17,7 @@ var deployAppAction = new (require("./actions/deployAppAction"));
 var program = require('commander');
 var fs = require("fs");
 var os = require("os");
+var shell = require("shelljs");
 program
   .version('0.0.1')
   .option('-r, --run', 'Run local App')
@@ -24,10 +25,6 @@ program
   .option('-d, --deploy [env]', 'Deploy App')
   .parse(process.argv);
 
-if(!fs.existsSync("plataforma.json")){
-    console.log("Não é uma aplicação de plataforma válida");
-    process.exit(-1);
-}
 
 if (program.run) runAppAction.exec();
 if (program.new) createAppAction.exec(program.new);
