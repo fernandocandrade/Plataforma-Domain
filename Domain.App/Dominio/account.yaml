@@ -1,3 +1,5 @@
 tb_account:  
+  nm_titular:
+    - string
   vl_balance:
     - integer

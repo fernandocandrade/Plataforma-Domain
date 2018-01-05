@@ -25,6 +25,8 @@ conta:
   fields:
     saldo:
       column: vl_balance
+    titular:
+      column: nm_titular
   filters:
     byId:
       id: :id

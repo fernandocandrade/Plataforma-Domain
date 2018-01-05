@@ -1,3 +1,14 @@
+conta:
+  model: tb_account
+  fields:
+    titular:
+      column: nm_titular
+    saldo:
+      column: vl_balance
+  filters:
+    byId:
+      id: :id
+
 transferencia:
   model: tb_operation
   fields:
@@ -13,14 +24,3 @@ transferencia:
     tipoOperacao:
       column: tp_operation
       required: true
-
-conta:
-  model: tb_account
-  fields:
-    saldo:
-      column: vl_balance
-    titular:
-      column: nm_titular
-  filters:
-    byId:
-      id: :id

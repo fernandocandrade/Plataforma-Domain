@@ -1,9 +1,11 @@
 tb_operation:
   acc_origin:
-    - integer
+    - string
     - primary key
   acc_dest:
-    - integer
+    - string
     - primary key
+  transfer_vl:
+    - string
   tp_operation:
     - string

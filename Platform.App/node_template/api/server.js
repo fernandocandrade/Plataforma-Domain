@@ -4,6 +4,7 @@
 
 
 var restify = require('restify');
+var restifyCors = require('restify-cors-middleware');
 var QueryController = require('./controllers/queryController');
 var SaveCommandController = require('./controllers/saveCommandController');
 var RequireInstanceIdMiddleware = require('./middlewares/requireInstanceId');
@@ -17,6 +18,15 @@ server.use(restify.plugins.bodyParser());
 //Middlewares
 server.use(RequireInstanceIdMiddleware);
 server.use(ConfigureValidityPolicyMiddleware);
+
+var cors = restifyCors({
+    origins: ['*'], // defaults to ['*'] to allow all origins
+    allowHeaders: ['Instance-Id'],
+    exposeHeaders: ['API-Token-Expiry']
+  });
+
+server.pre(cors.preflight)
+server.use(cors.actual)
 
 //Routing
 var query = new QueryController();
