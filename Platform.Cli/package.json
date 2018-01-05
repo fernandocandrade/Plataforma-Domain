@@ -10,17 +10,24 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.12.2",
     "handlebars": "^4.0.11",
+    "inquirer": "^4.0.2",
     "js-yaml": "^3.10.0",
     "ncp": "^2.0.0",
     "pg": "^7.4.0",
     "pg-hstore": "^2.3.2",
     "restify": "^6.3.4",
     "rimraf": "^2.6.2",
-    "sequelize": "^4.23.1"
+    "sequelize": "^4.23.1",
+    "shelljs": "^0.7.8",
+    "uuid": "^3.1.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ONSBR/Plataforma-Domain.git"
+  },
+  "bin": {
+    "plataforma": "atom.js"
   }
 }

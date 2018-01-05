@@ -55,7 +55,8 @@ class Index{
         };
         
         for (var entity in register.map){
-            addAttr("id");                    
+            addAttr("id");
+            addAttr("meta_instance_id");
         }
     }
     /**
@@ -91,7 +92,7 @@ class Index{
             }
             var proj = [fieldObj.column,field];
             projections[mappedModel].attributes.push(proj);        
-          }
+          }         
         }        
     }
 

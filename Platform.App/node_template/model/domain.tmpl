@@ -2,98 +2,103 @@
 const Environment = require('../env/environment');
 var config = new Environment();
 const Sequelize = require('sequelize');
-var model = {};
-config.load().then((conf)=>{
+
+
+var domainPromise = new Promise(function(resolve, reject) {  
+  var model = {};
+  config.load().then((conf)=>{
+    const sequelize = new Sequelize("{{database_name}}", conf.database.user, conf.database.password, {
+      host: conf.database.host,
+      dialect: 'postgres',
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+      },
+      logging: false,
+      operatorsAliases: true
+      
+    });    
+
+    model["migration_history"] = sequelize.define('migration_history', {
+        id: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+        name: { type: Sequelize.STRING }                
+    },{
+        timestamps: true,
+        freezeTableName: true                   
+    });
   
 
-  const sequelize = new Sequelize(conf.database.name, conf.database.user, conf.database.password, {
-    host: conf.database.host,
-    dialect: 'postgres',
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    },
-    logging: true,
-    operatorsAliases: true
-    
-  });
-
-
-
-
-  //Declaring models with Sequelize
-  {{#each model}}
-  model["{{@key}}"] = sequelize.define('{{@key}}', {
-      rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
-      id: { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  },
-      instance_id: { type: Sequelize.UUID },
-      {{#join . ","}}
-      {{name}}: { type: {{type}} } {{/join}}
-      , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-      data_fim_vigencia:{ type: Sequelize.DATE }
-  },{
-      timestamps: false,
-      freezeTableName: true,
-      scopes:{
-        old: function (referencia){
-          return {
-            where: {
-              data_inicio_vigencia: {
-                $lte: referencia
-              },
-              data_fim_vigencia:{
-                $gte: referencia
+    //Declaring models with Sequelize
+    {{#each model}}
+    model["{{@key}}"] = sequelize.define('{{@key}}', {
+        rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+        id: { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  },
+        meta_instance_id: { type: Sequelize.UUID },
+        {{#join . ","}}
+        {{name}}: { type: {{type}} } {{/join}}
+        , data_inicio_vigencia:{ type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+        data_fim_vigencia:{ type: Sequelize.DATE }
+    },{
+        timestamps: false,
+        freezeTableName: true,
+        scopes:{
+          old: function (referencia){
+            return {
+              where: {
+                data_inicio_vigencia: {
+                  $lte: referencia
+                },
+                data_fim_vigencia:{
+                  $gte: referencia
+                }
+              }
+            }
+          },
+          current: function (referencia){
+            return {
+              where: {            
+                data_fim_vigencia:{
+                  $eq:null
+                }
               }
             }
           }
         },
-        current: function (referencia){
-          return {
-            where: {            
-              data_fim_vigencia:{
-                $eq:null
-              }
+        indexes: [
+            {
+                unique: true,
+                fields: ['rid', 'id']
             }
-          }
-        }
+        ]   
+    });
+
+    {{/each}}
+
+    {{#each relations}}
+
+    {{#eq this.[1] "hasMany"}}
+    model["{{0}}_has_{{2}}"] = sequelize.define('{{0}}_has_{{2}}', {
+      rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
+      {{0}}Id:{ 
+        type: Sequelize.UUID
       },
-      indexes: [
-          {
-              unique: true,
-              fields: ['rid', 'id']
-          }
-      ]   
-  });
+      {{2}}Id:{ 
+        type: Sequelize.UUID
 
-  {{/each}}
+      }  
+    },{
+      timestamps: false,
+      freezeTableName: true  
+    });
+    {{/eq}}
 
-  {{#each relations}}
-
-  {{#eq this.[1] "hasMany"}}
-  model["{{0}}_has_{{2}}"] = sequelize.define('{{0}}_has_{{2}}', {
-    rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
-    {{0}}Id:{ 
-      type: Sequelize.UUID
-    },
-    {{2}}Id:{ 
-      type: Sequelize.UUID
-
-    }  
-  },{
-    timestamps: false,
-    freezeTableName: true  
-  });
-  {{/eq}}
-
-  {{/each}}
-
-
-
-
-  //Sincronize database
-  sequelize.sync();  
+    {{/each}}    
+    model["_engine"] = sequelize;
+    model["_dataTypes"] = Sequelize; 
+    resolve(model);
+  });  
 });
-module.exports = model;
+module.exports = domainPromise;
 

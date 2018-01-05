@@ -52,9 +52,19 @@ class Transform {
             modelJson._metadata = {};
             modelJson._metadata.type = mapName;            
             this.applyIncludeFields(modelJson,processId,mapName);
-            this.applyFunctionFields(modelJson,processId,mapName,accumulator);            
+            this.applyFunctionFields(modelJson,processId,mapName,accumulator);
+            this.applyMetadataFields(modelJson);            
             return modelJson;
         });
+    }
+
+
+    applyMetadataFields(modelJson){       
+        if (modelJson.meta_instance_id){
+            modelJson._metadata.instance_id = modelJson.meta_instance_id;
+            delete modelJson.meta_instance_id;
+        }
+        
     }
     /**
      * 

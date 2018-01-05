@@ -2,7 +2,6 @@
 var MapBuilder = require("../../mapper/builder.js");
 var ChangeTrackPolicy = require("../../model/changeTrackPolicy.js");
 var facade = new MapBuilder().build();
-var domain = require("../../model/domain.js");
 
 var mapperIndex = facade.index;
 var mapper = facade.transform;
@@ -13,6 +12,10 @@ var translator = facade.translator;
  * @description Classe responsável por persistir as entidades mapeadas no dominio
  */
 class SaveCommandController{
+
+    constructor (domain){
+        this.domain = domain;
+    }
     /**
      * @method persist
      * @param {Request} req Objeto de request do restify
@@ -28,7 +31,7 @@ class SaveCommandController{
         try {
             var domainEntities = entities.map(e => {
                 var translatedEntity = translator.toDomain(req.params["appId"],e);
-                translatedEntity.instance_id = req.instanceId;
+                translatedEntity.meta_instance_id = req.instanceId;
                 return translatedEntity;
             });
             
@@ -46,7 +49,7 @@ class SaveCommandController{
             var after = new Date().getTime();
             console.log("Tempo de execucao do change track")
             console.log((after - before)+" ms");
-            var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))
+            var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))            
             var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));
             res.send(finalMap);
             console.log("------------------------------------");

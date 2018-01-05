@@ -1,5 +1,4 @@
 var ArrayUtils = require("../utils/array")
-var domain = require("./domain");
 /**
  * @class ChangeTrackPolicy
  * @description esta classe é responsável pelo change track das entidades
