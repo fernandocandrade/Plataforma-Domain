@@ -34,28 +34,28 @@ class SaveCommandController{
                 translatedEntity.meta_instance_id = req.instanceId;
                 return translatedEntity;
             });
-            
+            var track = new ChangeTrackPolicy(domainEntities, req.validityPolicy);        
+            var before = new Date().getTime();
+            console.log("------------------------------------");
+            track.apply(persisted =>{            
+                var after = new Date().getTime();
+                console.log("Tempo de execucao do change track")
+                console.log((after - before)+" ms");
+                var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))            
+                var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));
+                res.send(finalMap);
+                console.log("------------------------------------");
+            },(err)=>{
+                res.send(400,{message:err});
+            });
         } catch (error) {
-            res.send(400,{message:error});
+            res.send(400,{message:error.toString()});
             console.log("------------------------------------");
             console.log("Error " + error);
             console.log("------------------------------------");
             return;
         }
-        var track = new ChangeTrackPolicy(domainEntities, req.validityPolicy);        
-        var before = new Date().getTime();
-        console.log("------------------------------------");
-        track.apply(persisted =>{            
-            var after = new Date().getTime();
-            console.log("Tempo de execucao do change track")
-            console.log((after - before)+" ms");
-            var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))            
-            var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));
-            res.send(finalMap);
-            console.log("------------------------------------");
-        },(err)=>{
-            res.send(400,{message:err});
-        });        
+                
     }
 }
 
