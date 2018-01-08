@@ -28,6 +28,11 @@ Para executar uma aplicação execute o comando abaixo
 $ plataforma --run
 ```
 
+Para limpar uma aplicação execute o comando abaixo
+```sh
+$ plataforma --clean
+```
+
 Em caso de dúvidas execute o seguinte comando
 ```sh
 $ plataforma --help
