@@ -60,7 +60,6 @@ class ValidityPolicy {
         //só por garantia        
         var toCreate = this.clone(obj);
         delete toCreate.rid;
-        var keys = Object.keys(this.domain);
         if (!this.domain[obj._metadata.type]){
             fallback(`${obj._metadata.type} is not defined in domain`);
             return;

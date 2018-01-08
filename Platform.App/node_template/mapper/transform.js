@@ -57,8 +57,7 @@ class Transform {
     }
 
 
-    applyMetadataFields(modelJson){       
-        console.log(modelJson);
+    applyMetadataFields(modelJson){
         if (modelJson.meta_instance_id){
             modelJson._metadata.instance_id = modelJson.meta_instance_id;
             delete modelJson.meta_instance_id;

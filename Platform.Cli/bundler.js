@@ -25,7 +25,12 @@ module.exports = (function(){
      */
     self.generate = (compiled, domainAppRoot, callback)=>{                
         if (fs.existsSync(root+"bundle")){
-            fs.unlinkSync(root+"bundle");
+            try{
+                fs.unlinkSync(root+"bundle");
+            }catch(e){
+                console.log(e);
+                return;
+            }
         }        
         var portManager = new Ports();        
         var id = "plataforma_"+uuidv4();
