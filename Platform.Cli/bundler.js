@@ -24,6 +24,9 @@ module.exports = (function(){
      * para o formato Sequelize
      */
     self.generate = (compiled, domainAppRoot, callback)=>{                
+        if (fs.existsSync(root+"bundle")){
+            fs.unlinkSync(root+"bundle");
+        }        
         var portManager = new Ports();        
         var id = "plataforma_"+uuidv4();
         var instance = {};
@@ -31,7 +34,10 @@ module.exports = (function(){
         instance.port = portManager.getNextAvailablePort();
         if (fs.existsSync(domainAppRoot+"/plataforma.instance.lock")){
             instance = JSON.parse(fs.readFileSync(domainAppRoot+"/plataforma.instance.lock","UTF-8"));
-            shell.rm("-rf",root+instance.id);
+            if (fs.existsSync(root+instance.id)){
+                shell.rm("-rf",root+instance.id);
+            }
+            
         }
         shell.cp("-R",baseTemplate+"node_template",root+"bundle");        
         fs.writeFileSync(root+"bundle/model/domain.js",compiled);

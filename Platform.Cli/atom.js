@@ -14,6 +14,7 @@ var Bundler = require("./bundler.js");
 var runAppAction    = new (require("./actions/runAppAction"));
 var createAppAction = new (require("./actions/createAppAction"));
 var deployAppAction = new (require("./actions/deployAppAction"));
+var cleanAppAction = new (require("./actions/cleanAppAction"));
 var program = require('commander');
 var fs = require("fs");
 var os = require("os");
@@ -23,12 +24,14 @@ program
   .option('-r, --run', 'Run local App')
   .option('-n, --new [type]', 'Creates a new App')
   .option('-d, --deploy [env]', 'Deploy App')
+  .option('-c, --clean', 'Clean App')
   .parse(process.argv);
 
 
 if (program.run) runAppAction.exec();
 if (program.new) createAppAction.exec(program.new);
 if (program.deploy) deployAppAction.exec(program.deploy);
+if (program.clean) cleanAppAction.exec(program.deploy);
 
 /**
  * 
