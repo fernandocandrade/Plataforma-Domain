@@ -9,4 +9,9 @@ services:
         image: adminer:latest
         container_name: "adminer"        
         ports:
-            - 8080:8080        
+            - 8080:8080
+  pgadmin:
+        image: fenglc/pgadmin4:latest
+        container_name: "pgadmin"
+        ports:
+            - 5050:5050

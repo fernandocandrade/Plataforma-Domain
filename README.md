@@ -30,7 +30,7 @@ Caso você opte por usar o docker você pode subir o Postgres e o Adminer com o 
 ```sh
 $ docker-compose up -d
 ```
-Ao executar esse comando o docker irá subir um container com o Postgres e com o Adminer
+Ao executar esse comando o docker irá subir um container com o Postgre, Adminer e o PgAdmin4
 
 Após a subida dos containers você deve acessar o Postgres para criar uma base de dados.
 O Adminer pode ser acessado diretamente pelo browser através do endereço:
@@ -46,3 +46,10 @@ Observação Importante:
 Você deve criar um banco de dados chamado "app", caso queira rodar a aplicação já seguindo as configurações default
 
 Para mais informações você pode consultar o README de cada projeto específico.
+
+
+Para executar o PgAdmin4 vocêpode acessar o browser no endere�o http://localhost:5050, vocêdeverá entrar com o login: 
+
+user: pgadmin4@pgadmin.org
+password: admin
+
