@@ -41,9 +41,7 @@ class Transform {
     
     applyRuntimeFields (processId,mapName,modelList) {    
         var accumulator = {};
-        if (!this.index.hasFunctions(processId,mapName)){
-            return modelList;
-        }        
+        
         return modelList.map(model => {
             var modelJson = model;
             if (typeof(model["toJSON"]) === "function"){
@@ -60,6 +58,7 @@ class Transform {
 
 
     applyMetadataFields(modelJson){       
+        console.log(modelJson);
         if (modelJson.meta_instance_id){
             modelJson._metadata.instance_id = modelJson.meta_instance_id;
             delete modelJson.meta_instance_id;
@@ -102,6 +101,9 @@ class Transform {
      * nas funções calculadas
      */
     applyFunctionFields(modelJson,processId,mapName, accumulator){
+        if (!this.index.hasFunctions(processId,mapName)){
+            return modelJson;
+        }
         var functions = this.index.getFunctions(processId,mapName);
         for(var calcProp in functions){
             if (accumulator[calcProp] === undefined){

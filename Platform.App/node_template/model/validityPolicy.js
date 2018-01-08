@@ -57,9 +57,14 @@ class ValidityPolicy {
      * o objeto sequelize da entidade salva, no fallback será passado o erro
      */
     create(obj,callback,fallback){
-        //só por garantia
+        //só por garantia        
         var toCreate = this.clone(obj);
         delete toCreate.rid;
+        var keys = Object.keys(this.domain);
+        if (!this.domain[obj._metadata.type]){
+            fallback(`${obj._metadata.type} is not defined in domain`);
+            return;
+        }
         this.domain[obj._metadata.type].create(toCreate).then(callback).catch((e)=>{
             fallback(e);
         });
@@ -175,7 +180,7 @@ class ValidityPolicy {
     apply(item,callback,fallback){
         var operation = item._metadata.changeTrack;
         var type = item._metadata.type;
-        var toExecute;
+        var toExecute;  
         if ("create" === operation){
             toExecute = this.create(item,callback,fallback);
         }else if ("update" === operation){
