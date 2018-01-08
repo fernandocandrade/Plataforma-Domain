@@ -27,9 +27,12 @@ program
   .option('-c, --clean', 'Clean App')
   .parse(process.argv);
 
-
-if (program.run) runAppAction.exec();
 if (program.new) createAppAction.exec(program.new);
+else if(!fs.existsSync("plataforma.json")){
+  console.log("Não é uma aplicação de plataforma válida");
+  process.exit(-1);
+}
+if (program.run) runAppAction.exec();
 if (program.deploy) deployAppAction.exec(program.deploy);
 if (program.clean) cleanAppAction.exec(program.deploy);
 
