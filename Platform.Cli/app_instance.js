@@ -18,4 +18,12 @@ module.exports = class AppInstance{
         }
         return {};
     }
+
+    getSolutionConfig(path){
+        var fs = require("fs");
+        if (fs.existsSync(path+"/plataforma.json")){
+            return JSON.parse(fs.readFileSync(path+"/plataforma.json","UTF-8"));
+        }
+        return {};
+    }
 }

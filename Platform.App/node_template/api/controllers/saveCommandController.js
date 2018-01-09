@@ -6,7 +6,7 @@ var facade = new MapBuilder().build();
 var mapperIndex = facade.index;
 var mapper = facade.transform;
 var translator = facade.translator;
-
+var ArrayUtils = require("../../utils/array");
 /**
  * @class SaveCommandController
  * @description Classe responsável por persistir as entidades mapeadas no dominio
@@ -37,16 +37,17 @@ class SaveCommandController{
             var track = new ChangeTrackPolicy(domainEntities, req.validityPolicy);        
             var before = new Date().getTime();
             console.log("------------------------------------");
+            var arrayU = new ArrayUtils();
             track.apply(persisted =>{            
                 var after = new Date().getTime();
                 console.log("Tempo de execucao do change track")
                 console.log((after - before)+" ms");
                 var persistedMap = persisted.map(e => translator.toMap(req.params["appId"],e))            
-                var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));
-                res.send(finalMap);
+                var finalMap = persistedMap.map(final => mapper.applyRuntimeFields(req.params["appId"],final._metadata.type,[final]));                
+                res.send(arrayU.flatMap(finalMap));
                 console.log("------------------------------------");
             },(err)=>{
-                res.send(400,{message:err});
+                res.send(400,{message:err.toString()});
             });
         } catch (error) {
             res.send(400,{message:error.toString()});

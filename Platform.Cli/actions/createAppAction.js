@@ -3,10 +3,12 @@
  * bem como o arquivo de configuração local
  */
 const CreateDomainAppAction = require("./domain/createAppAction")
+const SolutionAction = require("./solution/createSolutionAction")
  module.exports = class CreateAppAction{     
     
     constructor(){
         this.domainAction = new CreateDomainAppAction();
+        this.solutionAction = new SolutionAction();
     }
     
     /** 
@@ -18,6 +20,9 @@ const CreateDomainAppAction = require("./domain/createAppAction")
         switch (type){
             case "domain":
                 this.domainAction.create();
+                break;
+            case "solution":
+                this.solutionAction.create();
                 break;
             default:
                 console.log(`Option ${type} not supported`);
