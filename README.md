@@ -11,9 +11,9 @@ O projeto é dividido em três grandes módulos:
 
 Domain.App contém a aplicação de domínio onde o usuário irá definir o modelo de dados físicos baseados em YAML;
 
-Platoform.App contém o template de tecnologia de execução na plataforma no caso nós usamos o NodeJs como template de implementação
+Platoform.App contém o template de tecnologia de execução na plataforma. O NodeJs é o template de implementação atual;
 
-Platform.Cli contém um projeto utilitário que compila a aplicação de domínio em YAML para uma aplicação completa NodeJS
+Platform.Cli contém um projeto utilitário que compila a aplicação de domínio em YAML para uma aplicação completa NodeJS.
 
 #### Requisitos
 
@@ -30,11 +30,17 @@ Caso você opte por usar o docker você pode subir o Postgres e o Adminer com o 
 ```sh
 $ docker-compose up -d
 ```
-Ao executar esse comando o docker irá subir um container com o Postgre, Adminer e o PgAdmin4
+Ao executar esse comando o docker irá subir um container com o Postgres, Adminer e o PgAdmin4
 
-Após a subida dos containers você deve acessar o Postgres para criar uma base de dados.
 O Adminer pode ser acessado diretamente pelo browser através do endereço:
 http://localhost:8080
+
+O PgAdmin4 poderá ser acessado também diretamente pelo Browser através do endereço:
+http://localhost:5050
+
+Ao entrar na tela será solicitado o acesso ao PgAdmin, entre com os seguintes valores:
+user: pgadmin4@pgadmin.org
+password: admin
 
 Observação Importante:
     ```Lembre-se de escolher o ip da sua maquina para conectar ao Postgres com Adminer, se você colocar localhost o Adminer não irá encontrar o Postgres, lembre-se que eles estão rodando em containers diferentes```
@@ -43,13 +49,8 @@ Observação Importante:
   <img src="./screenshots/loginAdminer.jpg" alt="Login no Adminer">
 </p>
 
-Você deve criar um banco de dados chamado "app", caso queira rodar a aplicação já seguindo as configurações default
-
 Para mais informações você pode consultar o README de cada projeto específico.
 
 
-Para executar o PgAdmin4 vocêpode acessar o browser no endere�o http://localhost:5050, vocêdeverá entrar com o login: 
 
-user: pgadmin4@pgadmin.org
-password: admin
 
