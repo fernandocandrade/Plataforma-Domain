@@ -18,9 +18,20 @@ $ npm install
 $ npm link
 ```
 
+Para criar uma solução de aplicações execute o comando abaixo:
+```sh
+$ plataforma --new solution
+```
+Todas as outras aplicações deverão ser criadas dentro do diretório da solution
+
 Para criar uma aplicação de domínio executar o comando abaixo e preencher as informações da nova aplicação que forem solicitadas
 ```sh
 $ plataforma --new domain
+```
+
+Para criar uma aplicação de processo execute o seguinte comando:
+```sh
+$ plataforma --new process
 ```
 
 Para executar uma aplicação execute o comando abaixo
