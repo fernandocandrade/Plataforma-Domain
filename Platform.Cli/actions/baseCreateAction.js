@@ -26,7 +26,7 @@ module.exports = class BaseCreateAction{
             plataforma.app.description = answers["descricao"];
             plataforma.app.author = answers["autor"];
             plataforma.solution = solution.solution;            
-            this.saveApiCore(plataforma,(id)=>{
+            this.installAppApiCore(plataforma,(id)=>{
                 shell.mkdir('-p', path);
                 plataforma.app.id = id;                
                 fs.writeFileSync(path+"/plataforma.json",JSON.stringify(plataforma, null, 4),"UTF-8");
@@ -67,30 +67,7 @@ module.exports = class BaseCreateAction{
         return questions;
      }
 
-    saveApiCore(platform,callback){
-        //TODO migrar para uma lib do Api Core
-        var unirest = require("unirest");
-        var req = unirest("POST", "http://localhost:9095/core/persist");
-        req.headers({
-            "content-type": "application/json",
-            "instance-id": "fe93a9a8-84d9-41ec-a056-e4606a72fbdd"
-        });
-        req.type("json");
-        var clone = JSON.parse(JSON.stringify(platform.app));
-        clone.systemId = platform.solution.id;
-        clone._metadata = {};
-        clone._metadata.type= "installedApps";
-        clone._metadata.changeTrack = "create";
-
-        req.send([clone]);
-        req.end(function (res) {
-            //caso nao esteja rodando a API Core
-            //entao executa "local"
-            if  (res.error){
-                callback(uuidv4())
-            }else{
-                callback(res.body[0].id);
-            }            
-        });
+     installAppApiCore(platform,callback){
+        callback(uuidv4())
      }
 }
