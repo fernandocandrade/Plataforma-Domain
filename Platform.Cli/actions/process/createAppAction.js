@@ -12,6 +12,10 @@ module.exports = class CreateAppAction{
         this.baseAction.create("process",(plataforma)=>{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process');
+            shell.touch(path+"/process/"+plataforma.app.name+".js");
+            shell.touch(path+"/metadados/EventCatalog.js");
+            shell.touch(path+"/metadados/"+plataforma.app.name+".yaml");
+            
         }) 
     }     
 }
