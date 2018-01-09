@@ -20,7 +20,7 @@ cliente:
         - nome:
             $eq: :nome2
 
-conta:
+Conta:
   model: tb_account
   fields:
     saldo:

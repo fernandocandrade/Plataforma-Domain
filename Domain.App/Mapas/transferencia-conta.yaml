@@ -1,4 +1,4 @@
-transferencia:
+Transferencia:
   model: tb_operation
   fields:
     contaOrigem:
@@ -14,7 +14,7 @@ transferencia:
       column: tp_operation
       required: true
 
-conta:
+Conta:
   model: tb_account
   fields:
     saldo:
