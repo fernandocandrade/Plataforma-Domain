@@ -4,10 +4,12 @@
  */
 const CreateDomainAppAction = require("./domain/createAppAction")
 const SolutionAction = require("./solution/createSolutionAction")
+const CreateProcessAppAction = require("./process/createAppAction")
  module.exports = class CreateAppAction{     
     
     constructor(){
         this.domainAction = new CreateDomainAppAction();
+        this.processAction = new CreateProcessAppAction();
         this.solutionAction = new SolutionAction();
     }
     
@@ -23,6 +25,9 @@ const SolutionAction = require("./solution/createSolutionAction")
                 break;
             case "solution":
                 this.solutionAction.create();
+                break;
+            case "process":
+                this.processAction.create();
                 break;
             default:
                 console.log(`Option ${type} not supported`);
