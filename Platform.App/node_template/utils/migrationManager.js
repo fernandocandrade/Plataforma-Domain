@@ -142,6 +142,10 @@ class MigrationManager{
         var promise = new Promise((resolve,reject)=>{
             var fs = require("fs");
             var yaml = require("js-yaml");
+            if (!fs.existsSync("./migrations")){
+                resolve([])
+                return;
+            }
             fs.readdir("./migrations", (err, items) => {
                 var list = [];
                 this.arrayUtils.asyncEach(items,(item,next)=>{

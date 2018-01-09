@@ -48,8 +48,11 @@ module.exports = (function(){
         fs.writeFileSync(root+"bundle/model/domain.js",compiled);
         fs.unlinkSync(root+"bundle/model/domain.tmpl");
         
-        shell.cp("-R",domainAppRoot+"Migrations/",root+"bundle/");
-        shell.mv(root+"bundle/Migrations/",root+"bundle/migrations");
+        if(fs.existsSync(domainAppRoot+"Migrations/")){
+            shell.cp("-R",domainAppRoot+"Migrations/",root+"bundle/");
+            shell.mv(root+"bundle/Migrations/",root+"bundle/migrations");
+        }
+        
 
         shell.cp("-R",domainAppRoot+"Mapas/",root+"bundle/");
         shell.mv(root+"bundle/Mapas/",root+"bundle/maps");
