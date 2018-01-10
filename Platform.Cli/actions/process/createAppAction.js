@@ -14,7 +14,7 @@ module.exports = class CreateAppAction{
     create(type){        
         this.baseAction.create("process",(plataforma)=>{
             var path = process.cwd()+"/"+plataforma.app.name;
-            shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process');
+            shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process', path+"/spec");
             shell.touch(path+"/process/"+plataforma.app.name+".js");
             shell.touch(path+"/metadados/EventCatalog.js");
             shell.touch(path+"/metadados/"+plataforma.app.name+".yaml");
@@ -25,9 +25,23 @@ WORKDIR /usr/src/${plataforma.app.name}
 COPY . .
 CMD [ "node", "process/${plataforma.app.name}.js" ]
 `
-            fs.writeFileSync(path+"/Dockerfile",new Buffer(Dockerfile),"UTF-8")
-            shell.touch(path+"/Dockerfile");
+            fs.writeFileSync(path+"/Dockerfile",new Buffer(Dockerfile),"UTF-8")            
+
+            const specTest = `
+describe('Sum example', function () {
+    it('sum 1 plus 1', function () {
+        expect(1+1).toEqual(2);
+    });
+});
+            `
+            fs.writeFileSync(path+`/spec/${plataforma.app.name}Spec.js`,new Buffer(specTest),"UTF-8")
+            shell.cd(path);
+            shell.exec("npm init -y");
+            shell.exec("npm install jasmine-node --save");
             
+            var npmConfig = JSON.parse(fs.readFileSync(path+"/package.json","UTF-8"));
+            npmConfig.scripts.test = "./node_modules/.bin/jasmine-node spec";
+            fs.writeFileSync(path+"/package.json",JSON.stringify(npmConfig,null,4));
         }) 
     }     
 }
