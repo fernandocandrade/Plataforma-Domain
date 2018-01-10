@@ -11,7 +11,7 @@ module.exports = class Ports{
      * disponível para ser usada por uma aplicação
      */
     getNextAvailablePort(){
-        var port = 9090;
+        var port = 9100;
         var ports = this.getUsedPorts();
         if (ports.length > 0){
             return this.getUsedPorts().pop() + 1;
