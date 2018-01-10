@@ -15,6 +15,7 @@ var runAppAction    = new (require("./actions/runAppAction"));
 var createAppAction = new (require("./actions/createAppAction"));
 var deployAppAction = new (require("./actions/deployAppAction"));
 var cleanAppAction = new (require("./actions/cleanAppAction"));
+var installPlatformAction = new (require("./actions/installPlatformAction"));
 var program = require('commander');
 var fs = require("fs");
 var os = require("os");
@@ -25,6 +26,7 @@ program
   .option('-n, --new [type]', 'Creates a new App')
   .option('-d, --deploy [env]', 'Deploy App')
   .option('-c, --clean', 'Clean App')
+  .option('-i, --install', 'Install Platform')
   .parse(process.argv);
 
 if (program.new) createAppAction.exec(program.new);
@@ -35,6 +37,7 @@ else if(!fs.existsSync("plataforma.json")){
 if (program.run) runAppAction.exec();
 if (program.deploy) deployAppAction.exec(program.deploy);
 if (program.clean) cleanAppAction.exec(program.deploy);
+if (program.install) installPlatformAction.exec();
 
 /**
  * 

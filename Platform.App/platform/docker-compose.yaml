@@ -1,0 +1,28 @@
+version: "2"
+
+services:  
+  postgres:
+    image: postgres:latest
+    container_name: "postgres"        
+    ports:
+      - 5432:5432
+    networks:
+      main:
+        aliases:
+          - postgres            
+  adminer:
+    image: adminer:latest
+    container_name: "adminer"        
+    ports:
+      - 8080:8080
+  pgadmin:
+    image: fenglc/pgadmin4:latest
+    container_name: "pgadmin"
+    ports:
+      - 5050:5050
+    networks:
+      main:
+        aliases:
+          - pgadmin
+networks:
+  main:          
