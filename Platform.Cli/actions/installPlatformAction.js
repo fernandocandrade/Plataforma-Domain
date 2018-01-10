@@ -9,10 +9,12 @@ module.exports = class InstallPlatformAction{
     exec(){
         inquirer.prompt(this.getQuestions()).then(answers => {
             var environment = answers["environment"];
-            var path = os.tmpdir()+"/plataforma_"+environment;
+            console.log(os.tmpdir());
+            var path = os.tmpdir()+"/installed_plataforma_"+environment;
             shell.mkdir('-p', path);
             shell.cd(path);
-            shell.exec("git clone https://github.com/ONSBR/Plataforma-Domain.git");
+            shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");            
+
         });
     }
 
