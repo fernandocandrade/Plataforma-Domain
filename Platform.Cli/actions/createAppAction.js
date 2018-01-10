@@ -5,12 +5,14 @@
 const CreateDomainAppAction = require("./domain/createAppAction")
 const SolutionAction = require("./solution/createSolutionAction")
 const CreateProcessAppAction = require("./process/createAppAction")
+const CreatePresentationAppAction = require("./presentation/createAppAction")
  module.exports = class CreateAppAction{     
     
     constructor(){
         this.domainAction = new CreateDomainAppAction();
         this.processAction = new CreateProcessAppAction();
         this.solutionAction = new SolutionAction();
+        this.presentationAction = new CreatePresentationAppAction();
     }
     
     /** 
@@ -28,6 +30,9 @@ const CreateProcessAppAction = require("./process/createAppAction")
                 break;
             case "process":
                 this.processAction.create();
+                break;
+            case "presentation":
+                this.presentationAction.create();
                 break;
             default:
                 console.log(`Option ${type} not supported`);
