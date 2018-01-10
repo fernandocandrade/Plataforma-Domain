@@ -16,6 +16,8 @@ var createAppAction = new (require("./actions/createAppAction"));
 var deployAppAction = new (require("./actions/deployAppAction"));
 var cleanAppAction = new (require("./actions/cleanAppAction"));
 var installPlatformAction = new (require("./actions/installPlatformAction"));
+var stopPlatformAction = new (require("./actions/stopPlatformAction"));
+var startPlatformAction = new (require("./actions/startPlatformAction"));
 var program = require('commander');
 var fs = require("fs");
 var os = require("os");
@@ -27,6 +29,8 @@ program
   .option('-d, --deploy [env]', 'Deploy App')
   .option('-c, --clean', 'Clean App')
   .option('-i, --install', 'Install Platform')
+  .option('-s, --stop', 'Stop Platform')
+  .option('-st, --start', 'Sart Platform')
   .parse(process.argv);
 
 if (program.new) createAppAction.exec(program.new);
@@ -38,17 +42,6 @@ if (program.run) runAppAction.exec();
 if (program.deploy) deployAppAction.exec(program.deploy);
 if (program.clean) cleanAppAction.exec(program.deploy);
 if (program.install) installPlatformAction.exec();
-
-/**
- * 
- * Funcoes
- * 
- * Criar nova App
- *  - Criar a estrutura de pastas da aplicação
- * Rodar um App
- *  - Compila a aplicação e joga o bundle para uma pasta temporaria e roda de la
- * Deployar uma App
- *  - Compila a aplicação e joga dentro do ambiente da plataforma
- * 
- */
+if (program.stop) stopPlatformAction.exec();
+if (program.start) startPlatformAction.exec();
 
