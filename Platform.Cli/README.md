@@ -34,7 +34,12 @@ Para criar uma aplicação de processo execute o seguinte comando:
 $ plataforma --new process
 ```
 
-Para executar uma aplicação execute o comando abaixo
+Para criar uma aplicação de apresentação execute o seguinte comando:
+```sh
+$ plataforma --new presentation
+```
+
+Para executar uma aplicação de domínio execute o seguinte comando
 ```sh
 $ plataforma --run
 ```
