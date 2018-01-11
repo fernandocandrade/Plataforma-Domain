@@ -2,17 +2,20 @@ const fs = require("fs");
 const shell = require("shelljs");
 const os = require("os");
 const BaseDeployAction = require("../baseDeployAction");
+const DockerService = require("../../services/docker");
 module.exports = class DeployProcessAppAction extends BaseDeployAction{
     constructor(appInstance){
         super();
         this.appInstance = appInstance;
+        this.docker = new DockerService();
 
     }
     deploy(env){
         this.prepare(env)
-        .then((prepared)=> this.copyFiles(prepared))
-        .then(context => this.registerSolution(context))
-        .then(context => this.uploadMaps(context))
+        .then((prepared)=> this.copyFiles(prepared)) //OK
+        .then(context => this.registerSolution(context)) //OK
+        .then(context => this.registerApp(context)) //OK
+        .then(context => this.uploadMaps(context)) //QUASE OK, mudar para save
         .then(context => this.uploadMetadata(context))
         .then(this.finalize).catch(this.onError);
     }
@@ -24,6 +27,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             var fullPath = path+"/apps/"+env.conf.app.version+"_"+env.conf.app.id;
             env.conf.fullPath = fullPath;
             env.conf.path = path;
+            env.conf.appPath = process.cwd();
             resolve(env);
         });
         return promise;
@@ -55,9 +59,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
     }
 
     processMetadata(env,metadata){
-        if (metadata.name == "EventCatalog.js"){
-            return this.processEventCatalog(env,metadata);
-        }else if(metadata.name.indexOf(".yaml") > 0 || metadata.name.indexOf(".yml") > 0){
+        //if (metadata.name == "EventCatalog.js"){
+            //return this.processEventCatalog(env,metadata);
+        //}else
+        if(metadata.name.indexOf(".yaml") > 0 || metadata.name.indexOf(".yml") > 0){
             return this.processOperations(env,metadata);
         }else{
             return new Promise((resolve)=>resolve(env));
@@ -71,7 +76,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             var processEvent = {};
             processEvent.systemId = env.conf.solution.id;
             processEvent.processId = env.conf.app.id;
-            processEvent.processVersion = env.conf.app.version;
             processEvent.name = events[k];
             processEvents.push(processEvent);
         });
@@ -106,7 +110,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
                 op.processId = env.conf.app.id;
                 op.processName = env.conf.app.name;
                 op.method = operation.metodo;
-                op.filePath = operation.caminhoDoArquivo;
+                op.file = operation.caminhoDoArquivo;
                 var eventsByOperation = operation["eventos-entrada"] || [];
                 eventsByOperation = eventsByOperation.map(evt =>{
                     var event = {};
@@ -129,8 +133,12 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
                     return event;
                 });
                 eventsByOperation = eventsByOperation.concat(eventsByOperationOut);
-                this.saveOperationCore(env,op).then(()=>{
-                    this.saveEventOperationsCore(env,eventsByOperation).then(()=>{
+                this.saveOperationCore(env,op).then((c)=>{
+                    eventsByOperation = eventsByOperation.map(e => {
+                        e.operationId = c.id;
+                        return e;
+                    })
+                    this.saveProcessEventsApiCore(env,eventsByOperation).then(()=>{
                         resolve(env);
                     });
                 })
@@ -140,7 +148,22 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
         });
     }
     registerApp(env){
-
+        var promise = new Promise((resolve,reject)=>{
+            var process = {};
+            process.systemId = env.conf.solution.id;
+            process.id = env.conf.app.id;
+            process.name = env.conf.app.name;
+            process.relativePath = env.conf.fullPath;
+            process.deployDate = new Date();
+            process.tag = env.conf.app.name+":"+env.conf.app.version;
+            this.docker.build(env,process.tag).then((r)=>{
+                process.image = r.imageId;
+                this.saveProcessToCore(env,process).then(()=>{
+                    resolve(env);
+                }).catch(reject)
+            }).catch(reject);
+        });
+        return promise;
     }
 
     finalize(){

@@ -1,39 +1,24 @@
 const fs = require("fs");
 const shell = require("shelljs");
 const os = require("os");
-const SystemCoreLib = require("plataforma-sdk/services/api-core/system")
-/**
- * classe temporaria da lib so para nao ficar travado
- */
-class SystemCore extends SystemCoreLib{
-    findById(id){
-        return new Promise((resolve,reject)=>{
-            resolve({id:"adasd"});
-        });
+const SystemCore = require("plataforma-sdk/services/api-core/system")
+const MapCore = require("plataforma-sdk/services/api-core/map")
+const ProcessCore = require("plataforma-sdk/services/api-core/process")
+const EventCore = require("plataforma-sdk/services/api-core/event")
+const OperationCore = require("plataforma-sdk/services/api-core/operation")
 
-        /*return this.find({
-            filterName:"byId",
-            fieldName:"id",
-            fieldValue: id
-        })*/
-    }
-
-    save(system){
-
-    }
-}
 module.exports = class BaseDeployAction{
 
     constructor(){}
 
     registerSolution(env){
-        var systemCore = new SystemCore({ip:env.apiCore.host,port:env.apiCore.port});
+        var systemCore = new SystemCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             systemCore.findById(env.conf.solution.id).then( sys => {
                 if (!sys){
-                    //não existe uma solution criada
-                    //deve se criar uma solution na plataforma
-                    resolve(env);
+                    systemCore.create(env.conf.solution).then(()=>{
+                        resolve(env);
+                    });
                 }else{
                     resolve(env);
                 }
@@ -43,9 +28,34 @@ module.exports = class BaseDeployAction{
     }
 
     saveMapToCore(env,map){
+        var mapCore = new MapCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
-                resolve(env);
+                map.systemId = env.conf.solution.id;
+                map.processId = env.conf.app.id;
+                map.name = map.name.split(".")[0];
+                mapCore.findByProcessId(map.processId).then(m =>{
+                    mapCore.destroy(m).then(()=>{
+                        mapCore.create(map).then(()=>{
+                            resolve(env);
+                        }).catch(reject);
+                    });
+                }).catch(reject);
+            }catch(e){
+                reject(e);
+            }
+        });
+        return promise;
+    }
+
+    saveProcessToCore(env,process){
+        var processCore = new ProcessCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
+        var promise = new Promise((resolve,reject)=>{
+            try{
+                //TODO mudar para o metodo save
+                processCore.create(process).then(()=>{
+                    resolve(env);
+                }).catch(reject);
             }catch(e){
                 reject(e);
             }
@@ -54,22 +64,16 @@ module.exports = class BaseDeployAction{
     }
 
     saveOperationCore(env,operation){
+        var operationCore = new OperationCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
-                console.log(operation);
-                resolve(env);
-            }catch(e){
-                reject(e);
-            }
-        });
-        return promise;
-    }
-
-    saveEventOperationsCore(env,events){
-        var promise = new Promise((resolve,reject)=>{
-            try{
-                console.log(events);
-                resolve(env);
+                operationCore.findByProcessId(env.conf.app.id).then(ops =>{
+                    operationCore.destroy(ops).then(()=>{
+                        operationCore.create(operation).then((newOp)=>{
+                            resolve(newOp[0]);
+                        });
+                    });
+                });
             }catch(e){
                 reject(e);
             }
@@ -78,9 +82,17 @@ module.exports = class BaseDeployAction{
     }
 
     saveProcessEventsApiCore(env,processEvents){
+        var eventsCore = new EventCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
-                resolve(env);
+                eventsCore.findByProcessId(env.conf.app.id)
+                .then(events => {
+                    eventsCore.destroy(events).then(()=>{
+                        eventsCore.create(processEvents).then(()=>{
+                            resolve(env);
+                        }).catch(reject);
+                    }).catch(reject)
+                }).catch(reject);
             }catch(e){
                 reject(e);
             }
