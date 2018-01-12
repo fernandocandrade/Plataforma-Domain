@@ -23,6 +23,15 @@ var fs = require("fs");
         var instanceConfig = JSON.parse(fs.readFileSync("plataforma.instance.lock"));
         fileConfig.http.port = instanceConfig.port || 9090;
         var p1 = new Promise(function(resolve, reject) {
+            if (!fileConfig["core_services"]){
+                fileConfig["core_services"] = {
+                    api_core:{
+                        scheme:"http",
+                        host:"localhost",
+                        port:"9100"
+                    }
+                };
+            }
             resolve(fileConfig);
         });
         return p1;

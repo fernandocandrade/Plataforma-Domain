@@ -43,6 +43,10 @@ class Loader {
                 });
                 this.env.load().then((env)=>{
                     var core = new MapCore(env["core_services"]["api_core"]);
+                    if (!env.solution){
+                        resolve(maps);
+                        return;
+                    }
                     core.findBySystemId(env.solution.id).then(coreMaps =>{
                         coreMaps.forEach(m =>{
                             var obj = {};
