@@ -18,6 +18,21 @@ $ npm install
 $ npm link
 ```
 
+Para instalar a plataforma no ambiente local execute o seguinte comando:
+```sh
+$ plataforma --install
+```
+
+Para iniciar a plataforma no ambiente local execute o seguinte comando:
+```sh
+$ plataforma --start
+```
+
+Para parar a plataforma no ambiente local execute o seguinte comando:
+```sh
+$ plataforma --stop
+```
+
 Para criar uma solução de aplicações execute o comando abaixo:
 ```sh
 $ plataforma --new solution
@@ -53,3 +68,4 @@ Em caso de dúvidas execute o seguinte comando
 ```sh
 $ plataforma --help
 ```
+
