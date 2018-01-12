@@ -12,10 +12,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
     }
     deploy(env){
         this.prepare(env)
-        .then((prepared)=> this.copyFiles(prepared)) //OK
-        .then(context => this.registerSolution(context)) //OK
-        .then(context => this.registerApp(context)) //OK
-        .then(context => this.uploadMaps(context)) //QUASE OK, mudar para save
+        .then((prepared)=> this.copyFiles(prepared))
+        .then(context => this.registerSolution(context))
+        .then(context => this.registerApp(context))
+        .then(context => this.uploadMaps(context))
         .then(context => this.uploadMetadata(context))
         .then(this.finalize).catch(this.onError);
     }
