@@ -49,8 +49,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
     }
 
     uploadMaps(env){
-        var promise = this.getFiles(env,"mapa",(ctx,v)=>this.saveMapToCore(ctx,v));
-        return promise;
+        return this.getFiles(env,"mapa",(ctx,v)=>this.saveMapToCore(ctx,v));
     }
 
     uploadMetadata(env){
@@ -59,9 +58,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
     }
 
     processMetadata(env,metadata){
-        //if (metadata.name == "EventCatalog.js"){
-            //return this.processEventCatalog(env,metadata);
-        //}else
         if(metadata.name.indexOf(".yaml") > 0 || metadata.name.indexOf(".yml") > 0){
             return this.processOperations(env,metadata);
         }else{
