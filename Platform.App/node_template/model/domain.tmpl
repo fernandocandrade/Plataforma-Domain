@@ -4,7 +4,7 @@ var config = new Environment();
 const Sequelize = require('sequelize');
 
 
-var domainPromise = new Promise(function(resolve, reject) {  
+var domainPromise = new Promise(function(resolve, reject) {
   var model = {};
   config.load().then((conf)=>{
     const sequelize = new Sequelize("{{database_name}}", conf.database.user, conf.database.password, {
@@ -18,17 +18,17 @@ var domainPromise = new Promise(function(resolve, reject) {
       },
       logging: false,
       operatorsAliases: true
-      
-    });    
+
+    });
 
     model["migration_history"] = sequelize.define('migration_history', {
         id: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
-        name: { type: Sequelize.STRING }                
+        name: { type: Sequelize.STRING }
     },{
         timestamps: true,
-        freezeTableName: true                   
+        freezeTableName: true
     });
-  
+
 
     //Declaring models with Sequelize
     {{#each model}}
@@ -58,7 +58,7 @@ var domainPromise = new Promise(function(resolve, reject) {
           },
           current: function (referencia){
             return {
-              where: {            
+              where: {
                 data_fim_vigencia:{
                   $eq:null
                 }
@@ -71,7 +71,7 @@ var domainPromise = new Promise(function(resolve, reject) {
                 unique: true,
                 fields: ['rid', 'id']
             }
-        ]   
+        ]
     });
 
     {{/each}}
@@ -81,24 +81,24 @@ var domainPromise = new Promise(function(resolve, reject) {
     {{#eq this.[1] "hasMany"}}
     model["{{0}}_has_{{2}}"] = sequelize.define('{{0}}_has_{{2}}', {
       rid: { type: Sequelize.UUID , primaryKey: true, defaultValue: Sequelize.UUIDV4   },
-      {{0}}Id:{ 
+      {{0}}Id:{
         type: Sequelize.UUID
       },
-      {{2}}Id:{ 
+      {{2}}Id:{
         type: Sequelize.UUID
 
-      }  
+      }
     },{
       timestamps: false,
-      freezeTableName: true  
+      freezeTableName: true
     });
     {{/eq}}
 
-    {{/each}}    
+    {{/each}}
     model["_engine"] = sequelize;
-    model["_dataTypes"] = Sequelize; 
+    model["_dataTypes"] = Sequelize;
     resolve(model);
-  });  
+  });
 });
 module.exports = domainPromise;
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Este arquivo e o ponto de construção do mapper
  * para construir as funcionalidades do mapper
  */
@@ -8,29 +8,17 @@ var MapIndex     = require("./index.js");
 var MapTransform = require("./transform.js");
 var MapTranslator = require("./translator.js");
 
-/**
- * @class Builder
- * @description Esta classe é responsável por configurar e montar os mapas da aplicação
- */
-class Builder{
-
-     /**
-      * @method build
-      * @description 
-      */
-     build (){        
-        var maps = new MapLoader().getMaps();
+var promise = new Promise((resolve,reject)=>{
+    new MapLoader().getMaps().then((maps)=>{
         var index = new MapIndex(maps);
-        
         var transform = new MapTransform(index);
         var translator = new MapTranslator(index,transform);
-        
         var facade = {};
         facade.index = index;
         facade.transform = transform;
         facade.translator = translator;
-        return facade;
-     }
-}
+        resolve(facade);
+    });
+});
 
-module.exports = Builder;
+module.exports = promise;

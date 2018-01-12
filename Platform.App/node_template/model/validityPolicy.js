@@ -1,7 +1,3 @@
-var MapBuilder = require("../mapper/builder.js");
-var facade = new MapBuilder().build();
-var mapper = facade.transform;
-
 /**
  * @class ValidityPolicy
  * @description Esta classe é responsável por aplicar a vigência das entidades de dominio
@@ -10,18 +6,19 @@ class ValidityPolicy {
 
     /**
      * @param {Date} date data de referência da vigência
-     * @param {Boolean} currentScope flag q indica se a vigência será aplicada para dados atuais 
-     * ou no passado    
+     * @param {Boolean} currentScope flag q indica se a vigência será aplicada para dados atuais
+     * ou no passado
      * @param {Object} domain domain é o objeto de dominio do sequelize
      */
-    constructor(date, currentScope, domain){
+    constructor(date, currentScope, domain, mapperTransform){
         this.referenceDate = date;
         this.currentScope = currentScope;
         this.domain = domain;
+        this.mapper = mapperTransform;
     }
 
    /**
-     * 
+     *
      * @param {String} appId id da aplicação
      * @param {String} mappedEntity nome da entidade mapeada
      * @param {String} entity nome da entidade de dominio correspondente a entidade mapeada
@@ -40,8 +37,8 @@ class ValidityPolicy {
     }
 
     /**
-     * 
-     * @param {Object} obj 
+     *
+     * @param {Object} obj
      * @description clona um objeto qualquer
      */
     clone(obj){
@@ -49,7 +46,7 @@ class ValidityPolicy {
     }
 
     /**
-     * 
+     *
      * @param {Object} obj objeto para ser criado
      * @param {Function} callback funcao de callback de sucesso
      * @param {Function} fallback funcao de callback de falha
@@ -57,7 +54,7 @@ class ValidityPolicy {
      * o objeto sequelize da entidade salva, no fallback será passado o erro
      */
     create(obj,callback,fallback){
-        //só por garantia        
+        //só por garantia
         var toCreate = this.clone(obj);
         delete toCreate.rid;
         if (!this.domain[obj._metadata.type]){
@@ -76,7 +73,7 @@ class ValidityPolicy {
      * Quando for atualizar um objeto nos temos que buscar a versão corrente
      * mudar a data de fim de vigencia para a data atual
      * criar um novo registro com sendo o vigente atual
-     */    
+     */
     update(obj,callback,fallback){
         var db = this.domain[obj._metadata.type];
         this.destroy(obj,(curr)=>{
@@ -88,23 +85,23 @@ class ValidityPolicy {
             delete curr.data_inicio_vigencia;
             db.create(curr).then((updated)=>{
                 callback(updated.dataValues);
-            }).catch(fallback);    
-        },fallback);        
+            }).catch(fallback);
+        },fallback);
     }
     /**
-     * 
-     * @param {*} sequelizeQuery objeto de query do sequelize 
+     *
+     * @param {*} sequelizeQuery objeto de query do sequelize
      * @param {Function} callback funcao de callback de sucesso
      * @param {Function} fallback funcao de callback de falha
-     * @description faz a query no banco de dados respeitando as regras do sequelize e aplicando 
+     * @description faz a query no banco de dados respeitando as regras do sequelize e aplicando
      * a vigência baseada numa data de referência
      */
     query(sequelizeQuery,callback,fallback){
-        
+
         this.domain[this.entity]
         .scope({method:[this.scope(),this.referenceDate]})
         .findAll(sequelizeQuery).then(result => {
-            var fullMapped = mapper.applyRuntimeFields(this.appId,this.mappedEntity,result);
+            var fullMapped = this.mapper.applyRuntimeFields(this.appId,this.mappedEntity,result);
             callback(fullMapped);
         }).catch(e =>{
             fallback(e);
@@ -112,7 +109,7 @@ class ValidityPolicy {
     }
 
     scope(){
-        var scope = "current";        
+        var scope = "current";
         if (!this.currentScope){
             scope = "old";
         }
@@ -132,20 +129,20 @@ class ValidityPolicy {
             if(current === null){
                 fallback("entity " + obj._metadata.type + " with id: " + obj.id + " not found");
                 return;
-            } 
-            current.data_fim_vigencia = new Date();           
+            }
+            current.data_fim_vigencia = new Date();
             db.update(current,{
                 where:{
                     rid:current.rid
                 }
-            }).then((updated)=>{                                
+            }).then((updated)=>{
                 callback(current);
-                
+
             }).catch(fallback);
         },fallback);
     }
     /**
-     * 
+     *
      * @param {Object} obj objeto base para o filtro por id deve ser do seguinte formato:
      *  {_metadata:{type:"entidade"}, id:"id do objeto"}
      * @param {Function} callback funcao de callback de sucesso
@@ -170,7 +167,7 @@ class ValidityPolicy {
     }
 
     /**
-     * 
+     *
      * @param {Object} item objeto de dominio com o _metadata e changeTrack
      * @param {Function} callback funcao de callback de sucesso
      * @param {Function} fallback funcao de callback de falha
@@ -179,20 +176,20 @@ class ValidityPolicy {
     apply(item,callback,fallback){
         var operation = item._metadata.changeTrack;
         var type = item._metadata.type;
-        var toExecute;  
+        var toExecute;
         if ("create" === operation){
             toExecute = this.create(item,callback,fallback);
         }else if ("update" === operation){
             toExecute = this.update(item,callback,fallback);
-        }else if ("destroy" === operation){            
+        }else if ("destroy" === operation){
             toExecute = this.destroy(item,callback,fallback);
         }else{
             throw "invalid change track operation";
-        }        
+        }
     }
 
 
-    
+
 }
 
 module.exports = ValidityPolicy;
