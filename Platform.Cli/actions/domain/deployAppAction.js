@@ -26,8 +26,6 @@ module.exports = class DeployAppAction{
             shell.cd(os.tmpdir()+"/"+id);
             console.log("Installing dependencies");
             shell.exec("npm install");
-            
-            this.installedAppCore = new InstalledAppCore(env["apiCore"]);
             var appInfo = {
                 systemId: config.solution.id,
                 name: config.app.name,
@@ -35,22 +33,31 @@ module.exports = class DeployAppAction{
                 type: "domain",
                 port: config.lock.port
             };
-            this.installedAppCore.findBySystemId(config.solution.id).then(s =>{
-                if (s.length > 0){
-                    this.installedAppCore.destroy(s[0]).then(()=>{
-                        this.installedAppCore.create(appInfo).then(s =>{
-                            console.log("App deployed");
-                        })
-                    })
-                }else{
+            if (config.app.name !== "Plataforma.ApiCore"){
+                this.saveToApiCore(env,appInfo);
+            }else{
+                console.log("App deployed");
+            }
+        });
+        
+    }
+
+    saveToApiCore(env,appInfo){
+        this.installedAppCore = new InstalledAppCore(env["apiCore"]);
+        this.installedAppCore.findBySystemId(config.solution.id).then(s =>{
+            if (s.length > 0){
+                this.installedAppCore.destroy(s[0]).then(()=>{
                     this.installedAppCore.create(appInfo).then(s =>{
                         console.log("App deployed");
                     })
-                }
-            }).catch(e =>{
-                console.log(e);
-            })
-        });
-        
-    }    
+                })
+            }else{
+                this.installedAppCore.create(appInfo).then(s =>{
+                    console.log("App deployed");
+                })
+            }
+        }).catch(e =>{
+            console.log(e);
+        })
+    }
 }
