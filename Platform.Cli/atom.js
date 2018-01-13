@@ -34,6 +34,9 @@ program
   .parse(process.argv);
 
 if (program.new) createAppAction.exec(program.new);
+else if (program.install) installPlatformAction.exec();
+else if (program.stop) stopPlatformAction.exec();
+else if (program.start) startPlatformAction.exec();
 else if(!fs.existsSync("plataforma.json")){
   console.log("Não é uma aplicação de plataforma válida");
   process.exit(-1);
@@ -41,7 +44,4 @@ else if(!fs.existsSync("plataforma.json")){
 if (program.run) runAppAction.exec();
 if (program.deploy) deployAppAction.exec(program.deploy);
 if (program.clean) cleanAppAction.exec(program.deploy);
-if (program.install) installPlatformAction.exec();
-if (program.stop) stopPlatformAction.exec();
-if (program.start) startPlatformAction.exec();
 
