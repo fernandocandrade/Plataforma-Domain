@@ -26,15 +26,8 @@ module.exports = class DeployAppAction{
             shell.cd(os.tmpdir()+"/"+id);
             console.log("Installing dependencies");
             shell.exec("npm install");
-            var appInfo = {
-                systemId: config.solution.id,
-                name: config.app.name,
-                host: "localhost",
-                type: "domain",
-                port: config.lock.port
-            };
             if (config.app.name !== "Plataforma.ApiCore"){
-                this.saveToApiCore(env,appInfo);
+                this.saveToApiCore(env);
             }else{
                 console.log("App deployed");
             }
@@ -42,7 +35,14 @@ module.exports = class DeployAppAction{
         
     }
 
-    saveToApiCore(env,appInfo){
+    saveToApiCore(env){
+        var appInfo = {
+            systemId: config.solution.id,
+            name: config.app.name,
+            host: "localhost",
+            type: "domain",
+            port: config.lock.port
+        };
         this.installedAppCore = new InstalledAppCore(env["apiCore"]);
         this.installedAppCore.findBySystemId(config.solution.id).then(s =>{
             if (s.length > 0){
