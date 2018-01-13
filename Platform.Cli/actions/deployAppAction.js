@@ -4,6 +4,7 @@
  */
 const AppInstance = require("../app_instance");
 const DeployProcessAppAction = require("./process/deployAppAction");
+const DeployDomainAppAction = require("./domain/deployAppAction");
 const Env = require("../env/environment");
 module.exports = class DeployAppAction {
 
@@ -11,6 +12,7 @@ module.exports = class DeployAppAction {
         this.appInstance = new AppInstance();
         this.env = new Env();
         this.deployProcessAppAction = new DeployProcessAppAction(this.appInstance);
+        this.deployDomainAppAction = new DeployDomainAppAction(this.appInstance);
     }
     exec(environment) {
         if (typeof (environment) !== "string") {
@@ -28,6 +30,9 @@ module.exports = class DeployAppAction {
                 break;
             case "presentation":
                 this.deployProcessAppAction.deploy(env);
+                break;
+            case "domain":
+                this.deployDomainAppAction.deploy(env);
                 break;
             default:
                 console.log("Not supported app type");

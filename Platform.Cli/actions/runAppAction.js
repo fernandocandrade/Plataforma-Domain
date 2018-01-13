@@ -10,9 +10,12 @@ module.exports = class RunAppAction{
         this.runDomainApp = new RunDomainApp();
     }
     exec(){
-        
         var root = process.cwd();
         var config = this.getConfig(root);
+        if(!config.app){
+            console.log("Runnable app is not found");
+            return;
+        }
         switch (config.app.type){
             case "domain":
                 this.runDomainApp.run(config);

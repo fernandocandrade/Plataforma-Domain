@@ -7,7 +7,7 @@ var mapperPromise = require('../mapper/builder');
 
 var serverPromise = new Promise(function (resolve, reject) {
     mapperPromise.then(mapperFacade => {
-        domainPromise.then(domain => {
+        domainPromise.then(domain => {            
             var restify = require('restify');
             var restifyCors = require('restify-cors-middleware');
             var QueryController = require('./controllers/queryController');

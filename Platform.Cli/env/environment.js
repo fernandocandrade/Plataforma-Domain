@@ -1,5 +1,5 @@
 module.exports = class Environment{
-    local(){
+    local(){                
         return {
             apiCore:{
                 host:"localhost",
