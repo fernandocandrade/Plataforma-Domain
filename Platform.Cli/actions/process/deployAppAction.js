@@ -84,8 +84,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
               var yaml = require('js-yaml');
               var operations = yaml.safeLoad(metadata.content);
                 var promises = [];
-                operations["operacao"].forEach(op =>{
-                    promises.push(this.processOperation(env,op["operacoes"]));
+                operations["operations"].forEach(op =>{
+                    promises.push(this.processOperation(env,op));
                 })
                 Promise.all(promises).then(values => {
                     resolve(env);
@@ -102,6 +102,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
           try{
                 operation.systemId = env.conf.solution.id;
                 operation.processId = env.conf.app.id;
+                operation.event_in = operation.event;
                 operation.event_out = `${operation.name}_done`;
                 operation.container = this.docker.getContainer(env);
                 this.saveOperationCore(env,operation).then((c)=>{
@@ -120,7 +121,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             process.name = env.conf.app.name;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
-            process.tag = this.docker.getContainer(env);
+            process.tag = this.docker.getContainerLocal(env);
             this.docker.build(env,process.tag).then((r)=>{
               process.image = r.imageId;
               this.docker.publish(env,process.tag).then(()=>{
