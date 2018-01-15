@@ -36,6 +36,7 @@ module.exports = class DeployAppAction{
     }
 
     saveToApiCore(env){
+        var config = env.conf;
         var appInfo = {
             systemId: config.solution.id,
             name: config.app.name,
