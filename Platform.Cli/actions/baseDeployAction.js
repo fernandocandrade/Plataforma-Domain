@@ -14,9 +14,9 @@ module.exports = class BaseDeployAction{
     registerSolution(env){
         var systemCore = new SystemCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
-            systemCore.findById(env.conf.solution.id).then( sys => {
-                if (!sys){
-                    systemCore.create(env.conf.solution).then(()=>{
+          systemCore.findById(env.conf.solution.id).then( sys => {
+                if (sys.length === 0){
+                   systemCore.create(env.conf.solution).then((s)=>{
                         resolve(env);
                     });
                 }else{
@@ -90,9 +90,9 @@ module.exports = class BaseDeployAction{
                     eventsCore.destroy(events).then(()=>{
                         eventsCore.create(processEvents).then(()=>{
                             resolve(env);
-                        }).catch(reject);
-                    }).catch(reject)
-                }).catch(reject);
+                        }).catch(e => reject(e));
+                    }).catch(e => reject(e))
+                }).catch(e => reject(e));
             }catch(e){
                 reject(e);
             }

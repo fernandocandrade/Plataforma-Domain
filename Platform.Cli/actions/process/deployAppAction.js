@@ -81,8 +81,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
     processOperations(env, metadata){
         var promise = new Promise((resolve,reject)=>{
             try{
-                var yaml = require('js-yaml');
-                var operations = yaml.safeLoad(metadata.content);
+              var yaml = require('js-yaml');
+              var operations = yaml.safeLoad(metadata.content);
+              console.log(JSON.stringify(operations,null,4));
                 var promises = [];
                 operations["operacao"].forEach(op =>{
                     promises.push(this.processOperation(env,op["operacoes"]));
@@ -92,7 +93,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
                 })
                 resolve(env);
             }catch(e){
-                reject(e);
+               reject(e);
             }
         });
     }
@@ -107,7 +108,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
                 op.processName = env.conf.app.name;
                 op.method = operation.metodo;
                 op.file = operation.caminhoDoArquivo;
-                var eventsByOperation = operation["eventos-entrada"] || [];
+              var eventsByOperation = operation["eventos-entrada"] || [];
                 eventsByOperation = eventsByOperation.map(evt =>{
                     var event = {};
                     event.systemId  = op.systemId;
