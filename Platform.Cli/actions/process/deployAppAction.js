@@ -83,7 +83,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             try{
               var yaml = require('js-yaml');
               var operations = yaml.safeLoad(metadata.content);
-              console.log(JSON.stringify(operations,null,4));
                 var promises = [];
                 operations["operacao"].forEach(op =>{
                     promises.push(this.processOperation(env,op["operacoes"]));
@@ -100,44 +99,13 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
 
     processOperation(env,operation){
         var promise = new Promise((resolve,reject)=>{
-            try{
-
-                var op = {};
-                op.systemId = env.conf.solution.id;
-                op.processId = env.conf.app.id;
-                op.processName = env.conf.app.name;
-                op.method = operation.metodo;
-                op.file = operation.caminhoDoArquivo;
-              var eventsByOperation = operation["eventos-entrada"] || [];
-                eventsByOperation = eventsByOperation.map(evt =>{
-                    var event = {};
-                    event.systemId  = op.systemId;
-                    event.processId = op.processId;
-                    event.processName = env.conf.app.name;
-                    event.name = evt;
-                    event.direction = "inbound";
-                    return event;
-                });
-
-                var eventsByOperationOut = operation["eventos-saida"] || [];
-                eventsByOperationOut = eventsByOperationOut.map(evt =>{
-                    var event = {};
-                    event.systemId  = op.systemId;
-                    event.processId = op.processId;
-                    event.processName = env.conf.app.name;
-                    event.name = evt;
-                    event.direction = "outbound";
-                    return event;
-                });
-                eventsByOperation = eventsByOperation.concat(eventsByOperationOut);
-                this.saveOperationCore(env,op).then((c)=>{
-                    eventsByOperation = eventsByOperation.map(e => {
-                        e.operationId = c.id;
-                        return e;
-                    })
-                    this.saveProcessEventsApiCore(env,eventsByOperation).then(()=>{
-                        resolve(env);
-                    });
+          try{
+                operation.systemId = env.conf.solution.id;
+                operation.processId = env.conf.app.id;
+                operation.event_out = `${operation.name}_done`;
+                operation.container = this.docker.getContainer(env);
+                this.saveOperationCore(env,operation).then((c)=>{
+                    resolve(env);
                 })
             }catch(e){
                 reject(e);
@@ -152,12 +120,14 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             process.name = env.conf.app.name;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
-            process.tag = env.conf.app.name+":"+env.conf.app.version;
+            process.tag = this.docker.getContainer(env);
             this.docker.build(env,process.tag).then((r)=>{
-                process.image = r.imageId;
+              process.image = r.imageId;
+              this.docker.publish(env,process.tag).then(()=>{
                 this.saveProcessToCore(env,process).then(()=>{
                     resolve(env);
                 }).catch(reject)
+              })
             }).catch(reject);
         });
         return promise;

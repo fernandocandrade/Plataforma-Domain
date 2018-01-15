@@ -1,5 +1,5 @@
 const shell = require("shelljs");
-
+const uuid = require('uuid/v4');
 module.exports = class DockerService{
     constructor(){
 
@@ -18,4 +18,23 @@ module.exports = class DockerService{
         })
         return promise;
     }
+
+    publish(env,tag){
+      var promise = new Promise((resolve,reject)=>{
+        try{
+          var cmd = `docker push ${tag}`
+          shell.exec(cmd);
+          resolve();
+        }catch(e){
+          reject(e);
+        }
+      });
+      return promise;
+    }
+
+    getContainer(env){
+      return `localhost:5000/${env.conf.app.name}:${uuid()}`
+    }
+
+    
 }
