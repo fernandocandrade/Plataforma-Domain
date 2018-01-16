@@ -28,6 +28,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
             env.conf.fullPath = fullPath;
             env.conf.path = path;
             env.conf.appPath = process.cwd();
+            env.conf.app.newVersion = require('uuid/v4')();
             resolve(env);
         });
         return promise;

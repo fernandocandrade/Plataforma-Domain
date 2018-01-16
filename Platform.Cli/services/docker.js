@@ -33,11 +33,11 @@ module.exports = class DockerService{
     }
 
     getContainer(env){
-      return `registry:5000/${env.conf.app.name}:${uuid()}`
+      return `registry:5000/${env.conf.app.name}:${env.conf.app.newVersion}`
     }
 
     getContainerLocal(env){
-        return `localhost:5000/${env.conf.app.name}:${uuid()}`
+        return `localhost:5000/${env.conf.app.name}:${env.conf.app.newVersion}`
       }
 
 
