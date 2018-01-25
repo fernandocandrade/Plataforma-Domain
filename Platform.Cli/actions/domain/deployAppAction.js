@@ -13,7 +13,7 @@ module.exports = class DeployAppAction {
         this.buildApp = new BuildAppAction();
         this.docker = new DockerService();
         this.ports = new PortsService();
-        this.compiler = new CompileAppAction();
+        this.compiler = new CompileAppAction(appInstance);
     }
     deploy(_env) {
         this.compiler.exec(_env).then(env =>{
