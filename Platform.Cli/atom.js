@@ -5,13 +5,14 @@
  * Monta o modelo de dominio em memoria
  * Converte o modelo para Sequelize
  * Gera o pacote de aplicacao através do Bundler
- * 
+ *
  */
 var FileLoader = require("./file_loader.js");
 var ModelBuilder = require("./model_builder.js");
 var Bundler = require("./bundler.js");
 
 var runAppAction    = new (require("./actions/runAppAction"));
+var compileAppAction    = new (require("./actions/compileAppAction"));
 var createAppAction = new (require("./actions/createAppAction"));
 var deployAppAction = new (require("./actions/deployAppAction"));
 var cleanAppAction = new (require("./actions/cleanAppAction"));
@@ -30,6 +31,7 @@ program
   .option('-c, --clean', 'Clean App')
   .option('-i, --install', 'Install Platform')
   .option('-s, --stop', 'Stop Platform')
+  .option('-o, --compile', 'Compile App')
   .option('-st, --start', 'Sart Platform')
   .parse(process.argv);
 
@@ -41,6 +43,7 @@ else if(!fs.existsSync("plataforma.json")){
   console.log("Não é uma aplicação de plataforma válida");
   process.exit(-1);
 }
+if (program.compile) compileAppAction.exec();
 if (program.run) runAppAction.exec();
 if (program.deploy) deployAppAction.exec(program.deploy);
 if (program.clean) cleanAppAction.exec(program.deploy);
