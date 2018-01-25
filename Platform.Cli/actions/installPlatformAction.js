@@ -23,11 +23,6 @@ module.exports = class InstallPlatformAction{
             shell.exec("docker network create --driver=bridge plataforma_network");
             shell.exec("docker-compose build --no-cache");
             shell.exec("docker-compose up -d");
-            shell.cd("..");
-            shell.exec("git clone https://github.com/ONSBR/Plataforma-ApiCore.git");
-            shell.cd("./Plataforma-ApiCore/apicore");
-            shell.exec("docker rm --force apicore");
-            shell.exec("plataforma --deploy local");
         });
     }
 
