@@ -11,6 +11,7 @@ var serverPromise = new Promise(function (resolve, reject) {
             var restify = require('restify');
             var restifyCors = require('restify-cors-middleware');
             var QueryController = require('./controllers/queryController');
+            var MultiQueryController = require('./controllers/multiQueryController');
             var SaveCommandController = require('./controllers/saveCommandController');
             var RequireInstanceIdMiddleware = require('./middlewares/requireInstanceId');
             var ConfigureValidityPolicyMiddleware = require('./middlewares/configureValidityPolicy');
@@ -36,8 +37,13 @@ var serverPromise = new Promise(function (resolve, reject) {
             //Routing
             var query = new QueryController(domain,mapperFacade);
             var command = new SaveCommandController(domain,mapperFacade);
+            var multiQuery = new MultiQueryController(domain,mapperFacade);
             server.get('/:appId/:entity', (req,res,next)=>{
                 query.getEntityByAppId(req,res,next);
+            });
+            server.post('/:appId/bulksearch', (req,res,next)=>{
+                console.log("post /:appId/bulksearch");
+                multiQuery.getEntityByAppId(req,res,next);
             });
             server.post('/:appId/persist', (req,res,next)=>{
                 command.persist(req,res,next);

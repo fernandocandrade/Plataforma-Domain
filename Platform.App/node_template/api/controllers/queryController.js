@@ -1,3 +1,5 @@
+var QueryService = require("../../app/queryService");
+
 /**
  * @description É o controlador para as operações de leitura do dominio
  */
@@ -6,7 +8,8 @@ class QueryController{
     constructor(domain, mapperFacade){
         this.domain = domain;
         this.mapper = mapperFacade.transform;
-        this.mapperIndex = mapperFacade.index;
+        this.mapperIndex = mapperFacade.index;        
+        this.queryService = new QueryService();
     }
 
     /**
@@ -19,6 +22,7 @@ class QueryController{
     getEntityByAppId(req,res,next){
         var appId = req.params.appId;
         var mappedEntity = req.params.entity;
+
         var entity = this.mapperIndex.getModelName(appId,mappedEntity);
         var projection = this.mapperIndex.getProjection(appId,mappedEntity)[mappedEntity];
         projection.include = this.mapper.getIncludes(appId,mappedEntity,this.domain);
@@ -28,16 +32,32 @@ class QueryController{
         projection.where = this.mapper.getFilters(appId,mappedEntity,req);
         if (Object.keys(projection.where).length === 0){
             delete projection.where;
-        }
-        req.validityPolicy.setQueryContext(appId,mappedEntity,entity);
-        req.validityPolicy.query(projection, (result)=>{
-            res.send(result);
-            next();
-        }, (e)=>{
-            console.log(e);
-            res.send(400,{message:e});
-            next();
-        });
+        }      
+
+        var validityPolicy = req.validityPolicy;
+        console.log("getEntityByAppId: ", 
+        "query =", req.query,
+        ", appId =", appId, 
+        ", mappedEntity = ", mappedEntity, 
+        ", entity =", entity,
+        ", projection.include = ", projection.include, 
+        ", projection.where = ", projection.where);
+
+         this.queryService.filter(appId, mappedEntity, entity, projection, validityPolicy).
+            then( 
+                (ok) => {
+                    console.log("result =", ok);
+                    res.send(ok);                              
+                    next();
+                }
+            )
+            .catch( 
+                (error) => {
+                    console.log("erro =", error);
+                    res.send(400,{message:error});    
+                    next();
+                }
+            );
     }
 }
 
