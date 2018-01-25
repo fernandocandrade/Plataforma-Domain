@@ -18,7 +18,7 @@ module.exports = class DeployAppAction {
     deploy(_env) {
         this.compiler.exec(_env).then(env =>{
             this.createDockerContainer(env).then(() => {
-                if (config.app.name !== "apicore") {
+                if (env.conf.app.name !== "apicore") {
                     this.saveToApiCore(env);
                 } else {
                     console.log("App deployed");
