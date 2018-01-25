@@ -9,7 +9,7 @@ module.exports = class InstallPlatformAction{
     exec(){
 
         inquirer.prompt(this.getQuestions()).then(answers => {
-            var environment = answers["environment"];
+            var environment = answers.environment;
             console.log(os.tmpdir());
             var path = os.tmpdir()+"/installed_plataforma";
             shell.rm("-rf",path);
@@ -17,6 +17,8 @@ module.exports = class InstallPlatformAction{
             shell.cd(path);
             shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");
             shell.cd("Plataforma-Installer");
+            shell.exec("docker network rm plataforma_network");
+            shell.exec("docker network create --driver=bridge plataforma_network");
             shell.exec("docker-compose build --no-cache");
             shell.exec("docker-compose up -d");
         });
@@ -30,7 +32,7 @@ module.exports = class InstallPlatformAction{
             default: "local",
             name: "environment",
             message: "Ambiente"
-       };         
+       };
        questions.push(q0);
        return questions;
      }

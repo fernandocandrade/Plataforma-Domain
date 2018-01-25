@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 9090
+ENV PORT={{port}}
+
+EXPOSE {{port}}
 
 CMD [ "node", "main.js" ]
