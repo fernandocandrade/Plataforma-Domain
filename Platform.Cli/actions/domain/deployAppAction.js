@@ -1,17 +1,31 @@
-var fs = require("fs");
-var BuildAppAction = require("./buildAppAction");
-var shell = require("shelljs");
-var os = require("os");
+const fs = require("fs");
+const BuildAppAction = require("./buildAppAction");
+const DockerService = require("../../services/docker");
+const PortsService = require("../../services/ports");
+const shell = require("shelljs");
+const os = require("os");
 const InstalledAppCore = require("plataforma-sdk/services/api-core/installedApp");
+const uuid = require("uuid/v4");
 module.exports = class DeployAppAction{
     constructor(appInstance){
         this.appInstance = appInstance;
         this.buildApp = new BuildAppAction();
-        
+        this.docker = new DockerService();
+        this.ports = new PortsService();
     }
     deploy(env){
         var config = env.conf;
+        env.conf.app.newVersion = uuid();
         config.lock = this.appInstance.getLockInstance();
+        env.docker = {
+            tag : this.docker.getContainer(env),
+            port: this.ports.getNextAvailablePort()
+        };
+        if (env.conf.lock.id){
+            env.path = `${os.tmpdir()}/${env.conf.lock.id}`;
+        }else{
+            env.path = `${os.tmpdir()}/plataforma_${env.conf.app.id}`;
+        }
         console.log("Getting templates");
         var currentPath = process.cwd();
         shell.cd(__dirname);
@@ -22,43 +36,56 @@ module.exports = class DeployAppAction{
         shell.cp("-R","node_template",cliPath);
         shell.cd(currentPath);
         console.log("Starting building App");
-        this.buildApp.build(config,(id)=>{
+        this.buildApp.build(env,(id)=>{
             shell.cd(os.tmpdir()+"/"+id);
             console.log("Installing dependencies");
             shell.exec("npm install");
             if (config.app.name !== "Plataforma.ApiCore"){
-                this.saveToApiCore(env);
+                this.createDockerContainer(env).then(() => {
+                    this.saveToApiCore(env);
+                });
+
             }else{
                 console.log("App deployed");
             }
         });
-        
-    }
 
+    }
+    createDockerContainer(env) {
+        return this.docker.compileDockerFile(env).then(()=>{
+            return this.docker.build(env,env.docker.tag);
+        }).then(()=>{
+            return this.docker.publish(env,env.docker.tag);
+        }).then(()=>{
+            return this.docker.rm(env);
+        }).then(()=>{
+            return this.docker.run(env,env.docker.tag);
+        });
+    }
     saveToApiCore(env){
         var config = env.conf;
         var appInfo = {
             systemId: config.solution.id,
             name: config.app.name,
-            host: "localhost",
+            host: `${env.conf.solution.name}-${env.conf.app.name}`,
             type: "domain",
-            port: config.lock.port
+            port: env.docker.port
         };
-        this.installedAppCore = new InstalledAppCore(env["apiCore"]);
+        this.installedAppCore = new InstalledAppCore(env.apiCore);
         this.installedAppCore.findBySystemId(config.solution.id).then(s =>{
             if (s.length > 0){
                 this.installedAppCore.destroy(s[0]).then(()=>{
                     this.installedAppCore.create(appInfo).then(s =>{
                         console.log("App deployed");
-                    })
-                })
+                    });
+                });
             }else{
                 this.installedAppCore.create(appInfo).then(s =>{
                     console.log("App deployed");
-                })
+                });
             }
         }).catch(e =>{
             console.log(e);
-        })
+        });
     }
-}
+};
