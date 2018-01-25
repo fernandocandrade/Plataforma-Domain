@@ -1,17 +1,23 @@
-var fs = require("fs");
-var shell = require("shelljs");
-var os = require("os");
-var Env = require("../../env/environment");
+var DockerService = require("../../services/docker");
+var AppInstance = require("../../app_instance");
 module.exports = class RunAppAction{
     constructor(){
-        this.env = new Env();
+        this.appInstance = new AppInstance();
+        this.docker = new DockerService();
     }
     run(config){
-        var currentPath = process.cwd();
-        var conf = this.env.getEnv("local");
-        var instance = JSON.parse(fs.readFileSync(process.cwd()+"/plataforma.instance.lock"));
-        shell.cd(os.tmpdir()+"/"+instance.id);
-        console.log("Running app");
-        shell.exec("node main.js");
+        var instance = this.appInstance.getLockInstance();
+        var env = this.appInstance.getAppConfig();
+        var param = {
+            conf:env,
+            docker:instance.docker
+        };
+        if (param.docker){
+            this.docker.run(param,param.docker.tag).then(e =>{
+                console.log("Running app");
+            });
+        }else{
+            console.log(`Cannot run a cleaned app, you should redeploy your app\n$ plataforma --deploy local`);
+        }
     }
-}
+};
