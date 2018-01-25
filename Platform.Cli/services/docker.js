@@ -45,7 +45,7 @@ module.exports = class DockerService{
 
     run(env,tag){
       return new Promise((resolve,reject)=>{
-          var externalPort = "9" + (parseInt(Math.random()*10000));
+          var externalPort = "2" + (parseInt(Math.random()*100)+100);
           var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} --name ${this.getContainerName(env)} ${tag}`;
           shell.exec(cmd);
           resolve();
