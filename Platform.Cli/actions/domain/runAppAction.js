@@ -20,4 +20,6 @@ module.exports = class RunAppAction{
             console.log(`Cannot run a cleaned app, you should redeploy your app\n$ plataforma --deploy local`);
         }
     }
+
+
 };

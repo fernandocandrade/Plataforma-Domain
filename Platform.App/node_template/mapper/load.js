@@ -43,7 +43,7 @@ class Loader {
                 });
                 this.env.load().then((env)=>{
                     var core = new MapCore(env["core_services"]["api_core"]);
-                    if (!env.solution){
+                    if (env.solution.name === "plataforma"){
                         resolve(maps);
                         return;
                     }

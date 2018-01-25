@@ -44,17 +44,25 @@ module.exports = class DockerService{
     }
 
     run(env,tag){
+
       return new Promise((resolve,reject)=>{
-          var cmd = `docker run -d --network=plataforma_network -p  ${env.docker.port}:${env.docker.port} --name ${env.conf.solution.name}-${env.conf.app.name} ${tag}`;
+          var cmd = `docker run -d --network=plataforma_network -p  ${env.docker.port}:${env.docker.port} --name ${this.getContainerName(env)} ${tag}`;
           shell.exec(cmd);
           resolve();
         resolve();
       });
     }
 
+    getContainerName(env){
+      var name = env.conf.app.name;
+      if (env.conf.solution.name !== "plataforma"){
+        name = `${env.conf.solution.name}-${env.conf.app.name}`;
+      }
+      return name;
+    }
     rm(env){
       return new Promise((resolve,reject)=>{
-          var cmd = `docker rm --force ${env.conf.solution.name}-${env.conf.app.name}`;
+          var cmd = `docker rm --force ${this.getContainerName(env)}`;
           shell.exec(cmd);
           resolve();
         resolve();

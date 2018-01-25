@@ -23,49 +23,39 @@ module.exports = (function(){
      * para o formato Sequelize
      */
     self.generate = (env,compiled, domainAppRoot, callback)=>{
+        var bundleFolder = uuidv4();
         var conf = env.conf;
-        if (fs.existsSync(root+"bundle")){
-            try{
-                fs.unlinkSync(root+"bundle");
-            }catch(e){
-                console.log(e);
-                return;
-            }
-        }
-        var id = "plataforma_"+ conf.app.id;
         var instance = {};
-        instance.id = id;
         instance.docker = env.docker;
 
         if (fs.existsSync(domainAppRoot+"/plataforma.instance.lock")){
             instance = JSON.parse(fs.readFileSync(domainAppRoot+"/plataforma.instance.lock","UTF-8"));
-            if (fs.existsSync(root+instance.id)){
-                shell.rm("-rf",root+instance.id);
+            if (fs.existsSync(env.path)){
+                shell.rm("-rf",env.path);
             }
 
         }
-        shell.cp("-R",baseTemplate+"node_template",root+"bundle");
-        fs.writeFileSync(root+"bundle/model/domain.js",compiled);
-        fs.unlinkSync(root+"bundle/model/domain.tmpl");
+        shell.cp("-R",`${baseTemplate}node_template`,root+bundleFolder);
+        fs.writeFileSync(`${root}${bundleFolder}/model/domain.js`,compiled);
+        fs.unlinkSync(`${root}${bundleFolder}/model/domain.tmpl`);
 
         if(fs.existsSync(domainAppRoot+"Migrations/")){
-            shell.cp("-R",domainAppRoot+"Migrations/",root+"bundle/");
-            shell.mv(root+"bundle/Migrations/",root+"bundle/migrations");
+            shell.cp("-R",domainAppRoot+"Migrations/",`${root}${bundleFolder}/`);
+            shell.mv(`${root}${bundleFolder}/Migrations/`,`${root}${bundleFolder}/migrations`);
         }
 
 
-        shell.cp("-R",domainAppRoot+"Mapas/",root+"bundle/");
-        shell.mv(root+"bundle/Mapas/",root+"bundle/maps");
+        shell.cp("-R",domainAppRoot+"Mapas/",`${root}${bundleFolder}/`);
+        shell.mv(`${root}${bundleFolder}/Mapas/`,`${root}${bundleFolder}/maps`);
 
 
-        shell.cp(domainAppRoot+"/plataforma.json",root+"bundle/");
+        shell.cp(domainAppRoot+"/plataforma.json",`${root}${bundleFolder}/`);
 
-        shell.mv(root+"bundle",root+instance.id);
-
+        shell.mv(`${root}${bundleFolder}`,env.path);
         fs.writeFileSync(domainAppRoot+"/plataforma.instance.lock",JSON.stringify(instance,null,4));
-        fs.writeFileSync(root+"/"+instance.id+"/plataforma.instance.lock",JSON.stringify(instance,null,4));
-        callback(instance.id);
-    }
+        fs.writeFileSync(env.path+"/plataforma.instance.lock",JSON.stringify(instance,null,4));
+        callback();
+    };
 
     return self;
 })();
