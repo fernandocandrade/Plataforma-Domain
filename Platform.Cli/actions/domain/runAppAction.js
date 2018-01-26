@@ -8,17 +8,8 @@ module.exports = class RunAppAction{
     run(config){
         var instance = this.appInstance.getLockInstance();
         var env = this.appInstance.getAppConfig();
-        var param = {
-            conf:env,
-            docker:instance.docker
-        };
-        if (param.docker){
-            this.docker.run(param,param.docker.tag).then(e =>{
-                console.log("Running app");
-            });
-        }else{
-            console.log(`Cannot run a cleaned app, you should redeploy your app\n$ plataforma --deploy local`);
-        }
+        var container_name = this.docker.getContainerName({conf:env});
+        this.docker.start(container_name);
     }
 
 

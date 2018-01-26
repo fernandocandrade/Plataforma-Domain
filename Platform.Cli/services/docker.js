@@ -49,6 +49,13 @@ module.exports = class DockerService{
           var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} --name ${this.getContainerName(env)} ${tag}`;
           shell.exec(cmd);
           resolve();
+      });
+    }
+
+    start(containerName){
+      return new Promise((resolve,reject)=>{
+        var cmd = `docker start ${containerName}`;
+        shell.exec(cmd);
         resolve();
       });
     }

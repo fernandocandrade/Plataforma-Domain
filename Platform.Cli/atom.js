@@ -25,7 +25,7 @@ var os = require("os");
 var shell = require("shelljs");
 program
   .version('0.0.1')
-  .option('-r, --run', 'Run local App')
+  .option('-r, --run', 'Start app container')
   .option('-n, --new [type]', 'Creates a new App')
   .option('-d, --deploy [env]', 'Deploy App')
   .option('-c, --clean', 'Clean App')
