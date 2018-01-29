@@ -126,17 +126,66 @@ class Transform {
         if (!filters){
             return {};
         }
+
+   /*      console.log("request.query = ",request.query); */
         var filter = filters[request.query["filter"]];
         if (!filter){
             return {};
         }
+/*         console.log("filter =", filter); */
         var str = JSON.stringify(filter);
+/*         console.log("filter as str =", str);
+        console.log("Object.keys(request.query)[1] before = ",Object.keys(request.query)[1]);
+ */
         Object.keys(request.query).forEach(r => str = this.replaceAll(str,":"+r,request.query[r]));
+/*         console.log("request.query after replaceAll =", request.query); */
+        
         var mapFields = this.index.getFields(processId,mapName);
+/*         console.log("mapFields =", mapFields); */
         var fields = Object.keys(mapFields);
+/*         console.log("fields =", fields); */
         fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
+/*         console.log("fields after replaceAll =", fields); */
         return JSON.parse(str);        
     }
+
+    /**
+     * 
+     * @param {*} processId 
+     * @param {*} mapName 
+     * @param {*} f  { "entity": "pessoa", "filter": "byName", "name": "Nome" }
+     */
+     getFilters1(processId,mapName,f){
+        var filters = this.index.getFilters(processId,mapName);
+        if (!filters){
+            return {};
+        }
+        var filter = filters[f.filter];
+        if (!filter){
+            return {};
+        }
+        /* console.log("filter =", filter); */
+
+
+        var str = JSON.stringify(filter);
+/*         console.log("filter as str =", str);
+        console.log('filter.name', filter.name);
+        console.log("f.name = ", f.name);
+ */
+        Object.keys(f).forEach(r => str = this.replaceAll(str,":"+r,f[r]));
+
+
+/*         console.log("str after replaceAll =", str);         */
+        
+        var mapFields = this.index.getFields(processId,mapName);
+/*         console.log("mapFields =", mapFields); */
+        var fields = Object.keys(mapFields);
+/*         console.log("fields =", fields); */
+        fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
+/*         console.log("fields after replaceAll =", fields); */
+        return JSON.parse(str); 
+    }
+
     /**
      * 
      * @param {String} processId id da aplicação
