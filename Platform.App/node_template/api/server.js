@@ -42,7 +42,6 @@ var serverPromise = new Promise(function (resolve, reject) {
                 query.getEntityByAppId(req,res,next);
             });
             server.post('/:appId/bulksearch', (req,res,next)=>{
-                console.log("post /:appId/bulksearch");
                 multiQuery.getEntityByAppId(req,res,next);
             });
             server.post('/:appId/persist', (req,res,next)=>{
