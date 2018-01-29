@@ -1,10 +1,10 @@
 module.exports = class Environment{
-    local(){                
+    local(){
         return {
             apiCore:{
                 host:"localhost",
                 scheme: "http",
-                port:"9100"
+                port:"9110"
             }
         };
     }
@@ -13,7 +13,7 @@ module.exports = class Environment{
         switch(env){
             case "local":
                 return this.local();
-            default:                
+            default:
                 throw `${env} not supported`;
         }
     }

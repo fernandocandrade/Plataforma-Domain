@@ -16,19 +16,23 @@ var fs = require("fs");
         fileConfig.http = {};
         fileConfig.database = {};
         fileConfig.database.name = fileConfig.app.name;
-        fileConfig.database.host = process.env.POSTGRES_HOST || "localhost";
-        fileConfig.database.user = "postgres";
-        fileConfig.database.password = "";
+        fileConfig.database.host = process.env.POSTGRES_HOST || "postgres";
+        fileConfig.database.user = process.env.POSTGRES_USER || "postgres";
+        fileConfig.database.password = process.env.POSTGRES_PASSWROD || "";
         //cnf.http.port = 9090;
         var instanceConfig = JSON.parse(fs.readFileSync("plataforma.instance.lock"));
-        fileConfig.http.port = instanceConfig.port || 9090;
+        if (process.env.PORT){
+            fileConfig.http.port = process.env.PORT;
+        }else{
+            fileConfig.http.port = instanceConfig.port || 9090;
+        }
         var p1 = new Promise(function(resolve, reject) {
             if (!fileConfig["core_services"]){
                 fileConfig["core_services"] = {
                     api_core:{
-                        scheme:"http",
-                        host:"localhost",
-                        port:"9100"
+                        scheme: process.env.COREAPI_SCHEME || "http",
+                        host: process.env.COREAPI_HOST || "apicore",
+                        port: process.env.COREAPI_PORT || "9110"
                     }
                 };
             }

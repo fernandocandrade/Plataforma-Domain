@@ -1,5 +1,6 @@
 const shell = require("shelljs");
 const os = require("os");
+const fs = require("fs");
 module.exports = class StartPlatformAction{
     constructor(){}
 
@@ -8,4 +9,4 @@ module.exports = class StartPlatformAction{
         shell.cd(path+"/Plataforma-Installer");
         shell.exec("docker-compose up -d");
     }
-}
+};

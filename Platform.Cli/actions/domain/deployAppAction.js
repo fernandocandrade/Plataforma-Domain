@@ -1,64 +1,66 @@
-var fs = require("fs");
-var BuildAppAction = require("./buildAppAction");
-var shell = require("shelljs");
-var os = require("os");
+const fs = require("fs");
+const BuildAppAction = require("./buildAppAction");
+const CompileAppAction = require("./compileAppAction");
+const DockerService = require("../../services/docker");
+const PortsService = require("../../services/ports");
+const shell = require("shelljs");
+const os = require("os");
 const InstalledAppCore = require("plataforma-sdk/services/api-core/installedApp");
-module.exports = class DeployAppAction{
-    constructor(appInstance){
+const uuid = require("uuid/v4");
+module.exports = class DeployAppAction {
+    constructor(appInstance) {
         this.appInstance = appInstance;
         this.buildApp = new BuildAppAction();
-        
+        this.docker = new DockerService();
+        this.ports = new PortsService();
+        this.compiler = new CompileAppAction(appInstance);
     }
-    deploy(env){
-        var config = env.conf;
-        config.lock = this.appInstance.getLockInstance();
-        console.log("Getting templates");
-        var currentPath = process.cwd();
-        shell.cd(__dirname);
-        shell.cd("../..");
-        var cliPath = shell.pwd().toString();
-        shell.rm("-rf",cliPath+"/node_template/");
-        shell.cd("../Platform.App");
-        shell.cp("-R","node_template",cliPath);
-        shell.cd(currentPath);
-        console.log("Starting building App");
-        this.buildApp.build(config,(id)=>{
-            shell.cd(os.tmpdir()+"/"+id);
-            console.log("Installing dependencies");
-            shell.exec("npm install");
-            if (config.app.name !== "Plataforma.ApiCore"){
-                this.saveToApiCore(env);
-            }else{
-                console.log("App deployed");
-            }
+    deploy(_env) {
+        this.compiler.exec(_env).then(env =>{
+            this.createDockerContainer(env).then(() => {
+                if (env.conf.app.name !== "apicore") {
+                    this.saveToApiCore(env);
+                } else {
+                    console.log("App deployed");
+                }
+            });
         });
-        
     }
-
-    saveToApiCore(env){
+    createDockerContainer(env) {
+        return this.docker.compileDockerFile(env).then(() => {
+            return this.docker.build(env, env.docker.tag);
+        }).then(() => {
+            return this.docker.publish(env, env.docker.tag);
+        }).then(() => {
+            return this.docker.rm(env);
+        }).then(() => {
+            return this.docker.run(env, env.docker.tag);
+        });
+    }
+    saveToApiCore(env) {
         var config = env.conf;
         var appInfo = {
             systemId: config.solution.id,
             name: config.app.name,
-            host: "localhost",
+            host: this.docker.getContainerName(env),
             type: "domain",
-            port: config.lock.port
+            port: env.docker.port
         };
-        this.installedAppCore = new InstalledAppCore(env["apiCore"]);
-        this.installedAppCore.findBySystemId(config.solution.id).then(s =>{
-            if (s.length > 0){
-                this.installedAppCore.destroy(s[0]).then(()=>{
-                    this.installedAppCore.create(appInfo).then(s =>{
+        this.installedAppCore = new InstalledAppCore(env.apiCore);
+        this.installedAppCore.findBySystemId(config.solution.id).then(s => {
+            if (s.length > 0) {
+                this.installedAppCore.destroy(s[0]).then(() => {
+                    this.installedAppCore.create(appInfo).then(s => {
                         console.log("App deployed");
-                    })
-                })
-            }else{
-                this.installedAppCore.create(appInfo).then(s =>{
+                    });
+                });
+            } else {
+                this.installedAppCore.create(appInfo).then(s => {
                     console.log("App deployed");
-                })
+                });
             }
-        }).catch(e =>{
+        }).catch(e => {
             console.log(e);
-        })
+        });
     }
-}
+};

@@ -128,8 +128,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction{
               this.docker.publish(env,process.tag).then(()=>{
                 this.saveProcessToCore(env,process).then(()=>{
                     resolve(env);
-                }).catch(reject)
-              })
+                }).catch(reject);
+              });
             }).catch(reject);
         });
         return promise;

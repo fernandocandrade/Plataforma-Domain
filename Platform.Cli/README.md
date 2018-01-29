@@ -10,8 +10,17 @@ Essa aplicação é um utilitário de compilação e geração do pacote prepara
 
 ### Executando o compilador de domínio
 
+
 Antes de executar a aplicação é necessário instalar todas as dependências necessárias para a execução do projeto.
 Para isso você deve executar o seguinte comando:
+
+Você deve adicionar ao arquivo hosts da máquina a seguinte linha
+Windows(c:\Windows\System32\Drivers\etc\hosts)
+Linux(/etc/hosts)
+
+127.0.0.1	registry
+
+Para parar a plataforma no ambiente local execute o seguinte comando:
 ```sh
 $ npm install
 #disponibiliza o cliente para ser executado em outros diretórios
@@ -32,6 +41,7 @@ Para parar a plataforma no ambiente local execute o seguinte comando:
 ```sh
 $ plataforma --stop
 ```
+
 
 Para criar uma solução de aplicações execute o comando abaixo:
 ```sh

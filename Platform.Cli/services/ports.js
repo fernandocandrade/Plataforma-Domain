@@ -11,18 +11,18 @@ module.exports = class Ports{
      * disponível para ser usada por uma aplicação
      */
     getNextAvailablePort(){
-        var port = 9110;
-        var ports = this.getUsedPorts();
-        if (ports.length > 0){
-            return this.getUsedPorts().pop() + 1;
-        }
-        return port;
+        return 9110;
     }
 
     getUsedPorts(){
         return this.getInstalledApps().map(app => {
-            var instance = JSON.parse(fs.readFileSync(this.path()+"/"+app+"/plataforma.instance.lock"));
-            return instance.port;
+            try{
+                var instance = JSON.parse(fs.readFileSync(this.path()+"/"+app+"/plataforma.instance.lock"));
+                return instance.docker.port;
+            }catch(e){
+                return 9209;
+            }
+
         }).sort();
     }
 
@@ -31,4 +31,4 @@ module.exports = class Ports{
             return item.indexOf("plataforma_") === 0;
         });
     }
-}
+};
