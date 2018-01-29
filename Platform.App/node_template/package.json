@@ -11,13 +11,15 @@
   "license": "ISC",
   "dependencies": {
     "handlebars": "^4.0.11",
+    "jasmine": "^2.9.0",
+    "jasmine-node": "^1.14.5",
     "js-yaml": "^3.10.0",
     "mocha": "^4.0.1",
     "pg": "^7.4.0",
     "pg-hstore": "^2.3.2",
+    "plataforma-sdk": "git+https://github.com/ONSBR/Plataforma-SDK",
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",
-    "sequelize": "^4.23.1",
-    "plataforma-sdk": "git+https://github.com/ONSBR/Plataforma-SDK"
+    "sequelize": "^4.23.1"
   }
 }
