@@ -4,11 +4,11 @@ import yaml
 from os import listdir
 from env.loader import Loader as EnvLoader
 from sdk.map_core import MapCore
+from core.component import Component
 
-
-class Loader:
+class Loader(Component):
     def __init__(self):
-        self.config = EnvLoader().load()
+        Component.__init__(self)
         self.map_core = MapCore()
         self.local_source = "maps"
 
@@ -24,6 +24,7 @@ class Loader:
         return self.map_core.find_by_system_id(self.config['solution']['id'])
 
     def build_local_maps(self):
+        """ build local maps data structure """
         files = self.get_local_map_file_names()
         maps = []
         for current_file in files:
@@ -36,6 +37,7 @@ class Loader:
         return maps
 
     def build_remote_maps(self):
+        """ build remote maps data structure """
         maps_to_build = self.get_map_from_api_core()
         maps = []
         for current_map in maps_to_build:
@@ -47,6 +49,7 @@ class Loader:
         return maps
 
     def build(self):
+        """ returns all maps available to this application """
         local_maps = self.build_local_maps()
         remote_maps = self.build_remote_maps()
         return local_maps + remote_maps
