@@ -7,18 +7,18 @@ class Transform {
         this.index = index;
     }
     /**
-     * 
+     *
      * @param {String} from string de origem
      * @param {String} needle ponto de substituição
      * @param {String} replacement string para substituir
-     * @description método básico de replaceAll 
+     * @description método básico de replaceAll
      * @return {String} string com as partes já substituídas
      */
     replaceAll(from,needle,replacement){
         return from.split(needle).join(replacement);
     }
     /**
-     * 
+     *
      * @param {String} from string de origem
      * @param {String} needle ponto de substituição
      * @param {String} replacement string para substituir
@@ -30,7 +30,7 @@ class Transform {
     }
 
     /**
-     * 
+     *
      * @param {String} processId id da aplicação
      * @param {String} mapName nome da entidade
      * @param {Array<Object>} modelList lista de regitros para serem aplicados os atributos de runtime
@@ -38,20 +38,20 @@ class Transform {
      * do banco de dados
      * @returns {Array<Object>} lista com campos calculados
      */
-    
-    applyRuntimeFields (processId,mapName,modelList) {    
+
+    applyRuntimeFields (processId,mapName,modelList) {
         var accumulator = {};
-        
+
         return modelList.map(model => {
             var modelJson = model;
             if (typeof(model["toJSON"]) === "function"){
                 modelJson = model.toJSON();
-            }            
+            }
             modelJson._metadata = {};
-            modelJson._metadata.type = mapName;            
+            modelJson._metadata.type = mapName;
             this.applyIncludeFields(modelJson,processId,mapName);
             this.applyFunctionFields(modelJson,processId,mapName,accumulator);
-            this.applyMetadataFields(modelJson);            
+            this.applyMetadataFields(modelJson);
             return modelJson;
         });
     }
@@ -60,12 +60,12 @@ class Transform {
     applyMetadataFields(modelJson){
         if (modelJson.meta_instance_id){
             modelJson._metadata.instance_id = modelJson.meta_instance_id;
-            delete modelJson.meta_instance_id;
         }
-        
+        delete modelJson.meta_instance_id;
+        modelJson._metadata.branch = "master";
     }
     /**
-     * 
+     *
      * @param {Object} modelJson entidade do banco de dados
      * @param {String} processId id da aplicação
      * @param {String} mapName nome da entidade
@@ -73,10 +73,10 @@ class Transform {
      * pois o sequelize não consegue aplicar um alias em runtime o alias para relacionamento
      * devem ser definidos em tempo de definição de modelos
      */
-    
+
     applyIncludeFields(modelJson, processId, mapName){
         var includes = this.index.getIncludes(processId,mapName);
-        for (var include in includes){ 
+        for (var include in includes){
           var modelApplied = this.index.getFields(processId,mapName)[include].model;
           var attrBase = this.index.getMapByAppIdAndName(processId,modelApplied).model;
           var keyToRename =  Object.keys(modelJson).find(s => s.indexOf(attrBase) >= 0);
@@ -84,12 +84,12 @@ class Transform {
             c._metadata = {};
             c._metadata.type = modelApplied;
             return c;
-          });          
-          delete modelJson[keyToRename];          
+          });
+          delete modelJson[keyToRename];
         }
     }
     /**
-     * 
+     *
      * @param {Object} modelJson entidade do banco de dados
      * @param {String} processId id da aplicação
      * @param {String} mapName nome da entidade mapeada
@@ -110,11 +110,11 @@ class Transform {
             }
             var fn = eval(functions[calcProp].eval);
             modelJson[calcProp] = fn(modelJson,accumulator[calcProp]);
-        }       
+        }
     }
 
     /**
-     * 
+     *
      * @param {String} processId id da aplicação
      * @param {String} mapName nome da entidade mapeada
      * @param {Request} request objeto de Request do restify
@@ -127,32 +127,23 @@ class Transform {
             return {};
         }
 
-   /*      console.log("request.query = ",request.query); */
         var filter = filters[request.query["filter"]];
         if (!filter){
             return {};
         }
-/*         console.log("filter =", filter); */
         var str = JSON.stringify(filter);
-/*         console.log("filter as str =", str);
-        console.log("Object.keys(request.query)[1] before = ",Object.keys(request.query)[1]);
- */
         Object.keys(request.query).forEach(r => str = this.replaceAll(str,":"+r,request.query[r]));
-/*         console.log("request.query after replaceAll =", request.query); */
-        
+
         var mapFields = this.index.getFields(processId,mapName);
-/*         console.log("mapFields =", mapFields); */
         var fields = Object.keys(mapFields);
-/*         console.log("fields =", fields); */
         fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
-/*         console.log("fields after replaceAll =", fields); */
-        return JSON.parse(str);        
+        return JSON.parse(str);
     }
 
     /**
-     * 
-     * @param {*} processId 
-     * @param {*} mapName 
+     *
+     * @param {*} processId
+     * @param {*} mapName
      * @param {*} f  { "entity": "pessoa", "filter": "byName", "name": "Nome" }
      */
      getFilters1(processId,mapName,f){
@@ -164,49 +155,35 @@ class Transform {
         if (!filter){
             return {};
         }
-        /* console.log("filter =", filter); */
-
-
         var str = JSON.stringify(filter);
-/*         console.log("filter as str =", str);
-        console.log('filter.name', filter.name);
-        console.log("f.name = ", f.name);
- */
         Object.keys(f).forEach(r => str = this.replaceAll(str,":"+r,f[r]));
-
-
-/*         console.log("str after replaceAll =", str);         */
-        
         var mapFields = this.index.getFields(processId,mapName);
-/*         console.log("mapFields =", mapFields); */
         var fields = Object.keys(mapFields);
-/*         console.log("fields =", fields); */
         fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
-/*         console.log("fields after replaceAll =", fields); */
-        return JSON.parse(str); 
+        return JSON.parse(str);
     }
 
     /**
-     * 
+     *
      * @param {String} processId id da aplicação
      * @param {String} mapName nome da entidade mapeada
      * @param {Object} ormModel dominio completo da aplicação
      * @description monta o objeto de includes no padrao do sequelize
      * @returns {Object}
      */
-    getIncludes(processId,mapName,ormModel){        
+    getIncludes(processId,mapName,ormModel){
         var includeMap = this.index.getIncludes(processId,mapName);
         var query = [];
         for(var includeProp in includeMap){
-            var sqlObj = {};      
+            var sqlObj = {};
             var mappedAttr = includeMap[includeProp].model;
-            var ormName = this.index.getMapByAppIdAndName(processId,mappedAttr).model;            
+            var ormName = this.index.getMapByAppIdAndName(processId,mappedAttr).model;
             sqlObj.model = ormModel[ormName];
-            sqlObj.as = ormName; 
+            sqlObj.as = ormName;
             sqlObj.attributes = this.index.getProjection(processId)[mappedAttr].attributes;
             query.push(sqlObj);
         }
-        return query;          
+        return query;
     }
 
 }
