@@ -38,18 +38,14 @@ class Loader(Component):
 
     def build_remote_maps(self):
         """ build remote maps data structure """
-        maps_to_build = self.get_map_from_api_core()
-        maps = []
-        for current_map in maps_to_build:
-            item = {
+        for current_map in self.get_map_from_api_core():
+            yield {
                 "app_name": current_map['name'],
                 "map": yaml.load(current_map['content'])
             }
-            maps.append(item)
-        return maps
 
     def build(self):
         """ returns all maps available to this application """
         local_maps = self.build_local_maps()
         remote_maps = self.build_remote_maps()
-        return local_maps + remote_maps
+        return local_maps + list(remote_maps)

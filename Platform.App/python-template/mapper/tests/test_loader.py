@@ -16,7 +16,7 @@ def test_build_local_maps():
 
 def test_build_remote_maps():
     l = Loader()
-    m = l.build_remote_maps()
+    m = list(l.build_remote_maps())
     assert len(m) == 1
     assert m[0]['app_name'] == "Conta"
 

@@ -17,6 +17,7 @@ class VERBS:
 class ExecutionResult:
     """HTTP requests friendly result.
     """
+
     def __init__(self, status_code, has_error=False,
                  error_message=None, data=None):
         self.status_code = status_code
@@ -29,7 +30,7 @@ class ExecutionResult:
         return cls(status_code=status_code, data=data)
 
     @classmethod
-    def error(cls, status_code, message, data=None):
+    def error(cls, message, status_code=None, data=None):
         log("""
             HTTP request error
             status code: {status_code}
@@ -70,23 +71,23 @@ class HttpClient:
                 data=data
             )
         except requests.exceptions.ConnectionError:
-            return error(
+            return ExecutionResult.error(
                 message='Could not connect to host.')
         except requests.exceptions.Timeout:
-            return error(
+            return ExecutionResult.error(
                 message="Request time out.")
         except requests.TooManyRedirects:
-            return error(
+            return ExecutionResult.error(
                 message="Too many redirects.")
         except requests.exceptions.HTTPError:
-            return error(
+            return ExecutionResult.error(
                 message="Request failed.",
                 status_code=response.status_code)
         except requests.exceptions.RequestException:
-            return error(
+            return ExecutionResult.error(
                 message="Request failed for unknown reason.")
         except ValueError:
-            return error(
+            return ExecutionResult.error(
                 message="Response body is not a valid json.",
                 status_code=response.status_code)
 

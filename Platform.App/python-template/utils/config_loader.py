@@ -1,5 +1,7 @@
 import json
 import os.path
+
+
 def load_config_file():
     """ Load confiuration file """
     config = open("plataforma.json", "r")
