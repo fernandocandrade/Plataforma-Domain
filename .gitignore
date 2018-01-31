@@ -3,3 +3,4 @@ bundle/
 .vscode/
 Platform.Cli/node_template/
 plataforma.instance.lock
+.cache/
