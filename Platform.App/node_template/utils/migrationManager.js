@@ -148,6 +148,7 @@ class MigrationManager{
             }
             fs.readdir("./migrations", (err, items) => {
                 var list = [];
+                items = items.filter(s => s.endsWith(".yaml"));
                 this.arrayUtils.asyncEach(items,(item,next)=>{
                     fs.readFile("./migrations/"+item,"UTF-8",(err,data)=>{
                         var migrationObject = {};
@@ -159,7 +160,7 @@ class MigrationManager{
                 },()=>{
                     list = list.sort();
                     resolve(list);
-                })
+                });
             });
         });
         return promise;
