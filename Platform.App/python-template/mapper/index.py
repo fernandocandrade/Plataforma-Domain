@@ -15,10 +15,10 @@ class Index(Component):
         """
             Index yaml map
         """
-        yaml = self.apply_default_fields(yaml)
-        self.model_cache[yaml['app_name']] = yaml['map'][yaml['app_name']]
-
-        self.generate_index(yaml)
+        for current in self.maps:
+            yaml = self.apply_default_fields(current)
+            self.model_cache[yaml['app_name']] = yaml['map'][yaml['app_name']]
+            self.generate_index(yaml)
 
     def apply_default_fields(self,yaml):
         """
