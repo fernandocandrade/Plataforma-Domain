@@ -33,11 +33,11 @@ class MigrationManager{
 
     constructor(domain){
         this.arrayUtils = new ArrayUtils();
-        this.domain = domain;                
+        this.domain = domain;
     }
 
     /**
-     * 
+     *
      * @param {String} table nome da tabela de dominio
      * @param {String} columnName nome da nova colune
      * @param {String} type tipo de dados da coluna
@@ -45,11 +45,11 @@ class MigrationManager{
     addColumn(table, columnName, colDef){
         var sql = this.domain["_engine"];
         var dataTypes = this.domain["_dataTypes"];
-        colDef.type = this.seqTypeMap()[colDef.type];    
+        colDef.type = this.seqTypeMap()[colDef.type];
         return sql.queryInterface.addColumn(table,columnName,colDef);
     }
     /**
-     * 
+     *
      * @param {String} table nome da tabela
      * @param {String} column nome da coluna
      * @description Em caso de falha ao escrever na tabela migration_history a aplicação faz o rollback
@@ -65,12 +65,12 @@ class MigrationManager{
     }
 
     /**
-     * 
+     *
      * @param {String} table nome da tabela de dominio
      * @param {String} columns array de colunas da tabela
      * @description cria uma tabela no banco de dados com as infromações da migration
      */
-    createTable(table,columns){        
+    createTable(table,columns){
         var sql = this.domain["_engine"];
         Object.keys(columns).forEach(c => {
             columns[c].type = this.seqTypeMap()[columns[c].type];
@@ -81,17 +81,17 @@ class MigrationManager{
         columns["id"] = { type: Sequelize.UUID,  defaultValue: Sequelize.UUIDV4  };
         columns["instance_id"] = { type: Sequelize.UUID };
         columns["data_inicio_vigencia"] = { type: Sequelize.DATE, defaultValue: Sequelize.NOW };
-        columns["data_fim_vigencia"] = { type: Sequelize.DATE };        
+        columns["data_fim_vigencia"] = { type: Sequelize.DATE };
         return sql.queryInterface.createTable(table,columns);
     }
 
-    dropTable(table){        
+    dropTable(table){
         var sql = this.domain["_engine"];
         return sql.queryInterface.dropTable(table);
     }
 
     /**
-     * 
+     *
      * @param {String} name nome da migração
      * @description salva o registro de execução de migration na tabela
      * migration_history
@@ -106,7 +106,7 @@ class MigrationManager{
      * @returns {Promise} retorna uma Promise para o final do processo de migração
      */
     migrate(){
-        console.log("Starting migrating process");        
+        console.log("Starting migrating process");
         var promise = new Promise((resolve,reject)=>{
             this.getMigrations().then((migrations)=>{
                 console.log(`There is ${migrations.length} migrations to be execute`);
@@ -125,7 +125,7 @@ class MigrationManager{
      */
     getMigrations(){
         var promise = new Promise((resolve,reject)=>{
-            this.loadMigrationApp().then((migrationsFile)=>{                
+            this.loadMigrationApp().then((migrationsFile)=>{
                 this.loadMigrationHistory().then(migrationsHistory =>{
                     this.getNotExecutedMigrations(migrationsFile,migrationsHistory)
                     .then(resolve);
@@ -179,19 +179,19 @@ class MigrationManager{
     }
 
     /**
-     * 
+     *
      * @param {Array} loadedMigrations arquivo de migrações da aplicação
      * @param {Array} migrationsHistory registro de migrações executadas no banco
      * @description faz um diff para saber quais migrações precisam ser executadas no banco de dados
      */
-    getNotExecutedMigrations(loadedMigrations, migrationsHistory){        
+    getNotExecutedMigrations(loadedMigrations, migrationsHistory){
         var promise = new Promise((resolve,reject)=>{
             var toExecute = [];
             loadedMigrations.forEach(migration => {
                 if (migrationsHistory.filter(h => h.name === migration.name).length === 0){
                     toExecute.push(migration);
                 }
-            });            
+            });
             resolve(toExecute);
         });
         return promise;
@@ -199,31 +199,37 @@ class MigrationManager{
 
 
     /**
-     * 
+     *
      * @param {Object} migration é o objeto de migração que será executado
      * @return {Promise}
      */
     execute(migration){
-        var promise = new Promise((resolve,reject)=>{                        
-            if (migration.command["add_column"]){
-                this.executeAddColumnCommand(migration).then(resolve).catch(reject);
-            }else if (migration.command["create_table"]){
-                this.executeCreateTableCommand(migration).then(resolve).catch(reject);
+        var promise = new Promise((resolve,reject)=>{
+            try{
+                if (migration.command["add_column"]){
+                    this.executeAddColumnCommand(migration).then(resolve).catch(reject);
+                }else if (migration.command["create_table"]){
+                    this.executeCreateTableCommand(migration).then(resolve).catch(reject);
+                }
+            }catch(e){
+                console.log(e);
+                resolve();
             }
+
         });
         return promise;
     }
 
     /**
-     * 
+     *
      * @param {Object} migration é o objeto de migração que será executado
      * @description Executa o comando de migração add_column
      * @return {Promise}
      */
     executeAddColumnCommand(migration){
-        var promise = new Promise((resolve,reject)=>{                        
-            var table = migration.command["add_column"].table;             
-            var cols = Object.keys(migration.command["add_column"].columns);            
+        var promise = new Promise((resolve,reject)=>{
+            var table = migration.command["add_column"].table;
+            var cols = Object.keys(migration.command["add_column"].columns);
             this.arrayUtils.asyncEach(cols,(col,nextCol,stop)=>{
                 this.addColumn(table,col,migration.command["add_column"].columns[col])
                 .then(nextCol).catch(()=>{
@@ -239,13 +245,13 @@ class MigrationManager{
     }
 
     /**
-     * 
+     *
      * @param {Object} migration é o objeto de migração que será executado
      * @description Executa o comando de migração add_column
      * @return {Promise}
      */
     executeCreateTableCommand(migration){
-        var promise = new Promise((resolve,reject)=>{                        
+        var promise = new Promise((resolve,reject)=>{
             var table = migration.command["create_table"].name;
             this.createTable(table,migration.command["create_table"].columns)
             .then(()=>{
@@ -256,7 +262,7 @@ class MigrationManager{
                     this.dropTable(table).then(nextCol).catch(nextCol);
                 });
             }).catch(resolve);
-            
+
         });
         return promise;
     }
