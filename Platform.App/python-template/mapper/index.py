@@ -4,9 +4,9 @@ from core.component import Component
 class Index(Component):
     """ Index map into many data sctructures """
 
-    def __init__(self, maps):
+    def __init__(self):
         Component.__init__(self)
-        self.maps = maps
+
         self.model_cache = dict()
         self.projection_cache = dict()
         self.functions_map = dict()
@@ -17,6 +17,7 @@ class Index(Component):
         """
             Index yaml map
         """
+        self.maps = yaml
         for current in self.maps:
             yaml = self.apply_default_fields(current)
             self.model_cache[yaml['app_name']] = yaml['map']

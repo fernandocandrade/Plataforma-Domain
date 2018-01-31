@@ -57,12 +57,12 @@ def build_map():
 
 
 def test_replace_all():
-    index = Index(build_map())
+    index = Index()
     assert Transform(index).replace_all("a b a", "a", "c") == "c b c"
 
 
 def test_replace_all_atributes():
-    index = Index(build_map())
+    index = Index()
     assert Transform(index).replace_all_atributes(
         """ {"nome":"elvis"} """, "nome", "nome1") == """ {"nome1":"elvis"} """
 
@@ -71,7 +71,7 @@ def test_apply_runtime_fields_with_instance_none():
         "nome":"teste",
         "meta_instance_id": None
     }
-    index = Index(build_map())
+    index = Index()
     processed = Transform(index).apply_runtime_fields('BankApp','Conta', [model])
     assert '_metadata' in processed[0]
     assert 'type' in processed[0]['_metadata']
@@ -84,7 +84,7 @@ def test_apply_runtime_fields_with_instance_id():
         "nome":"teste",
         "meta_instance_id":"123"
     }
-    index = Index(build_map())
+    index = Index()
     processed = Transform(index).apply_runtime_fields('BankApp','Conta', [model])
     assert '_metadata' in processed[0]
     assert 'type' in processed[0]['_metadata']
@@ -102,8 +102,8 @@ def test_apply_function_fields():
             "type":"Conta"
         }
     }
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     processed = Transform(index).apply_function_fields(model,'BankApp','Conta',{})
     assert "premio" in processed
     assert processed["premio"] == 11
@@ -114,8 +114,8 @@ def test_get_filters():
         "origem":"teste_origem",
         "destino":"teste_destino"
     }
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     _filter = Transform(index).get_filters('BankApp','Conta',query)
 
     assert 'id' in _filter
