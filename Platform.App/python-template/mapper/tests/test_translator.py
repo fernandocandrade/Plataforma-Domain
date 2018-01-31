@@ -57,8 +57,8 @@ def build_map():
 
 
 def test_to_domain():
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     mapped = {
         "saldo":10,
         "titular": "teste",
@@ -73,8 +73,8 @@ def test_to_domain():
     assert domain["cl_titular"] == mapped["titular"]
 
 def test_to_domain_without_metadata():
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     mapped = {
         "saldo":10,
         "titular": "teste"
@@ -87,8 +87,8 @@ def test_to_domain_without_metadata():
 
 
 def test_to_map():
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     domain = {
         "id": "13123",
         "meta_instance_id":"1313123",
@@ -106,8 +106,8 @@ def test_to_map():
 
 
 def test_to_map_without_metadata():
-    index = Index(build_map())
-    index.parse(index.maps)
+    index = Index()
+    index.parse(build_map())
     domain = {
         "id": "13123",
         "meta_instance_id":"1313123",

@@ -1,11 +1,18 @@
 """ Query Controller """
 class QueryController:
-    def __init__(self, app_id, entity, request):
+    def __init__(self, app_id, entity, request, mapper, query_service):
         self.request = request
         self.app_id = app_id
-        self.entity = entity
-        self.request = request
+        self.mapped_entity = entity
+        self.req = request
+        self.mapper = mapper
+        self.query_service = query_service
 
     def query(self):
-        """ Query domain data """
-        return []
+        """ query data on domain """
+        entity = self.mapper.index.get_model_name(self.app_id,self.mapped_entity)
+        projection = self.mapper.index.get_projection(self.app_id,self.mapped_entity)[self.mapped_entity];
+        projection['where'] = self.mapper.get_filters(self.app_id,self.mapped_entity,self.req)
+        if not list(projection.where.keys()):
+            projection.pop('where',None)
+        return self.query_service.filter(self.app_id,self.mapped_entity,entity,projection)
