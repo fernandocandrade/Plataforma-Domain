@@ -8,7 +8,7 @@ def build_map():
     json_map = """
     [
    {
-      "app_name":"Conta",
+      "app_name":"BankApp",
       "map":{
          "Conta":{
             "model":"conta",
@@ -47,8 +47,16 @@ def test_index_maps():
 def test_apply_default_attr():
     """ should index map into many index structure """
     index = Index(build_map())
-    index.apply_default_fields(index.maps[0])
-    assert "Conta" in index.model_cache
-    assert 'id' in index.model_cache['Conta']['fields']
-    assert 'meta_instance_id' in index.model_cache['Conta']['fields']
+    r = index.apply_default_fields(index.maps[0])
+    assert 'BankApp' in r['app_name']
+    assert 'id' in r['map']['Conta']['fields']
+    assert 'meta_instance_id' in r['map']['Conta']['fields']
 
+def test_parse():
+    """ should index map into many index structure """
+    index = Index(build_map())
+    index.parse(index.maps)
+    assert 'BankApp' in index.model_cache
+    assert 'Conta' in index.model_cache['BankApp']
+    assert 'fields' in index.model_cache['BankApp']['Conta']
+    assert 'attributes' in index.projection_cache['BankApp']['Conta']
