@@ -1,5 +1,7 @@
 from utils.http import HttpClient
 from env.loader import Loader
+
+
 class MapCore:
     def __init__(self):
         self.http = HttpClient()
@@ -8,7 +10,6 @@ class MapCore:
     def find_by_system_id(self, system_id):
         """ get map on api core by system id"""
         core_services = self.config["core_services"]
-        print(core_services)
         url = f"{core_services['scheme']}://{core_services['host']}:{core_services['port']}/core/map?filter=bySystemId&systemId={system_id}"
         result = self.http.get(url)
         if result.status_code == 200:

@@ -1,0 +1,1 @@
+[{"app_name": "Conta", "map": {"Conta": {"model": "conta", "fields": {"saldo": {"column": "saldo"}, "titular": {"column": "titular"}}, "filters": {"transferencia": {"id": {"$in": [":origem", ":destino"]}}}}}}]
