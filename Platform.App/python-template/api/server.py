@@ -4,6 +4,8 @@ from api.query_controller import QueryController
 from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
+import json
+
 
 app = Flask(__name__)
 
@@ -28,9 +30,18 @@ def query_map(app_id, entity):
 @app.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
-    mapper = MapBuilder().build()
-    controller = CommandController(app_id, request, mapper)
-    return controller.persist()
+    try:
+        instance_id = request.headers.get('Instance-Id')
+        mapper = MapBuilder().build()
+        body = json.loads(request.data)
+        controller = CommandController(app_id, body, mapper, instance_id)
+        return jsonify(controller.persist())
+    except Exception as excpt:
+        r = {
+            "status_code": 400,
+            "message": excpt.args[0]
+        }
+        return jsonify(r), 400
 
 
 def run():
