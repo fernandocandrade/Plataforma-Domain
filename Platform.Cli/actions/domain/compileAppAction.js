@@ -34,16 +34,16 @@ module.exports = class CompileAppAction {
             shell.cd(__dirname);
             shell.cd("../..");
             var cliPath = shell.pwd().toString();
-            shell.rm("-rf", cliPath + "/node_template/");
+            if (fs.existsSync(cliPath + "/python-template/")){
+                shell.rm("-rf", cliPath + "/python-template/");
+            }
             shell.cd("../Platform.App");
-            shell.cp("-R", "node_template", cliPath);
+            shell.cp("-R", "python-template", cliPath);
             shell.cd(currentPath);
             console.log("Starting Compiling App");
             this.buildApp.build(env, (id) => {
                 console.log("App Compiled");
                 shell.cd(env.path);
-                console.log("Installing dependencies");
-                shell.exec("npm install");
                 resolve(env);
             });
         });
