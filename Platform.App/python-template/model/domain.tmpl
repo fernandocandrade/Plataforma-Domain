@@ -1,0 +1,57 @@
+from core.mapper import Base, TemporalMixin, effective_now
+import sqlalchemy.dialects.postgresql as sap
+from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
+
+def get_db_name():
+    return "{{database_name}}"
+
+{{#each model}}
+
+class {{up_first @key}}(Base, TemporalMixin):
+    temporal = ('name', )
+    name = Column(String)
+
+class {{up_first @key}}Clock(Base):
+    ticks = Column(
+        Integer,
+        nullable=False,
+        default=1)
+
+    effective = Column(
+        sap.TSTZRANGE(),
+        nullable=False,
+        default=effective_now)
+
+    entity_id = Column(
+        sap.UUID(as_uuid=True),
+        ForeignKey('{{lower @key}}.id'),
+        nullable=False)
+
+    entity = orm.relationship("{{up_first @key}}")
+    __table_args__ = (
+        UniqueConstraint('entity_id', 'effective', name='_{{lower @key}}_clock_uix'),
+    )
+
+
+
+{{#each . }}
+
+class {{up_first @../key}}{{up_first name}}History(Base):
+    clock = Column(ForeignKey({{up_first @../key}}Clock.id))
+    ticks = Column(sap.INT4RANGE())
+    value = Column({{type}})
+
+    clock_id = Column(sap.UUID(as_uuid=True), ForeignKey('{{lower @../key}}clock.id'), nullable=False)
+    clock = orm.relationship("{{up_first @../key}}Clock")
+
+    entity_id = Column(sap.UUID(as_uuid=True), ForeignKey('{{lower @../key}}.id'), nullable=False)
+    entity = orm.relationship("{{up_first @../key}}")
+
+{{/each}}
+
+{{/each}}
+
+
+
+
+

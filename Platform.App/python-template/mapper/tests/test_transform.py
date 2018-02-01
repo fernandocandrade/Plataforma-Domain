@@ -130,3 +130,11 @@ def test_get_filters_with_empty_params():
     _filter = Transform(index).get_filters('BankApp','Conta',query)
     assert _filter == dict()
 
+
+def test_get_filters_with_wrong_app():
+    query = dict()
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('WApp','donta',query)
+    assert _filter == dict()
+
