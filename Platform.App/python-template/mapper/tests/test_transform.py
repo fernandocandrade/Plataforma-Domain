@@ -123,3 +123,10 @@ def test_get_filters():
     assert _filter['id']['$in'][0] == "teste_origem"
     assert _filter['id']['$in'][1] == "teste_destino"
 
+def test_get_filters_with_empty_params():
+    query = dict()
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp','Conta',query)
+    assert _filter == dict()
+
