@@ -8,6 +8,7 @@ ncp.limit = 16;
 var root = os.tmpdir() + "/";
 var baseTemplate = __dirname+"/";
 const uuidv4 = require('uuid/v4');
+const template = "python-template";
 module.exports = (function(){
     var self= {};
 
@@ -35,8 +36,8 @@ module.exports = (function(){
             }
 
         }
-        shell.cp("-R",`${baseTemplate}node_template`,root+bundleFolder);
-        fs.writeFileSync(`${root}${bundleFolder}/model/domain.js`,compiled);
+        shell.cp("-R",`${baseTemplate}python-template`,root+bundleFolder);
+        fs.writeFileSync(`${root}${bundleFolder}/model/domain.py`,compiled);
         fs.unlinkSync(`${root}${bundleFolder}/model/domain.tmpl`);
 
         if(fs.existsSync(domainAppRoot+"Migrations/")){
