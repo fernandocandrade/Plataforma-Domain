@@ -53,6 +53,8 @@ class Transform(Component):
         filters = self.index.get_filters(app_id, map_name)
         if filters == dict():
             return filters
+        if query == dict():
+            return dict()
         if not query["filter"] in filters:
             return dict()
         _filter = filters[query["filter"]]

@@ -1,5 +1,5 @@
 """ Server API """
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from api.query_controller import QueryController
 from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
@@ -11,10 +11,18 @@ app = Flask(__name__)
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
-    mapper = MapBuilder().build()
-    query_service = QueryService()
-    controller = QueryController(app_id, entity, request,mapper,query_service)
-    return controller.query()
+    try:
+
+        mapper = MapBuilder().build()
+        query_service = QueryService()
+        controller = QueryController(
+            app_id, entity, request, mapper, query_service)
+        return jsonify(controller.query())
+    except Exception as excpt:
+        resp = dict()
+        resp["message"] = excpt.args[0]
+        resp["code"] = 400
+        return jsonify(resp), resp["code"]
 
 
 @app.route("/<app_id>/persist", methods=['POST'])
@@ -24,6 +32,11 @@ def persist_map(app_id):
     controller = CommandController(app_id, request, mapper)
     return controller.persist()
 
+
 def run():
     """Run Api Server"""
     app.run()
+
+
+def get_app():
+    return app
