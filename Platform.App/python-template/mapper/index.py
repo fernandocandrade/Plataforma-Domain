@@ -57,11 +57,6 @@ class Index(Component):
                     self.functions_map[process_id][mapped_model] = dict()
                     self.functions_map[process_id][mapped_model][field] = field_obj
                     continue
-                elif 'type' in field_obj and field_obj['type'] == "include":
-                    self.includes_map[process_id] = dict()
-                    self.includes_map[process_id][mapped_model] = dict()
-                    self.includes_map[process_id][mapped_model][field] = field_obj
-                    continue
                 proj = [field_obj['column'], field]
                 projections[mapped_model]['attributes'].append(proj)
 
@@ -83,12 +78,6 @@ class Index(Component):
         if app_id in self.projection_cache:
             return self.projection_cache[app_id]
         return dict()
-
-    def get_includes(self, app_id, map_name):
-        """ returns include objects """
-        if app_id in self.includes_map and map_name in self.includes_map[app_id]:
-            return self.includes_map[app_id][map_name]
-        return []
 
     def get_filters(self, app_id, map_name):
         """ returns filters on map  """
@@ -130,8 +119,6 @@ class Index(Component):
                 reference = field_obj[map_column]['column']
             if "type" in field_obj[map_column]:
                 reference = field_obj[map_column]['type']
-            if "include" in field_obj[map_column]:
-                reference = self.get_model_name(app_id, field_obj[map_column]['model'])
             if reference == "function":
                 continue
             _list.append([map_column, reference])

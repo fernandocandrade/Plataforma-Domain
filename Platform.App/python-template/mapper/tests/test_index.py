@@ -115,17 +115,15 @@ def test_get_projection():
         assert p[0] == p[1]
 
 
-def test_get_includes():
-    index = Index()
-    index.parse(build_map())
-    includes = index.get_includes("BankApp", "Conta")
-    assert includes == []
-
-
 def test_get_filters():
     index = Index()
     index.parse(build_map())
     assert "transferencia" in index.get_filters("BankApp", "Conta")
+
+def test_get_filters_wrong_type():
+    index = Index()
+    index.parse(build_map())
+    assert index.get_filters("w", "conta") == dict()
 
 
 def test_get_filters_wrong():
