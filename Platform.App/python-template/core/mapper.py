@@ -103,7 +103,6 @@ Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 
 
-# TODO: Rename to get_or_create_entity_clock
 def get_or_create_clock_entity(self, period=effective_now()):
     """Tries to retrieve an entity clock for the given period
        from the database. If it does not exist, a new clock is
@@ -147,7 +146,6 @@ def get_or_create_entity_history(self, field, clock):
     new_history_entity.clock = clock
     new_history_entity.ticks = f'[{clock.ticks + 1},]'
     new_history_entity.value = new_value
-    import ipdb; ipdb.set_trace()
     session.add(new_history_entity)
     return new_history_entity, True
 
