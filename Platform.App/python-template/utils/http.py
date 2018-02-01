@@ -70,26 +70,9 @@ class HttpClient:
                 status_code=response.status_code,
                 data=data
             )
-        except requests.exceptions.ConnectionError:
+        except Exception as excpt:
             return ExecutionResult.error(
-                message='Could not connect to host.')
-        except requests.exceptions.Timeout:
-            return ExecutionResult.error(
-                message="Request time out.")
-        except requests.TooManyRedirects:
-            return ExecutionResult.error(
-                message="Too many redirects.")
-        except requests.exceptions.HTTPError:
-            return ExecutionResult.error(
-                message="Request failed.",
-                status_code=response.status_code)
-        except requests.exceptions.RequestException:
-            return ExecutionResult.error(
-                message="Request failed for unknown reason.")
-        except ValueError:
-            return ExecutionResult.error(
-                message="Response body is not a valid json.",
-                status_code=response.status_code)
+                message=excpt.args[0])
 
     @classmethod
     def get(cls, uri):
