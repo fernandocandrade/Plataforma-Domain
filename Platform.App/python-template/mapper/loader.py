@@ -2,7 +2,7 @@
 """ Loader loads maps from api core and from Mapas directory """
 import yaml
 from os import listdir
-from env.loader import Loader as EnvLoader
+from settings.loader import Loader as EnvLoader
 from sdk.map_core import MapCore
 from core.component import Component
 

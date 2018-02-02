@@ -1,5 +1,5 @@
 from utils.http import HttpClient
-from env.loader import Loader
+from settings.loader import Loader
 
 
 class MapCore:

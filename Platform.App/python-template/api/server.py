@@ -5,7 +5,7 @@ from api.query_controller import QueryController
 from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
-from env.loader import Loader
+from settings.loader import Loader
 from model.domain import get_db_name
 import json
 
