@@ -2,7 +2,7 @@
 import api.server as server
 from migration.sync import sync_db
 from flask_sqlalchemy import SQLAlchemy
-from env.loader import Loader
+from settings.loader import Loader
 from model.domain import get_db_name
 env = Loader().load()
 db_host = env["database"]["host"]

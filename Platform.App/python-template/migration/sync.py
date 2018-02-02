@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from env.loader import Loader
+from settings.loader import Loader
 from model.domain import get_db_name
 env = Loader().load()
 
