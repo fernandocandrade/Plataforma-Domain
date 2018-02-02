@@ -1,16 +1,17 @@
 import psycopg2
-import logging as log
+import log
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from settings.loader import Loader
+from database import db_name, Base, engine
 env = Loader().load()
 
 
-def sync_db(db, db_name):
+def sync_db():
     if should_create_database(db_name):
         create_database(db_name)
-        log.debug("created database")
-        db.create_all()
-        log.debug("database synchronized")
+        log.info("created database")
+        Base.metadata.create_all(bind=engine)
+        log.info("database synchronized")
     else:
         migrate(db_name)
 
@@ -40,4 +41,4 @@ def should_create_database(db_name):
 
 
 def migrate(db_name):
-    print("migrating")
+    log.info("migrating")
