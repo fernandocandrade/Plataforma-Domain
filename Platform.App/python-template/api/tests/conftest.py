@@ -1,11 +1,10 @@
 # conftest.py
 import pytest
-from api.server import get_app
+from api.server import app as _app
 
 
 @pytest.fixture
 def app():
-    app = get_app()
-    app.debug = True
-    app.testing = True
-    return app
+    _app.debug = True
+    _app.testing = True
+    return _app
