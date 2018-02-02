@@ -1,4 +1,6 @@
-from core.mapper import Base, TemporalMixin, effective_now
+from cross_cutting import db
+from uuid import uuid4
+from core.mapper import TemporalMixin, effective_now
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
 
@@ -7,11 +9,14 @@ def get_db_name():
 
 {{#each model}}
 
-class {{up_first @key}}(Base, TemporalMixin):
+class {{up_first @key}}(db.Model, TemporalMixin):
     temporal = ('name', )
     name = Column(String)
+    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
 
-class {{up_first @key}}Clock(Base):
+class {{up_first @key}}Clock(db.Model):
+    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
+
     ticks = Column(
         Integer,
         nullable=False,
@@ -36,7 +41,8 @@ class {{up_first @key}}Clock(Base):
 
 {{#each . }}
 
-class {{up_first @../key}}{{up_first name}}History(Base):
+class {{up_first @../key}}{{up_first name}}History(db.Model):
+    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
     clock = Column(ForeignKey({{up_first @../key}}Clock.id))
     ticks = Column(sap.INT4RANGE())
     value = Column({{type}})
