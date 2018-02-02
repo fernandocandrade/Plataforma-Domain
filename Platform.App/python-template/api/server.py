@@ -1,14 +1,16 @@
 """ Server API """
 from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from api.query_controller import QueryController
 from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
+from env.loader import Loader
+from model.domain import get_db_name
 import json
 
-
+env = Loader().load()
 app = Flask(__name__)
-
 
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):

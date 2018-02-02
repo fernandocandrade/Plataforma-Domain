@@ -16,7 +16,10 @@ def load_config_file():
         config.http.port = os.environ.get('PORT')
     elif os.path.exists("plataforma.instance.lock"):
         instance_config = json.loads(open("plataforma.instance.lock", "r").read())
-        config["http"]["port"] = instance_config["port"] or 9090
+        if "port" in instance_config:
+            config["http"]["port"] = instance_config["port"]
+        else:
+            config["http"]["port"] = 9090
     if not "core_services" in config:
         config["core_services"] = {
             "scheme": os.environ.get('COREAPI_SCHEME', "http"),
