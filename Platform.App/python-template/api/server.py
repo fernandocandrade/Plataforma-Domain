@@ -1,18 +1,18 @@
 """ Server API """
-from flask import Flask, request, jsonify
+import json
+from flask import Flask, request, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from api.query_controller import QueryController
 from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
 from settings.loader import Loader
-from model.domain import get_db_name
-import json
+
 
 env = Loader().load()
-app = Flask(__name__)
+api = Blueprint('main', __name__)
 
-@app.route("/<app_id>/<entity>", methods=['GET'])
+@api.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
     try:
@@ -29,7 +29,7 @@ def query_map(app_id, entity):
         return jsonify(resp), resp["code"]
 
 
-@app.route("/<app_id>/persist", methods=['POST'])
+@api.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
     try:
@@ -44,12 +44,3 @@ def persist_map(app_id):
             "message": excpt.args[0]
         }
         return jsonify(r), 400
-
-
-def run():
-    """Run Api Server"""
-    app.run()
-
-
-def get_app():
-    return app
