@@ -47,3 +47,6 @@ def persist_map(app_id):
             "message": excpt.args[0]
         }
         return jsonify(r), 400
+
+def get_app():
+    return app
