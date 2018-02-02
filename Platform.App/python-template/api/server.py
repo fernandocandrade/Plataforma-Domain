@@ -7,12 +7,15 @@ from api.command_controller import CommandController
 from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
 from settings.loader import Loader
-
-
+from database import db_session
 env = Loader().load()
-api = Blueprint('main', __name__)
+app = Flask(__name__, instance_relative_config=True)
 
-@api.route("/<app_id>/<entity>", methods=['GET'])
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
+@app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
     try:
@@ -29,7 +32,7 @@ def query_map(app_id, entity):
         return jsonify(resp), resp["code"]
 
 
-@api.route("/<app_id>/persist", methods=['POST'])
+@app.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
     try:

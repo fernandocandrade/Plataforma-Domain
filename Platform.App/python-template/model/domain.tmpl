@@ -1,7 +1,8 @@
-from cross_cutting import db
+from database import Base
 from uuid import uuid4
 from core.mapper import TemporalMixin, effective_now
 import sqlalchemy.dialects.postgresql as sap
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
 
 def get_db_name():
@@ -9,12 +10,15 @@ def get_db_name():
 
 {{#each model}}
 
-class {{up_first @key}}(db.Model, TemporalMixin):
+class {{up_first @key}}(Base, TemporalMixin):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
     temporal = ('name', )
     name = Column(String)
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
 
-class {{up_first @key}}Clock(db.Model):
+class {{up_first @key}}Clock(Base):
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
 
     ticks = Column(
@@ -41,7 +45,7 @@ class {{up_first @key}}Clock(db.Model):
 
 {{#each . }}
 
-class {{up_first @../key}}{{up_first name}}History(db.Model):
+class {{up_first @../key}}{{up_first name}}History(Base):
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
     clock = Column(ForeignKey({{up_first @../key}}Clock.id))
     ticks = Column(sap.INT4RANGE())

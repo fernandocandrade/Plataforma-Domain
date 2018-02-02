@@ -1,6 +1,9 @@
 ''' Main Module starts all domain app components '''
 from migration.sync import sync_db
-from cross_cutting import db, app, get_db_name
+from api.server import app
+import log
 
-sync_db(db, get_db_name())
+log.info("starting app")
+sync_db()
+log.info("starting api server")
 app.run()

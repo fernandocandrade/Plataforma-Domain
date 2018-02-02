@@ -99,8 +99,8 @@ class UserNameHistory(Base):
     entity = orm.relationship("User")
 
 
-Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
+#Base.metadata.drop_all(engine)
+#Base.metadata.create_all(engine)
 
 
 def get_or_create_clock_entity(self, period=effective_now()):
