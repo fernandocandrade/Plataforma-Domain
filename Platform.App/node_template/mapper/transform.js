@@ -133,30 +133,8 @@ class Transform {
         }
         var str = JSON.stringify(filter);
         Object.keys(request.query).forEach(r => str = this.replaceAll(str,":"+r,request.query[r]));
+        Object.keys(request.query).forEach(r => str = this.replaceAll(str,`"$${r}"`,`${JSON.stringify(request.query[r].split(';'))}`));
 
-        var mapFields = this.index.getFields(processId,mapName);
-        var fields = Object.keys(mapFields);
-        fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
-        return JSON.parse(str);
-    }
-
-    /**
-     *
-     * @param {*} processId
-     * @param {*} mapName
-     * @param {*} f  { "entity": "pessoa", "filter": "byName", "name": "Nome" }
-     */
-     getFilters1(processId,mapName,f){
-        var filters = this.index.getFilters(processId,mapName);
-        if (!filters){
-            return {};
-        }
-        var filter = filters[f.filter];
-        if (!filter){
-            return {};
-        }
-        var str = JSON.stringify(filter);
-        Object.keys(f).forEach(r => str = this.replaceAll(str,":"+r,f[r]));
         var mapFields = this.index.getFields(processId,mapName);
         var fields = Object.keys(mapFields);
         fields.forEach(f => str = this.replaceAll(str,f,mapFields[f].column));
