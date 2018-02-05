@@ -12,7 +12,7 @@ db_host = conf["database"]["host"]
 db_name = conf["app"]["name"]
 db_user = conf["database"]["user"]
 conn_string = f'postgresql+psycopg2://{db_user}@{db_host}:5432/{db_name}'
-print(conn_string)
+
 engine = create_engine(conn_string, convert_unicode=True)
 db_session = scoped_session(sessionmaker(bind=engine))
 

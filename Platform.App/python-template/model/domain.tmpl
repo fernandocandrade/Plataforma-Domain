@@ -4,6 +4,12 @@ from core.mapper import TemporalMixin, effective_now
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
+import datetime
+
+
+class MigrationHistory(Base):
+    name = Column(String(80), unique=True, nullable=False)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
 def get_db_name():
     return "{{database_name}}"
@@ -15,7 +21,12 @@ class {{up_first @key}}(Base, TemporalMixin):
     def __tablename__(cls):
         return cls.__name__.lower()
     temporal = ('name', )
-    name = Column(String)
+
+    {{#each . }}
+    {{@key}} = Column({{type}})
+
+    {{/each}}
+
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
 
 class {{up_first @key}}Clock(Base):
