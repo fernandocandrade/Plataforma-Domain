@@ -1,6 +1,10 @@
 class Persistence:
 
     def persist(self, objs):
+        """ split object collection into 3 operation list for
+            creating, updating, destroying looking for changeTrack
+            on each object
+        """
         to_create  = []
         to_update  = []
         to_destroy = []
