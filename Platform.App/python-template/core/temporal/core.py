@@ -1,4 +1,3 @@
-import importlib
 import itertools
 
 from sqlalchemy import event
@@ -7,17 +6,6 @@ from core.temporal.utils import effective_now
 
 
 session = None
-modules = {}
-
-
-def get_dynamic_class(module_name, class_name):
-    """Imports a module dynamically.
-    """
-    module = modules.setdefault(
-        module_name,
-        importlib.import_module(module_name))
-
-    return getattr(module, class_name)
 
 
 def get_or_create_clock_entity(entity, period=effective_now()):
@@ -25,7 +13,7 @@ def get_or_create_clock_entity(entity, period=effective_now()):
        from the database. If it does not exist, a new clock is
        created.
     """
-    clock_cls = get_dynamic_class(entity.get_module_name(), entity.get_clock_name())
+    clock_cls = entity._clock
 
     clock_entity = session.query(clock_cls)\
         .filter(clock_cls.effective.contains(period), clock_cls.entity_id == entity.id)\
@@ -46,16 +34,13 @@ def get_or_create_entity_history(entity, field, clock):
        for an entity temporal field.
     """
     new_value = getattr(entity, field)
-    history_cls = get_dynamic_class(
-        entity.get_module_name(),
-        entity.get_history_name(field))
+    history_cls = entity.history[field]
 
-    history_entity = session.query(history_cls)\
-        .filter(
-            history_cls.entity_id == entity.id,
-            history_cls.clock_id == clock.id,
-            history_cls.ticks.contains(clock.ticks),
-        ).one_or_none()
+    history_entity = session.query(history_cls).filter(
+        history_cls.entity_id == entity.id,
+        history_cls.clock_id == clock.id,
+        history_cls.ticks.contains(clock.ticks),
+    ).one_or_none()
 
     if history_entity:
         if history_cls.value == new_value:

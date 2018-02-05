@@ -1,8 +1,4 @@
-from core.temporal.tests.integration.mocks import User,\
-                                                  UserClock,\
-                                                  UserNameHistory,\
-                                                  UserAgeHistory
-
+from core.temporal.tests.integration.mocks import User
 
 
 def test_create_new_model_creates_model_clock(session, create_model, query_by_entity):
@@ -10,7 +6,7 @@ def test_create_new_model_creates_model_clock(session, create_model, query_by_en
     user = create_model(User, name='Foo', age=20)
 
     # retrieve
-    clock = query_by_entity(UserClock, user.id).one()
+    clock = query_by_entity(User._clock, user.id).one()
 
     # assert
     assert clock.ticks == 1
@@ -22,7 +18,7 @@ def test_update_model_increases_model_clock(session, create_model, update_model,
     update_model(user, name='Bar')
 
     # retrieve
-    clock = query_by_entity(UserClock, user.id).one()
+    clock = query_by_entity(User._clock, user.id).one()
 
     # assert
     assert clock.ticks == 2
@@ -33,11 +29,11 @@ def test_create_new_model_creates_fields_history(session, create_model, query_by
     user = create_model(User, name="Foo", age=20)
 
     # retrieve
-    age_history = query_by_entity(UserAgeHistory, user.id).one()
-    name_history = query_by_entity(UserNameHistory, user.id).one()
+    age_history = query_by_entity(user.history['age'], user.id).one()
+    name_history = query_by_entity(user.history['name'], user.id).one()
 
     # assert
-    assert age_history.value == 20
+    assert age_history.value == '20'
     assert age_history.ticks.lower == 1
 
     assert name_history.value == 'Foo'
@@ -50,7 +46,10 @@ def test_update_model_creates_new_field_history(session, create_model, update_mo
     update_model(user, name='Bar')
 
     # retrieve
-    name_history = query_by_entity(UserNameHistory, user.id, UserNameHistory.value).all()
+    name_history = query_by_entity(
+        user.history['name'],
+        user.id,
+        user.history['name'].value).all()
 
     # assert
     assert name_history[0].value == 'Bar'
@@ -61,21 +60,6 @@ def test_update_model_creates_new_field_history(session, create_model, update_mo
     assert name_history[1].ticks.lower == 1
     assert name_history[1].ticks.upper == 2
 
-#
-#  def test_get_class_name():
-    #  u = User(name="Foo")
-    #  assert u.get_classname() == "User"
-#
-#
-#  def test_get_clock_name():
-    #  u = User(name="Foo")
-    #  assert u.get_clock_name() == "UserClock"
-#
-#
-#  def test_get_history_field_name():
-    #  u = User(name="Foo")
-    #  assert u.get_history_name(field="name") == "UserNameHistory"
-#
 #
 #  def test_can_get_specific_tick():
     #  query = session.query(UserNameHistory).filter(
