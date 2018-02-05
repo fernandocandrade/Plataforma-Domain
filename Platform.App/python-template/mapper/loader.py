@@ -20,7 +20,6 @@ class Loader(Component):
 
     def get_map_from_api_core(self):
         """ get maps from core api """
-        print(self.config["core_services"])
         return self.map_core.find_by_system_id(self.config['solution']['id'])
 
     def build_local_maps(self):
