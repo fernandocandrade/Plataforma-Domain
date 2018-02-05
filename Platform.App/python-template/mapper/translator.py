@@ -14,6 +14,8 @@ class Translator(Component):
         _map = self.index.get_map_by_app_id_and_name(app_id, map_type)
         translated = dict()
         translated['_metadata'] = mapped['_metadata']
+        if "model" not in _map:
+            raise AttributeError(f"App Id {app_id} or Map Type {map_type} is invalid")
         translated['_metadata']['type'] = _map['model']
         _list = self.index.columns_from_map_type(app_id, map_type)
         for replacement in _list:
@@ -37,6 +39,6 @@ class Translator(Component):
         for replacement in _list:
             _from = replacement[1]
             _to = replacement[0]
-            if mapped[_from]:
+            if _from in mapped:
                 translated[_to] = mapped[_from]
         return translated

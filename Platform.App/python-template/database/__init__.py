@@ -14,7 +14,8 @@ db_user = conf["database"]["user"]
 conn_string = f'postgresql+psycopg2://{db_user}@{db_host}:5432/{db_name}'
 
 engine = create_engine(conn_string, convert_unicode=True)
-db_session = scoped_session(sessionmaker(bind=engine))
+session_factory = sessionmaker(bind=engine)
+db_session = scoped_session(session_factory)
 
 class ModelBase(object):
     @declared_attr

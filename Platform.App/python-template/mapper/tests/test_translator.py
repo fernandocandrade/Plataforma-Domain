@@ -1,7 +1,7 @@
 import json
 from mapper.index import Index
 from mapper.translator import Translator
-
+import pytest
 
 def build_map():
     """ build default test map """
@@ -71,6 +71,19 @@ def test_to_domain():
     assert "cl_titular" in domain
     assert domain["cl_saldo"] == mapped["saldo"]
     assert domain["cl_titular"] == mapped["titular"]
+
+def test_to_domain_with_wrong_type():
+    index = Index()
+    index.parse(build_map())
+    mapped = {
+        "saldo":10,
+        "titular": "teste",
+        "_metadata":{
+            "type":"conta"
+        }
+    }
+    with pytest.raises(AttributeError):
+        Translator(index).to_domain('BankApp',mapped)
 
 def test_to_domain_without_metadata():
     index = Index()

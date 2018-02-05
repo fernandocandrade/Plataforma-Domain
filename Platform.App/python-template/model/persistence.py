@@ -1,12 +1,19 @@
+from model.domain import *
+import log
+
+
 class Persistence:
+
+    def __init__(self, session):
+        self.session = session
 
     def persist(self, objs):
         """ split object collection into 3 operation list for
             creating, updating, destroying looking for changeTrack
             on each object
         """
-        to_create  = []
-        to_update  = []
+        to_create = []
+        to_update = []
         to_destroy = []
         for o in objs:
             if not self.is_valid_changed_obj(o):
@@ -17,15 +24,21 @@ class Persistence:
                 to_update.append(o)
             elif self.is_to_destroy(o):
                 to_destroy.append(o)
-        result = self.create(to_create)
+        result = list(self.create(to_create))
         result = result + self.update(to_update)
         self.destroy(to_destroy)
         return result
 
     def create(self, objs):
         for o in objs:
-            o["id"] = "1"
-        return objs
+            _type = o["_metadata"]["type"]
+            _type = _type.lower()
+            _type = _type[0].upper() + _type[1:]
+            instance = globals()[_type](**o)
+            self.session.add(instance)
+            yield instance
+
+        self.session.commit()
 
     def update(self, objs):
         return objs
@@ -42,13 +55,11 @@ class Persistence:
     def is_to_destroy(self, obj):
         return obj["_metadata"]["changeTrack"] == "destroy" and "id" in obj
 
-    def is_valid_changed_obj(self,obj):
+    def is_valid_changed_obj(self, obj):
         if not "_metadata" in obj:
             return False
         if not "changeTrack" in obj["_metadata"]:
             return False
-        if obj["_metadata"]["changeTrack"] not in ["create", "update","destroy"]:
+        if obj["_metadata"]["changeTrack"] not in ["create", "update", "destroy"]:
             return False
         return True
-
-

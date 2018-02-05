@@ -17,6 +17,19 @@ def get_db_name():
 {{#each model}}
 
 class {{up_first @key}}(Base, TemporalMixin):
+
+    def __init__(self, {{#join . ","}}{{name}}=None{{/join}}, _metadata=None):
+        {{#each .}}
+        self.{{@key}} = {{@key}}
+        {{/each}}
+        self._metadata = _metadata
+
+    def dict(self):
+        return {
+            {{#join . ","}}"{{name}}": self.{{name}}{{/join}},
+            "_metadata": self._metadata
+        }
+
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
