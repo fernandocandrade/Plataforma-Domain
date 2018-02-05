@@ -98,9 +98,20 @@ class UserNameHistory(Base):
     entity_id = Column(sap.UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
     entity = orm.relationship("User")
 
+class UserAgeHistory(Base):
+    clock = Column(ForeignKey(UserClock.id))
+    ticks = Column(sap.INT4RANGE())
+    value = Column(Integer)
 
-#Base.metadata.drop_all(engine)
-#Base.metadata.create_all(engine)
+    clock_id = Column(sap.UUID(as_uuid=True), ForeignKey('userclock.id'), nullable=False)
+    clock = orm.relationship("UserClock")
+
+    entity_id = Column(sap.UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
+    entity = orm.relationship("User")
+
+
+Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)
 
 
 def get_or_create_clock_entity(self, period=effective_now()):

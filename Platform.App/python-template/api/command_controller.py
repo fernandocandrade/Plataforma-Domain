@@ -1,3 +1,4 @@
+from model.persistence import Persistence
 """ Command Controller persist data on domain """
 class CommandController:
     def __init__(self, app_id, body, mapper, instance_id):
@@ -5,16 +6,14 @@ class CommandController:
         self.body = body
         self.mapper = mapper
         self.instance_id = instance_id
+        self.repository = Persistence()
 
     def persist(self):
         """ Persist data on domain """
         if len(self.body) == 0:
             return []
         domain_obj = self.to_domain()
-
-        for o in domain_obj:
-            o["id"] = "1"
-        return domain_obj
+        return self.repository.persist(domain_obj)
 
     def to_domain(self):
         result = []

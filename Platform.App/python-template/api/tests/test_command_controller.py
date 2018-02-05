@@ -55,3 +55,95 @@ def test_query_valid_params(app):
         assert len(_list) == 1
         assert "id" in _list[0]
 
+@pytest.mark.usefixtures('app')
+def test_with_instance_id(app):
+    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        obj = {
+            "saldo": 1,
+            "_metadata":{
+                "type":"Conta",
+                "changeTrack": "create"
+            }
+        }
+        client = app.test_client()
+        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                       content_type='application/json',  headers={'Instance-Id': '1'})
+        _list = json.loads(response.data)
+        assert response.status_code == 200
+        assert len(_list) == 1
+        assert "id" in _list[0]
+
+
+@pytest.mark.usefixtures('app')
+def test_with_empty_list(app):
+    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        client = app.test_client()
+        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([]),
+                       content_type='application/json')
+        _list = json.loads(response.data)
+        assert response.status_code == 200
+        assert len(_list) == 0
+
+@pytest.mark.usefixtures('app')
+def test_full_persist(app):
+    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        _list = []
+        obj = {
+            "saldo": 1,
+            "_metadata":{
+                "type":"Conta",
+                "changeTrack": "create"
+            }
+        }
+        _list.append(obj)
+        obj1 = {
+            "saldo": 1,
+            "id": "1",
+            "_metadata":{
+                "type":"Conta",
+                "changeTrack": "update"
+            }
+        }
+        _list.append(obj1)
+        obj2 = {
+            "saldo": 1,
+            "id":"3",
+            "_metadata":{
+                "type":"Conta",
+                "changeTrack": "destroy"
+            }
+        }
+        _list.append(obj2)
+
+        obj3 = {
+            "saldo": 1,
+            "id":"3",
+            "_metadata":{
+                "type":"Conta",
+                "changeTrack": "wrong"
+            }
+        }
+        _list.append(obj3)
+
+        obj4 = {
+            "saldo": 1,
+            "id":"3"
+        }
+        _list.append(obj4)
+
+        obj5 = {
+            "saldo": 1,
+            "id":"3",
+            "_metadata":{
+                "type":"Conta"
+            }
+        }
+        _list.append(obj5)
+
+        client = app.test_client()
+        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps(_list),
+                       content_type='application/json')
+        _list = json.loads(response.data)
+        assert response.status_code == 200
+        assert len(_list) == 2
+        assert "id" in _list[0]
