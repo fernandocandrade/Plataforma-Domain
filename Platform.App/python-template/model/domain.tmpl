@@ -27,6 +27,7 @@ class {{up_first @key}}(Base, TemporalMixin):
     def dict(self):
         return {
             {{#join . ","}}"{{name}}": self.{{name}}{{/join}},
+            "id": self.id,
             "_metadata": self._metadata
         }
 
