@@ -34,7 +34,7 @@ def get_or_create_entity_history(entity, field, clock):
        for an entity temporal field.
     """
     new_value = getattr(entity, field)
-    history_cls = entity.history[field]
+    history_cls = entity._history[field]
 
     history_entity = session.query(history_cls).filter(
         history_cls.entity_id == entity.id,
@@ -62,13 +62,13 @@ def listen_before_flush(session, flush_context, instances):
        event from a SQL Alchemy session.
     """
     for entity in itertools.chain(session.new, session.dirty):
-        if not entity.temporal:
+        if not entity.Temporal:
             continue
 
         clock = get_or_create_clock_entity(entity)
         changed = False
 
-        for col in entity.temporal:
+        for col in entity.Temporal.fields:
             entity_history, created = get_or_create_entity_history(
                 entity, col, clock)
 

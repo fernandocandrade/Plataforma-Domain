@@ -1,73 +1,48 @@
 from uuid import uuid4
 
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects import postgresql
 
-from core.temporal.utils import effective_now
+from core.temporal.utils import primary_key, foreign_key, int_range, datetime_range
 
 
 class TemporalModelMixin:
     temporal = tuple()
-    history = dict()
+    _history = dict()
     _clock = None
 
     @classmethod
     def build_field_history_table(cls, table):
-        for field in cls.temporal:
-            history_table = type(f"{cls.__name__}{field}history", (cls.__bases__[0], ), {
-                "id": sa.Column(
-                    postgresql.UUID(as_uuid=True),
-                    primary_key=True,
-                    default=uuid4),
-                "ticks": sa.Column(
-                    postgresql.INT4RANGE(),
-                    nullable=False,
-                    default='[1,]'),
-                "value": sa.Column(
-                    sa.String,
-                    nullable=False,
-                    default='[1,]'),
-                "entity_id": sa.Column(
-                    postgresql.UUID(as_uuid=True),
-                    sa.ForeignKey(f'{table.name}.id'),
-                    nullable=False
-                ),
-                "clock_id": sa.Column(
-                    postgresql.UUID(as_uuid=True),
-                    sa.ForeignKey(f'{table.name}clock.id'),
-                    nullable=False
-                ),
-                "entity": sa.orm.relationship(cls.__name__),
-                "clock": sa.orm.relationship(f'{cls.__name__}Clock')
-            })
+        for field in cls.Temporal.fields:
+            if field in cls._history:
+                continue
 
-            cls.history.setdefault(field, history_table)
+            history_table_name = f"{cls.__name__}{field}history"
+            clock_name = f'{cls._clock.__name__}'
+            field_type = getattr(cls, field).property.columns[0].type
+
+            cls._history[field] = type(history_table_name, (cls.__bases__[0], ),{
+                "id": primary_key(),
+                "ticks": int_range(lower=1),
+                "value": sa.Column(field_type, nullable=False),
+                "entity_id": foreign_key(table.name),
+                "entity": sa.orm.relationship(cls.__name__),
+                "clock_id": foreign_key(clock_name),
+                "clock": sa.orm.relationship(clock_name)
+            })
 
     @classmethod
     def build_clock(cls, mapper):
         table = mapper.local_table
-        clock_table = type(f"{cls.__name__}Clock", (cls.__bases__[0],), {
-            "id": sa.Column(
-                    postgresql.UUID(as_uuid=True),
-                    primary_key=True,
-                    default=uuid4),
-            "ticks": sa.Column(
-                    sa.Integer,
-                    default=0),
-            "effective": sa.Column(
-                    postgresql.TSTZRANGE(),
-                    nullable=False,
-                    default=effective_now),
-            "entity_id": sa.Column(
-                    postgresql.UUID(as_uuid=True),
-                    sa.ForeignKey(f'{table.name}.id'),
-                    nullable=False
-            ),
+        clock_table_name = f"{cls.__name__}Clock"
+        cls._clock = type(clock_table_name, (cls.__bases__[0],), {
+            "id": primary_key(),
+            "ticks": sa.Column(sa.Integer, default=0),
+            "effective": datetime_range(),
+            "entity_id": foreign_key(table.name),
             "entity": sa.orm.relationship(cls.__name__),
         })
-
-        cls._clock = clock_table
 
     @declared_attr
     def __mapper_cls__(cls):

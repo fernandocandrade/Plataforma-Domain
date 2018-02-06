@@ -29,11 +29,11 @@ def test_create_new_model_creates_fields_history(session, create_model, query_by
     user = create_model(User, name="Foo", age=20)
 
     # retrieve
-    age_history = query_by_entity(user.history['age'], user.id).one()
-    name_history = query_by_entity(user.history['name'], user.id).one()
+    age_history = query_by_entity(user._history['age'], user.id).one()
+    name_history = query_by_entity(user._history['name'], user.id).one()
 
     # assert
-    assert age_history.value == '20'
+    assert age_history.value == 20
     assert age_history.ticks.lower == 1
 
     assert name_history.value == 'Foo'
@@ -47,14 +47,14 @@ def test_update_model_creates_new_field_history(session, create_model, update_mo
 
     # retrieve
     name_history = query_by_entity(
-        user.history['name'],
+        user._history['name'],
         user.id,
-        user.history['name'].value).all()
+        user._history['name'].value).all()
 
     # assert
     assert name_history[0].value == 'Bar'
     assert name_history[0].ticks.lower == 2
-    assert name_history[0].ticks.upper == None
+    assert name_history[0].ticks.upper is None
 
     assert name_history[1].value == 'Foo'
     assert name_history[1].ticks.lower == 1
