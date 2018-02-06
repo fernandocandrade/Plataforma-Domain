@@ -1,6 +1,14 @@
 
 import pytest
 import os
+import os.path
+import shutil
+
+
+if os.path.exists("./maps"):
+    shutil.rmtree('./maps')
+if os.path.exists("./migrations"):
+    shutil.rmtree('./migrations')
 
 os.mkdir("./maps")
 f = open("./maps/Conta.yaml", "w")
@@ -23,6 +31,8 @@ f.close()
 
 pytest.main(['--cov', '--cov-report=html'])
 
-import shutil
-shutil.rmtree('./migrations')
-shutil.rmtree('./maps')
+
+if os.path.exists("./maps"):
+    shutil.rmtree('./maps')
+if os.path.exists("./migrations"):
+    shutil.rmtree('./migrations')
