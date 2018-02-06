@@ -42,47 +42,6 @@ class {{up_first @key}}(Base, TemporalMixin):
 
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
 
-class {{up_first @key}}Clock(Base):
-    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
-
-    ticks = Column(
-        Integer,
-        nullable=False,
-        default=1)
-
-    effective = Column(
-        sap.TSTZRANGE(),
-        nullable=False,
-        default=effective_now)
-
-    entity_id = Column(
-        sap.UUID(as_uuid=True),
-        ForeignKey('{{lower @key}}.id'),
-        nullable=False)
-
-    entity = orm.relationship("{{up_first @key}}")
-    __table_args__ = (
-        UniqueConstraint('entity_id', 'effective', name='_{{lower @key}}_clock_uix'),
-    )
-
-
-
-{{#each . }}
-
-class {{up_first @../key}}{{up_first name}}History(Base):
-    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
-    clock = Column(ForeignKey({{up_first @../key}}Clock.id))
-    ticks = Column(sap.INT4RANGE())
-    value = Column({{type}})
-
-    clock_id = Column(sap.UUID(as_uuid=True), ForeignKey('{{lower @../key}}clock.id'), nullable=False)
-    clock = orm.relationship("{{up_first @../key}}Clock")
-
-    entity_id = Column(sap.UUID(as_uuid=True), ForeignKey('{{lower @../key}}.id'), nullable=False)
-    entity = orm.relationship("{{up_first @../key}}")
-
-{{/each}}
-
 {{/each}}
 
 
