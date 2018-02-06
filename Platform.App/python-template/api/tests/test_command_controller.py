@@ -144,6 +144,7 @@ def test_full_persist(app):
         response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps(_list),
                        content_type='application/json')
         _list = json.loads(response.data)
+        print(response.data)
         assert response.status_code == 200
         assert len(_list) == 2
         assert "id" in _list[0]

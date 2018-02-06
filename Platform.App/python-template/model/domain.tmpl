@@ -34,7 +34,8 @@ class {{up_first @key}}(Base, TemporalMixin):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-    temporal = ('name', )
+    class Temporal:
+        fields = ('name', )
 
     {{#each . }}
     {{@key}} = Column({{type}})
