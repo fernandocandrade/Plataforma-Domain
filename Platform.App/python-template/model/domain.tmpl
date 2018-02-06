@@ -1,6 +1,6 @@
 from database import Base
 from uuid import uuid4
-from core.mapper import TemporalMixin, effective_now
+from core.temporal.models import TemporalModelMixin
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
@@ -16,9 +16,9 @@ def get_db_name():
 
 {{#each model}}
 
-class {{up_first @key}}(Base, TemporalMixin):
+class {{up_first @key}}(Base, TemporalModelMixin):
 
-    def __init__(self, {{#join . ","}}{{name}}=None{{/join}}, _metadata=None):
+    def __init__(self, {{#join . ","}}{{name}}=None{{/join}}, _metadata=None, **kwargs):
         {{#each .}}
         self.{{@key}} = {{@key}}
         {{/each}}
@@ -34,12 +34,12 @@ class {{up_first @key}}(Base, TemporalMixin):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
+    
     class Temporal:
-        fields = ('name', )
+        fields = ({{#join . ","}}'{{name}}'{{/join}}, )
 
     {{#each . }}
     {{@key}} = Column({{type}})
-
     {{/each}}
 
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)

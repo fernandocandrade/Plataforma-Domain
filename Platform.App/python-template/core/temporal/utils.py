@@ -37,7 +37,7 @@ def int_range(lower=0, upper=None, nullable=False):
     """
     return sa.Column(
         postgresql.INT4RANGE(),
-        default=f'[lower,upper]',
+        default=pg_extras.NumericRange(lower, upper),
         nullable=nullable)
 
 

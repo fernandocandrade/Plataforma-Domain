@@ -1,6 +1,7 @@
 import itertools
 
 from sqlalchemy import event
+from psycopg2 import extras as pg_extras
 
 from core.temporal.utils import effective_now
 
@@ -16,8 +17,10 @@ def get_or_create_clock_entity(entity, period=effective_now()):
     clock_cls = entity._clock
 
     clock_entity = session.query(clock_cls)\
-        .filter(clock_cls.effective.contains(period), clock_cls.entity_id == entity.id)\
-        .one_or_none()
+        .filter(
+            clock_cls.effective.contains(period),
+            clock_cls.entity_id == entity.id
+        ).one_or_none()
 
     if not clock_entity:
         clock_entity = clock_cls()
@@ -43,15 +46,16 @@ def get_or_create_entity_history(entity, field, clock):
     ).one_or_none()
 
     if history_entity:
-        if history_cls.value == new_value:
+        if history_entity.value == new_value:
             return history_entity, False
 
-        history_entity.ticks = f'[{history_entity.ticks.lower}, {clock.ticks}]'
+        history_entity.ticks = pg_extras.NumericRange(
+            history_entity.ticks.lower, clock.ticks, '[]')
 
     new_history_entity = history_cls()
     new_history_entity.entity = entity
     new_history_entity.clock = clock
-    new_history_entity.ticks = f'[{clock.ticks + 1},]'
+    new_history_entity.ticks = pg_extras.NumericRange(clock.ticks+1)
     new_history_entity.value = new_value
     session.add(new_history_entity)
     return new_history_entity, True
@@ -60,21 +64,27 @@ def get_or_create_entity_history(entity, field, clock):
 def listen_before_flush(session, flush_context, instances):
     """This method is intended to listen the 'before_flush'
        event from a SQL Alchemy session.
+
     """
+    print('Before FLush')
     for entity in itertools.chain(session.new, session.dirty):
-        if not entity.Temporal:
+        if not hasattr(entity, 'Temporal'):
             continue
 
         clock = get_or_create_clock_entity(entity)
-        changed = False
+        current_ticks = clock.ticks
+        entity_changed = False
 
         for col in entity.Temporal.fields:
-            entity_history, created = get_or_create_entity_history(
+            entity_history, created_history = get_or_create_entity_history(
                 entity, col, clock)
 
-        if not changed and created:
-            changed = True
-            clock.ticks += 1
+            if not entity_changed and created_history:
+                __import__('pudb').set_trace()
+                entity_changed = True
+                current_ticks += 1
+
+        clock.ticks = current_ticks
 
 
 def init_temporal_session(s):
@@ -82,4 +92,9 @@ def init_temporal_session(s):
     """
     global session
     session = s
+    print("Binding")
+    if hasattr(session, '_temporal'):
+        print("achei!")
+
+    setattr(session, '_temporal', True)
     event.listen(s, 'before_flush', listen_before_flush)
