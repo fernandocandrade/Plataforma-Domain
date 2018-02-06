@@ -25,15 +25,14 @@ class Persistence:
             elif self.is_to_destroy(o):
                 to_destroy.append(o)
         result = list(self.create(to_create))
-        result = result + self.update(to_update)
+        result += list(self.update(to_update))
         self.destroy(to_destroy)
         return result
 
     def create(self, objs):
         for o in objs:
             _type = o["_metadata"]["type"]
-            _type = _type.lower()
-            _type = _type[0].upper() + _type[1:]
+            _type = _type.title()
             instance = globals()[_type](**o)
             self.session.add(instance)
             yield instance
@@ -41,7 +40,22 @@ class Persistence:
         self.session.commit()
 
     def update(self, objs):
-        return objs
+        for o in objs:
+            _type = o["_metadata"]["type"]
+            _type = _type.title()
+            cls = globals()[_type]
+            instance = cls(**o)
+            #  instance.update()
+            #  self.session.add(instance)
+
+            del o['_metadata']
+            del o['meta_instance_id']
+            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
+            obj.saldo = o['saldo']
+            print('update', obj.saldo, obj.id)
+            #  self.session.query(cls).filter(cls.id == o['id']).update(o)
+            yield instance
+        self.session.commit()
 
     def destroy(self, objs):
         return []
