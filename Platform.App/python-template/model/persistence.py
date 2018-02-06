@@ -45,15 +45,13 @@ class Persistence:
             _type = _type.title()
             cls = globals()[_type]
             instance = cls(**o)
-            #  instance.update()
-            #  self.session.add(instance)
-
             del o['_metadata']
             del o['meta_instance_id']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
-            obj.saldo = o['saldo']
-            print('update', obj.saldo, obj.id)
-            #  self.session.query(cls).filter(cls.id == o['id']).update(o)
+            for k, v in o.items():
+                if hasattr(obj, k):
+                    setattr(obj, k, v)
+
             yield instance
         self.session.commit()
 
