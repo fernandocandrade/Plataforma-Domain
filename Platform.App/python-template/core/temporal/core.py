@@ -64,9 +64,7 @@ def get_or_create_entity_history(entity, field, clock):
 def listen_before_flush(session, flush_context, instances):
     """This method is intended to listen the 'before_flush'
        event from a SQL Alchemy session.
-
     """
-    print('Before FLush')
     for entity in itertools.chain(session.new, session.dirty):
         if not hasattr(entity, 'Temporal'):
             continue
@@ -80,7 +78,6 @@ def listen_before_flush(session, flush_context, instances):
                 entity, col, clock)
 
             if not entity_changed and created_history:
-                __import__('pudb').set_trace()
                 entity_changed = True
                 current_ticks += 1
 
@@ -92,9 +89,9 @@ def init_temporal_session(s):
     """
     global session
     session = s
-    print("Binding")
+
     if hasattr(session, '_temporal'):
-        print("achei!")
+        return
 
     setattr(session, '_temporal', True)
     event.listen(s, 'before_flush', listen_before_flush)
