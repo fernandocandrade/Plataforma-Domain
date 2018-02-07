@@ -20,7 +20,7 @@ def sync_db(name = db_name):
         Base.metadata.create_all(bind=engine)
         log.info("database synchronized")
     else:
-        migrate(name)
+        Base.metadata.create_all(bind=engine)
 
 
 def create_database(db_name):
