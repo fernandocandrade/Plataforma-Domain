@@ -14,6 +14,7 @@ class SETTINGS:
     DB_NAME = "postgres"
     DB_USER = "postgres"
     DB_PASSWORD = ""
+    KEEP_DB = True
 
 
 @pytest.fixture(scope='session')
@@ -24,18 +25,59 @@ def engine(request):
         f'postgresql+psycopg2://{SETTINGS.DB_USER}@{SETTINGS.DB_HOST}:{SETTINGS.DB_PORT}/{SETTINGS.DB_NAME}',
         echo=True)
 
-    pytest.BaseModel.metadata.drop_all(engine)
-    pytest.BaseModel.metadata.create_all(engine)
     return engine
 
 
+@pytest.fixture(scope='session')
+def db(request, engine):
+    _db = pytest.BaseModel.metadata
+    _db.create_all(engine)
+
+    def teardown():
+        if not SETTINGS.KEEP_DB:
+            _db.drop_all(engine)
+
+    request.addfinalizer(teardown)
+    return _db
+
+
 @pytest.fixture(scope='function')
-def session(request, engine):
-    """Creates a database session for each test.
-    """
-    session = orm.sessionmaker(bind=engine)()
+def session(db, engine, request):
+    """Creates a new database session for a test."""
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    session_factory = orm.sessionmaker(bind=connection)
+    session = orm.scoped_session(session_factory)
     init_temporal_session(session)
+
+    def teardown():
+        transaction.rollback()
+        connection.close()
+        session.remove()
+
+    request.addfinalizer(teardown)
     return session
+
+
+
+
+#  @pytest.fixture(scope='function')
+#  def session(request, engine):
+    #  """Creates a database session for each test.
+    #  """
+    #  pytest.BaseModel.metadata.create_all(engine)
+    #  session = orm.sessionmaker(bind=engine)()
+    #  init_temporal_session(session)
+#
+    #  def teardown():
+        #  session.rollback()
+        #  pytest.BaseModel.metadata.drop_all(engine)
+        #  engine.close()
+        #  session.remove()
+#
+    #  request.addfinalizer(teardown)
+    #  return session
 
 
 def pytest_namespace():
@@ -86,3 +128,16 @@ def query_by_entity(session):
         return query
 
     return _query_by_entity
+
+@pytest.fixture
+def query_entity_history(session, query_by_entity):
+    def _query_entity_history(entity, field):
+        history = entity._history[field]
+
+        return query_by_entity(
+            history,
+            entity.id,
+            history.value
+        ).all()
+
+    return _query_entity_history
