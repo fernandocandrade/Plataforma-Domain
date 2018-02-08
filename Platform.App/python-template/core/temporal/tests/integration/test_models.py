@@ -96,43 +96,13 @@ def test_update_model_does_not_duplicate_unchanged_fields(session, create_model,
 #
 #
 def test_can_retrieve_multiple_models(session, create_model, update_model):
-    # act
+    # mocks
     user = create_model(User, name='Foo', age=20,)
-    update_model(user, name="Bar",age=21)
+    update_model(user, name="Bar", age=21)
 
-    #  models = session.query(*[v for v in User._history.values()]).all()
-    query = session.query(
-        User._history['name'].value,
-        User._history['age'].value,
-    ).join(
-        User._history['name'].entity_id,
-        User._history['age'].entity_id
-    ).filter(
-        User._history['name'].ticks.contains(1),
-        User._history['age'].ticks.contains(1)
+    print(
+        session.query(User).history(version=2, fields=('name',))
     )
-
-    #  for m in query.all():
-        #  print(m)
-
-    print(query)
-
-    #  for u, hn, ha in query:
-        #  print(u.id, hn.value, ha.value)
-
-    #  for m in query.all():
-        #  print(m.value)
-    #  models = session.query(
-        #  User._history['name'].value).\
-        #  options(orm.joinedload(
-            #  User._history['name'].entity, innerjoin=True))
-
-
-
-
-
-
-
 
 
 

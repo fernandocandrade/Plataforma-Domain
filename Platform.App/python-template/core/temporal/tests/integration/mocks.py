@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from sqlalchemy import Column, String, Integer,ForeignKey, UniqueConstraint, orm
 from sqlalchemy.dialects import postgresql as sap
@@ -15,5 +17,6 @@ class User(Base, TemporalModelMixin):
 
     class Temporal:
         fields = ('name', 'age', )
+
 
 
