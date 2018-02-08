@@ -5,3 +5,5 @@ Platform.Cli/node_template/
 Platform.Cli/python-template/
 plataforma.instance.lock
 .cache/
+maps/
+migrations/

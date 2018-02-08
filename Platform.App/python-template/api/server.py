@@ -15,15 +15,11 @@ app = Flask(__name__, instance_relative_config=True)
 app.debug = True
 
 
-#@app.teardown_appcontext
-#def shutdown_session(exception=None):
-#    db_session.remove()
 
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
     try:
-
         mapper = MapBuilder().build()
         query_service = QueryService()
         controller = QueryController(
@@ -31,7 +27,7 @@ def query_map(app_id, entity):
         return jsonify(controller.query())
     except Exception as excpt:
         resp = dict()
-        resp["message"] = excpt.args[0]
+        resp["message"] = str(excpt)
         resp["code"] = 400
         return jsonify(resp), resp["code"]
 

@@ -25,14 +25,8 @@ def build_map():
                }
             },
             "filters":{
-               "transferencia":{
-                  "id":{
-                     "$in":[
-                        ":origem",
-                        ":destino"
-                     ]
-                  }
-               }
+               "transferencia": "id in (:origem, :destino)",
+               "lista_ids": "id in ($ids)"
             }
          },
          "Pessoa":{
@@ -42,11 +36,7 @@ def build_map():
                   "column":"nome"
                }
             },
-            "filters":{
-               "byNome":{
-                  "nome": ":nome"
-               }
-            }
+            "filters": " nome = :nome"
          }
       }
    }
@@ -118,10 +108,44 @@ def test_get_filters():
     index.parse(build_map())
     _filter = Transform(index).get_filters('BankApp','Conta',query)
 
-    assert 'id' in _filter
-    assert '$in' in _filter['id']
-    assert _filter['id']['$in'][0] == "teste_origem"
-    assert _filter['id']['$in'][1] == "teste_destino"
+    assert 'params' in _filter
+    assert 'query' in _filter
+
+def test_get_filters_with_in_filters_integer():
+    query = {
+        "filter":"lista_ids",
+        "ids":"1;2;3"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp','Conta',query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert [1,2,3] == _filter["params"]["ids"]
+
+def test_get_filters_with_in_filters_string():
+    query = {
+        "filter":"lista_ids",
+        "ids":"a;b;c"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp','Conta',query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert ['a','b','c'] == _filter["params"]["ids"]
+
+def test_get_filters_with_in_filters_double():
+    query = {
+        "filter":"lista_ids",
+        "ids":"1.5;2.0;3.1"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp','Conta',query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert [1.5,2.0,3.1] == _filter["params"]["ids"]
 
 def test_get_filters_with_empty_params():
     query = dict()
