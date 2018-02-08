@@ -2,6 +2,7 @@
 """ Loader loads maps from api core and from Mapas directory """
 import yaml
 from os import listdir
+import os.path
 from settings.loader import Loader as EnvLoader
 from sdk.map_core import MapCore
 from core.component import Component
@@ -14,6 +15,8 @@ class Loader(Component):
 
     def get_local_map_file_names(self):
         """ return local files to load """
+        if not os.path.isdir(self.local_source):
+            return []
         files = list(filter(lambda f: f.endswith(
             ".yaml"), listdir(self.local_source)))
         return files

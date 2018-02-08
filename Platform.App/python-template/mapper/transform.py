@@ -1,5 +1,6 @@
 from mapper.index import Index
 from core.component import Component
+import re
 import json
 
 class Transform(Component):
@@ -48,24 +49,33 @@ class Transform(Component):
             model_json.pop('meta_instance_id', None)
         model_json['_metadata']['branch'] = "master"
 
-    def get_filters(self, app_id, map_name, query):
+    def get_filters(self, app_id, map_name, query_string):
         """ apply query filter on domain model """
         filters = self.index.get_filters(app_id, map_name)
         if filters == dict():
             return filters
-        if query == dict():
+        if query_string == dict():
             return dict()
-        if not query["filter"] in filters:
+        if not query_string["filter"] in filters:
             return dict()
-        _filter = filters[query["filter"]]
-        _str = json.dumps(_filter)
-        for k in query.keys():
-            _str = self.replace_all(_str,":"+k, query[k])
-        map_fields = self.index.get_fields(app_id,map_name)
-        fields = map_fields.keys()
-        for k in fields:
-            if not 'column' in map_fields[k]:
-                continue
-            _str = self.replace_all(_str,k,map_fields[k]['column'])
-        return json.loads(_str)
+        _filter = filters[query_string["filter"]]
+
+        compiled = re.compile("\$\w*")
+        arrays = re.findall(compiled,_filter)
+        for item in arrays:
+            param = item[1:]
+            query_string[param] = query_string[param].split(';')
+            _list = []
+            for n in query_string[param]:
+                if n.isnumeric():
+                    _list.append(int(n))
+                else:
+                    _list.append(n)
+            query_string[param] = _list
+            _filter = _filter.replace(item,param)
+
+        return {
+            "query" : _filter,
+            "params": query_string
+        }
 
