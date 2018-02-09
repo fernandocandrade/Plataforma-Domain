@@ -14,7 +14,7 @@ class SETTINGS:
     DB_NAME = "postgres"
     DB_USER = "postgres"
     DB_PASSWORD = ""
-    KEEP_DB = True
+    KEEP_DB = False
 
 
 @pytest.fixture(scope='session')
@@ -46,7 +46,8 @@ from sqlalchemy.orm import Query
 
 class TemporalQuery(Query):
     from datetime import datetime
-    def history(self, period=datetime.now(), version=None, fields=None):
+
+    def history(self, period=datetime.utcnow(), version=None, fields=None):
         cls = self.column_descriptions[0]['entity']
 
         if not hasattr(cls, 'Temporal'):
@@ -67,16 +68,6 @@ class TemporalQuery(Query):
                     history.ticks.contains(version))
 
         return query
-
-
-class sessionmaker(orm.sessionmaker):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def __call__(self, **kwargs):
-        session = super().__call__(query_cls=TemporalQuery, **kwargs)
-        init_temporal_session(session)
-        return session
 
 
 @pytest.fixture(scope='function')
@@ -110,10 +101,8 @@ def pytest_namespace():
             primary_key=True,
             default=uuid4)
 
-    Base = declarative_base(cls=ModelBase)
-
     return {
-        'BaseModel': Base
+        'BaseModel': declarative_base(cls=ModelBase)
     }
 
 

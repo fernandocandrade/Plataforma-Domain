@@ -87,15 +87,7 @@ def test_update_model_does_not_duplicate_unchanged_fields(session, create_model,
     assert age_history[0].ticks.upper is None
 
 
-#
-#  def test_can_get_specific_tick():
-    #  query = session.query(UserNameHistory).filter(
-        #  UserNameHistory.ticks.contains(2))
-#
-    #  assert query.count() == 1
-#
-#
-def test_can_retrieve_multiple_models(session, create_model, update_model):
+def test_can_retrieve_model_history(session, create_model, update_model):
     # mocks
     user = create_model(User, name='Foo', age=20,)
     update_model(user, name="Bar", age=21)
@@ -118,35 +110,6 @@ def test_can_retrieve_multiple_models(session, create_model, update_model):
 
 
 
-#  def test_can_join_entity_and_history(session):
-
-#
-    #  for k,v in User._history.items():
-        #  print(v)
-#
-    #  query = session.query([User] + [v for v in User._history.values()])
-    #  print(query)
-
-    #  def build_sql(entity):
-        #  cols = "public.user.id "
-        #  joins = ""
-#
-        #  for c in entity.temporal:
-            #  cols += f', public.user{c}history.value as {c}'
-            #  joins += f'inner join public.user{c}history on public.user.id = public.user{c}history.entity_id '
-#
-        #  return cols, joins
-#
-    #  cols, joins = build_sql(User)
-#
-    #  rows = session.execute(f"""
-        #  select
-        #  {cols}
-        #  from public.user
-        #  {joins}
-        #  where public.usernamehistory.ticks @> 2
-    #  """)
-#
 
 #  def test_parse_dict_to_models():
     #  mocks = {

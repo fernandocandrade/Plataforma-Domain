@@ -1,18 +1,17 @@
 import itertools
 
-from sqlalchemy import event
+from sqlalchemy import event, orm
 from psycopg2 import extras as pg_extras
 
 from core.temporal.utils import effective_now
 
+#  session = None
 
-session = None
 
-
-def get_or_create_clock_entity(entity, period=effective_now()):
-    """Tries to retrieve an entity clock for the given period
-       from the database. If it does not exist, a new clock is
-       created.
+def get_or_create_clock_entity(self, entity, period=effective_now()):
+    """ Tries to retrieve an entity clock for the given period
+        from the database. If it does not exist, a new clock is
+        created.
     """
     clock_cls = entity._clock
 
@@ -84,14 +83,26 @@ def listen_before_flush(session, flush_context, instances):
         clock.ticks = current_ticks
 
 
-def init_temporal_session(s):
+def init_temporal_session(session):
     """Inits a temporal session on an existing SQL Alchemy session.
     """
-    global session
-    session = s
+    #  global session
+    #  session = s
 
     if hasattr(session, '_temporal'):
         return
 
     setattr(session, '_temporal', True)
-    event.listen(s, 'before_flush', listen_before_flush)
+    event.listen(session, 'before_flush', listen_before_flush)
+
+
+class sessionmaker(orm.sessionmaker):
+    """temporal session factory."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, **kwargs):
+        session = super().__call__(query_cls=TemporalQuery, **kwargs)
+        init_temporal_session(session)
+        return session
+
