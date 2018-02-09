@@ -62,6 +62,7 @@ class Transform(Component):
 
         compiled = re.compile("\$\w*")
         arrays = re.findall(compiled,_filter)
+
         for item in arrays:
             param = item[1:]
             query_string[param] = query_string[param].split(';')
@@ -69,6 +70,8 @@ class Transform(Component):
             for n in query_string[param]:
                 if n.isnumeric():
                     _list.append(int(n))
+                elif n.replace(".","").isnumeric():
+                    _list.append(float(n))
                 else:
                     _list.append(n)
             query_string[param] = _list

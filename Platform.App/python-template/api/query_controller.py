@@ -12,8 +12,6 @@ class QueryController:
 
     def query(self):
         """ query data on domain """
-        import ipdb
-        ipdb.set_trace()
         entity = self.mapper.index.get_model_name(
             self.app_id, self.mapped_entity)
         projection = self.mapper.index.get_projection(self.app_id)
