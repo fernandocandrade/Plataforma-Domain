@@ -1,10 +1,8 @@
 from datetime import datetime
 
 import pytest
-from sqlalchemy import Column, String, Integer,ForeignKey, UniqueConstraint, orm
-from sqlalchemy.dialects import postgresql as sap
+from sqlalchemy import Column, String, Integer
 
-from core.temporal.utils import effective_now
 from core.temporal.models import TemporalModelMixin
 
 
@@ -17,6 +15,4 @@ class User(Base, TemporalModelMixin):
 
     class Temporal:
         fields = ('name', 'age', )
-
-
 

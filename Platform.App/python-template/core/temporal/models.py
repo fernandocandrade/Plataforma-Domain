@@ -7,13 +7,21 @@ from sqlalchemy.dialects import postgresql
 from core.temporal.utils import primary_key, foreign_key, int_range, datetime_range
 
 
-class TemporalModelMixin:
-    temporal = tuple()
-    _history = dict()
-    _clock = None
+class TemporalMapper:
+    def __init__(self, cls):
+        self.cls = cls
 
-    @classmethod
-    def build_field_history_table(cls, table):
+    def __call__(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
+        mapper = sa.orm.mapper(self.cls, *args, **kwargs)
+        self.build_clock(mapper.local_table)
+        self.build_fields_histories(mapper.local_table)
+        return mapper
+
+    def build_fields_histories(self, table):
+        # TODO: use self reference instead
+        cls = self.cls
+
         for field in cls.Temporal.fields:
             if field in cls._history:
                 continue
@@ -32,9 +40,10 @@ class TemporalModelMixin:
                 "clock": sa.orm.relationship(clock_name)
             })
 
-    @classmethod
-    def build_clock(cls, mapper):
-        table = mapper.local_table
+    def build_clock(self, table):
+        # TODO: use self reference instead
+        cls = self.cls
+
         clock_table_name = f"{cls.__name__}Clock"
         cls._clock = type(clock_table_name, (cls.__bases__[0],), {
             "id": primary_key(),
@@ -44,11 +53,20 @@ class TemporalModelMixin:
             "entity": sa.orm.relationship(cls.__name__),
         })
 
+
+
+class TemporalModelMixin:
+    temporal = tuple()
+    _history = dict()
+    _clock = None
+
     @declared_attr
     def __mapper_cls__(cls):
-        def mapper(cls_, *args, **kwargs):
-            _mapper = sa.orm.mapper(cls_, *args, **kwargs)
-            cls.build_clock(_mapper)
-            cls.build_field_history_table(_mapper.local_table)
-            return _mapper
-        return mapper
+        return TemporalMapper(cls)
+        #  def mapper(cls_, *args, **kwargs):
+            #  _mapper = sa.orm.mapper(cls_, *args, **kwargs)
+            #  ddl_builder = TemporalSchemaBuilder(mapper)
+            #  ddl_builder.build_clock(cls)
+            #  cls.build_field_history_table(_mapper.local_table)
+            #  return _mapper
+        #  return mapper
