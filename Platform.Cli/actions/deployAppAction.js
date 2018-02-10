@@ -21,9 +21,9 @@ module.exports = class DeployAppAction {
             return;
         }
         var conf = this.appInstance.getAppConfig();
-
         var env = this.env.getEnv(environment);
         env.conf = conf;
+        env.metamapa = this.metamapa;
         switch (conf.app.type) {
             case "process":
                 this.deployProcessAppAction.deploy(env);
