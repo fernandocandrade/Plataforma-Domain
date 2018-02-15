@@ -8,20 +8,14 @@ from core.temporal.utils import primary_key, foreign_key, int_range, datetime_ra
 
 
 class TemporalMapper:
-    def __init__(self, cls):
-        self.cls = cls
-
-    def __call__(self, *args, **kwargs):
-        import ipdb; ipdb.set_trace()
-        mapper = sa.orm.mapper(self.cls, *args, **kwargs)
-        self.build_clock(mapper.local_table)
-        self.build_fields_histories(mapper.local_table)
+    def __call__(self, cls, *args, **kwargs):
+        mapper = sa.orm.mapper(cls, *args, **kwargs)
+        self.build_clock(cls, mapper.local_table)
+        self.build_fields_histories(cls, mapper.local_table)
         return mapper
 
-    def build_fields_histories(self, table):
-        # TODO: use self reference instead
-        cls = self.cls
 
+    def build_fields_histories(self, cls, table):
         for field in cls.Temporal.fields:
             if field in cls._history:
                 continue
@@ -40,10 +34,7 @@ class TemporalMapper:
                 "clock": sa.orm.relationship(clock_name)
             })
 
-    def build_clock(self, table):
-        # TODO: use self reference instead
-        cls = self.cls
-
+    def build_clock(self, cls, table):
         clock_table_name = f"{cls.__name__}Clock"
         cls._clock = type(clock_table_name, (cls.__bases__[0],), {
             "id": primary_key(),
@@ -54,7 +45,6 @@ class TemporalMapper:
         })
 
 
-
 class TemporalModelMixin:
     temporal = tuple()
     _history = dict()
@@ -62,7 +52,7 @@ class TemporalModelMixin:
 
     @declared_attr
     def __mapper_cls__(cls):
-        return TemporalMapper(cls)
+        return TemporalMapper()
         #  def mapper(cls_, *args, **kwargs):
             #  _mapper = sa.orm.mapper(cls_, *args, **kwargs)
             #  ddl_builder = TemporalSchemaBuilder(mapper)
