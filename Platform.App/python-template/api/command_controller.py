@@ -13,6 +13,8 @@ class CommandController:
 
     def persist(self):
         """ Persist data on domain """
+        #import ipdb
+        #ipdb.set_trace()
         if len(self.body) == 0:
             return []
         domain_obj = self.to_domain()

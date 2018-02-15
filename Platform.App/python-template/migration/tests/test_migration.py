@@ -30,11 +30,7 @@ def test_should_create_and_drop_new_database():
 
 
 def test_should_syncronize_model():
-    if not should_create_database("app_name"):
-        drop_database("app_name")
-
     sync_db()
-
     assert len(raw_sql("app_name", "select * from migrationhistory")) == 0
 
 

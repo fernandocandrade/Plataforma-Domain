@@ -3,7 +3,9 @@ import pytest
 import os
 import os.path
 import shutil
+from migration.sync import drop_database
 
+drop_database("app_name")
 
 if os.path.exists("./maps"):
     shutil.rmtree('./maps')
@@ -21,15 +23,11 @@ Conta:
         titular:
             column: titular
     filters:
-        transferencia:
-            id:
-                $in:
-                    - ":origem"
-                    - ":destino"
+        transferencia: "id in (:origem, :destino)"
 """)
 f.close()
 
-pytest.main(['--cov', '--cov-report=html'])
+pytest.main(['--cov', '--cov-report=html', '-s'])
 
 
 if os.path.exists("./maps"):

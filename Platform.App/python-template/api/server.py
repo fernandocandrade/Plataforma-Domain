@@ -46,7 +46,7 @@ def persist_map(app_id):
         print(excpt)
         r = {
             "status_code": 400,
-            "message": " ".join(excpt.args)
+            "message": str(excpt)
         }
         return jsonify(r), 400
     finally:
