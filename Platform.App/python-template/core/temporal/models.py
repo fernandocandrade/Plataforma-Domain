@@ -46,17 +46,9 @@ class TemporalMapper:
 
 
 class TemporalModelMixin:
-    temporal = tuple()
     _history = dict()
     _clock = None
 
     @declared_attr
     def __mapper_cls__(cls):
         return TemporalMapper()
-        #  def mapper(cls_, *args, **kwargs):
-            #  _mapper = sa.orm.mapper(cls_, *args, **kwargs)
-            #  ddl_builder = TemporalSchemaBuilder(mapper)
-            #  ddl_builder.build_clock(cls)
-            #  cls.build_field_history_table(_mapper.local_table)
-            #  return _mapper
-        #  return mapper
