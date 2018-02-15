@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, orm, Column
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.dialects import postgresql
 
-from core.temporal.core import init_temporal_session
+from core.temporal.session import sessionmaker
 
 
 class SETTINGS:
@@ -23,7 +23,7 @@ def engine(request):
     """
     engine = create_engine(
         f'postgresql+psycopg2://{SETTINGS.DB_USER}@{SETTINGS.DB_HOST}:{SETTINGS.DB_PORT}/{SETTINGS.DB_NAME}',
-        echo=True)
+        echo=False)
 
     return engine
 
@@ -39,35 +39,6 @@ def db(request, engine):
 
     request.addfinalizer(teardown)
     return _db
-
-
-from sqlalchemy.orm import Query
-
-
-class TemporalQuery(Query):
-    from datetime import datetime
-
-    def history(self, period=datetime.utcnow(), version=None, fields=None):
-        cls = self.column_descriptions[0]['entity']
-
-        if not hasattr(cls, 'Temporal'):
-            raise Exception("not temporal")
-
-        query = self.options(orm.load_only('id'))\
-            .join((cls._clock, cls.id == cls._clock.entity_id))\
-            .filter(cls._clock.effective.contains(period))
-
-        for field in fields if fields else cls.Temporal.fields:
-            history = cls._history[field]
-            query = query\
-                .add_column(history.value.label(field))\
-                .join(history, cls.id == history.entity_id)
-
-            if version:
-                query = query.filter(
-                    history.ticks.contains(version))
-
-        return query
 
 
 @pytest.fixture(scope='function')
