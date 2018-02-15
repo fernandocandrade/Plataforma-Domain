@@ -20,7 +20,7 @@ class TemporalMapper:
             if field in cls._history:
                 continue
 
-            history_table_name = f"{cls.__name__}{field}history"
+            history_table_name = f'{cls.__name__}{field}history'
             clock_name = f'{cls._clock.__name__}'
             field_type = getattr(cls, field).property.columns[0].type
 
@@ -35,7 +35,7 @@ class TemporalMapper:
             })
 
     def build_clock(self, cls, table):
-        clock_table_name = f"{cls.__name__}Clock"
+        clock_table_name = f'{cls.__name__}Clock'
         cls._clock = type(clock_table_name, (cls.__bases__[0],), {
             "id": primary_key(),
             "ticks": sa.Column(sa.Integer, default=0),
