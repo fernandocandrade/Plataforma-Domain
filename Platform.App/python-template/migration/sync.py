@@ -74,42 +74,10 @@ def should_create_database(db_name):
     return not result
 
 
-def migrate(db_name):
-    log.info("migrating")
-    migrations_to_execute = diff_migrations()
-    for migration in migrations_to_execute:
-        process_migration(db_name, migration)
+def get_executed_migrations():
+    for r in raw_sql(env["app"]["name"], "select name from migrationhistory"):
+        yield r[0]
 
-
-def process_migration(db_name, migration):
-    log.info(f'Executing migration {migration["name"]}')
-    if "create_table" in migration["content"]:
-        create_table(db_name, migration)
-    elif "add_column" in migration["content"]:
-        create_column(db_name, migration)
-    else:
-        log.info(f'Invalid migration { migration["name"] }')
-
-
-def create_table(db_name, migration):
-    """
-        TODO: Finish
-    """
-    if not "name" in migration["content"]["create_table"]:
-        log.critical(f'Table not found at migration file: { migration["name"] }')
-        return
-    elif not "columns" in migration["content"]["create_table"]:
-        log.critical(f'Columns not defined at migration:{migration["nome"]}')
-        return
-    name = migration["content"]["create_table"]["name"]
-    conn = con = psycopg2.connect(host=env["database"]["host"], database=db_name,
-                           user=env["database"]["user"], password=env["database"]["password"])
-
-
-def create_column(db_name, migration):
-    """
-    TODO: Finish
-    """
 
 def diff_migrations():
     """
@@ -121,13 +89,9 @@ def diff_migrations():
         if f["name"] not in migrations:
             yield f
 
-def get_executed_migrations():
-    for r in raw_sql(env["app"]["name"], "select name from migrationhistory"):
-        yield r[0]
-
-
 def insert_new_migration(name):
     raw_execute(env["app"]["name"],f"insert into migrationhistory (id,name,created_date) values('{uuid4()}','{name}','{datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}')")
+
 
 def get_migration_files():
     """
