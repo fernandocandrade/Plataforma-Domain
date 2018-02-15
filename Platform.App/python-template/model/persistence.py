@@ -7,6 +7,9 @@ class Persistence:
     def __init__(self, session):
         self.session = session
 
+    def commit(self):
+        self.session.commit()
+
     def persist(self, objs):
         """ split object collection into 3 operation list for
             creating, updating, destroying looking for changeTrack
@@ -37,8 +40,6 @@ class Persistence:
             self.session.add(instance)
             yield instance
 
-        self.session.commit()
-
     def update(self, objs):
         for o in objs:
             _type = o["_metadata"]["type"]
@@ -53,7 +54,6 @@ class Persistence:
                     setattr(obj, k, v)
 
             yield instance
-        self.session.commit()
 
     def destroy(self, objs):
         return []

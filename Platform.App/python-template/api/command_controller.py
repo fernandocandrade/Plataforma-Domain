@@ -17,6 +17,7 @@ class CommandController:
             return []
         domain_obj = self.to_domain()
         instances = self.repository.persist(domain_obj)
+        self.repository.commit()
         l = list(self.from_domain(instances))
         return l
 
