@@ -147,6 +147,16 @@ def test_get_filters_with_in_filters_double():
     assert 'query' in _filter
     assert [1.5,2.0,3.1] == _filter["params"]["ids"]
 
+def test_get_filters_with_wrong_filter_name():
+    query = {
+        "filter":"wrong",
+        "ids":"1.5;2.0;3.1"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp','Conta',query)
+    assert _filter == {}
+
 def test_get_filters_with_empty_params():
     query = dict()
     index = Index()
