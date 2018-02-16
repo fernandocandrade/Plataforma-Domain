@@ -34,7 +34,6 @@ def test_query_valid_params(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
         response = client.get('/Conta/Conta', follow_redirects=True)
-        print(response.data)
         assert response.status_code == 200
 
 @pytest.mark.usefixtures('app')
@@ -42,5 +41,4 @@ def test_query_valid_params_and_query(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
         response = client.get('/Conta/Conta?filter=transferencia&origem=1&destino=2', follow_redirects=True)
-        print(response.data)
         assert response.status_code == 200

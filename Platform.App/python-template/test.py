@@ -3,9 +3,9 @@ import pytest
 import os
 import os.path
 import shutil
-import logging
+import log
 
-logging.basicConfig()
+log.disable_log()
 from migration.sync import drop_database, should_create_database
 
 if not should_create_database("app_name"):
