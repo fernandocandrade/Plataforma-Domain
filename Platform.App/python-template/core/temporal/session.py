@@ -21,13 +21,15 @@ class TemporalSession(orm.session.Session):
         """gets an existing or creates a new entity clock
            for a temporal model.
         """
+        created = False
         clock = self.query(entity.__class__).clock(
             entity, period)
 
         if not clock:
+            created = True
             clock = self.create_clock(entity, period)
 
-        return clock
+        return clock, created
 
     def create_field_history(self, entity, field, clock, value):
         """creates a new entity field history.

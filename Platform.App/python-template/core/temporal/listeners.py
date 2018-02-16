@@ -9,7 +9,7 @@ def before_flush(session, flush_context, instances):
         if not hasattr(entity, 'Temporal'):
             continue
 
-        clock = session.get_or_create_clock(entity)
+        clock, _ = session.get_or_create_clock(entity)
         current_ticks = clock.ticks
         entity_changed = False
 
