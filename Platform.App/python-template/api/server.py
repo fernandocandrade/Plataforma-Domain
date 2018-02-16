@@ -1,15 +1,14 @@
 """ Server API """
 import json
-from flask import Flask, request, jsonify, Blueprint
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, jsonify
 from api.query_controller import QueryController
 from api.command_controller import CommandController
-from mapper.builder import MapBuilder, Loader
+from mapper.builder import MapBuilder
 from app.query_service import QueryService
-from settings.loader import Loader
+from settings.loader import Loader as SettingsLoader
 from database import create_session
 
-env = Loader().load()
+env = SettingsLoader().load()
 app = Flask(__name__, instance_relative_config=True)
 app.debug = True
 
@@ -22,8 +21,8 @@ def query_map(app_id, entity):
         reference_date = request.headers.get('Reference-Date')
         version = request.headers.get('Version')
         query_service = QueryService(reference_date, version)
-        controller = QueryController(
-            app_id, entity, request, mapper, query_service)
+        controller = QueryController(app_id, entity, request, mapper,
+                                     query_service)
         return jsonify(controller.query())
     except Exception as excpt:
         resp = dict()
@@ -41,14 +40,11 @@ def persist_map(app_id):
         reference_date = request.headers.get('Reference-Date')
         mapper = MapBuilder().build()
         body = json.loads(request.data)
-        controller = CommandController(
-            app_id, body, mapper, instance_id, req_session, reference_date)
+        controller = CommandController(app_id, body, mapper, instance_id,
+                                       req_session, reference_date)
         return jsonify(controller.persist())
     except Exception as excpt:
-        r = {
-            "status_code": 400,
-            "message": str(excpt)
-        }
+        r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
     finally:
         req_session.close()
