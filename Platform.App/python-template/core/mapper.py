@@ -9,7 +9,7 @@ import sqlalchemy.dialects.postgresql as sap
 
 engine = create_engine(
     'postgresql+psycopg2://postgres@127.0.0.1:5432/postgres',
-    echo=True)
+    echo=False)
 sessionmaker = orm.sessionmaker(bind=engine)
 session = sessionmaker()
 

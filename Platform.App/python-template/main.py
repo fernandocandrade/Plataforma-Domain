@@ -2,6 +2,8 @@
 from migration.sync import sync_db
 from api.server import app
 import log
+import logging
+logging.basicConfig()
 
 log.info("starting app")
 sync_db()

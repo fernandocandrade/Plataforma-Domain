@@ -3,9 +3,13 @@ import pytest
 import os
 import os.path
 import shutil
-from migration.sync import drop_database
+import logging
 
-drop_database("app_name")
+logging.basicConfig()
+from migration.sync import drop_database, should_create_database
+
+if not should_create_database("app_name"):
+    drop_database("app_name")
 
 if os.path.exists("./maps"):
     shutil.rmtree('./maps')

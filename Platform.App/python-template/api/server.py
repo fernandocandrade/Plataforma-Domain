@@ -8,7 +8,6 @@ from mapper.builder import MapBuilder, Loader
 from app.query_service import QueryService
 from settings.loader import Loader
 from database import create_session
-from core.temporal.core import init_temporal_session
 
 env = Loader().load()
 app = Flask(__name__, instance_relative_config=True)
