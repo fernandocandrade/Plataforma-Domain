@@ -13,9 +13,9 @@ def before_flush(session, flush_context, instances):
         current_ticks = clock.ticks
         entity_changed = False
 
-        for col in entity.Temporal.fields:
+        for field in entity.Temporal.fields:
             _, history_created = session.get_or_create_field_history(
-                entity, col, clock)
+                entity, field, clock)
 
             if not entity_changed and history_created:
                 entity_changed = True

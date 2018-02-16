@@ -43,13 +43,13 @@ class TemporalSession(orm.session.Session):
         """gets an existing or creates a new entity history field
            for a temporal model.
         """
-        history = self.query(entity.__class__).field_history(
-            entity, field, clock)
-
         new_value = getattr(entity, field)
 
         if not new_value:
             return None, False
+
+        history = self.query(entity.__class__).field_history(
+            entity, field, clock)
 
         if history:
             if history.value == new_value:
