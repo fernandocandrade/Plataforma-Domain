@@ -14,13 +14,14 @@ app = Flask(__name__, instance_relative_config=True)
 app.debug = True
 
 
-
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
     try:
         mapper = MapBuilder().build()
-        query_service = QueryService()
+        reference_date = request.headers.get('Reference-Date')
+        version = request.headers.get('Version')
+        query_service = QueryService(reference_date, version)
         controller = QueryController(
             app_id, entity, request, mapper, query_service)
         return jsonify(controller.query())
@@ -37,12 +38,13 @@ def persist_map(app_id):
     req_session = create_session()
     try:
         instance_id = request.headers.get('Instance-Id')
+        reference_date = request.headers.get('Reference-Date')
         mapper = MapBuilder().build()
         body = json.loads(request.data)
-        controller = CommandController(app_id, body, mapper, instance_id, req_session)
+        controller = CommandController(
+            app_id, body, mapper, instance_id, req_session, reference_date)
         return jsonify(controller.persist())
     except Exception as excpt:
-        print(excpt)
         r = {
             "status_code": 400,
             "message": str(excpt)
@@ -50,6 +52,7 @@ def persist_map(app_id):
         return jsonify(r), 400
     finally:
         req_session.close()
+
 
 def get_app():
     return app

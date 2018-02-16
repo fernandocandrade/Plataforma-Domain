@@ -4,12 +4,13 @@ import json
 
 
 class CommandController:
-    def __init__(self, app_id, body, mapper, instance_id, session):
+    def __init__(self, app_id, body, mapper, instance_id, session, reference_date):
         self.app_id = app_id
         self.body = body
         self.mapper = mapper
         self.instance_id = instance_id
         self.repository = Persistence(session)
+        self.reference_date = reference_date
 
     def persist(self):
         """ Persist data on domain """
