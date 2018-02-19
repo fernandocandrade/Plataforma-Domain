@@ -16,11 +16,12 @@ app.debug = True
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
+    req_session = create_session()
     try:
         mapper = MapBuilder().build()
         reference_date = request.headers.get('Reference-Date')
         version = request.headers.get('Version')
-        query_service = QueryService(reference_date, version)
+        query_service = QueryService(reference_date, version, req_session)
         controller = QueryController(app_id, entity, request, mapper,
                                      query_service)
         return jsonify(controller.query())

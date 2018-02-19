@@ -75,7 +75,7 @@ class Transform(Component):
                 else:
                     _list.append(n)
             query_string[param] = _list
-            _filter = _filter.replace(item,param)
+            _filter = _filter.replace(item,f":{param}")
 
         return {
             "query" : _filter,

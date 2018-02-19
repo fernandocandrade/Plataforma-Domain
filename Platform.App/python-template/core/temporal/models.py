@@ -16,6 +16,9 @@ class TemporalMapper:
 
 
     def build_fields_histories(self, cls, table):
+        if not hasattr(cls, '_history'):
+            setattr(cls, '_history', dict())
+
         for field in cls.Temporal.fields:
             if field in cls._history:
                 continue
@@ -35,6 +38,9 @@ class TemporalMapper:
             })
 
     def build_clock(self, cls, table):
+        if not hasattr(cls, '_clock'):
+            setattr(cls, '_clock', dict())
+
         clock_table_name = f'{cls.__name__}Clock'
         cls._clock = type(clock_table_name, (cls.__bases__[0],), {
             "id": primary_key(),
@@ -46,9 +52,6 @@ class TemporalMapper:
 
 
 class TemporalModelMixin:
-    _history = dict()
-    _clock = None
-
     @declared_attr
     def __mapper_cls__(cls):
         return TemporalMapper()
