@@ -46,11 +46,6 @@ def build_map():
     return _map
 
 
-def test_replace_all():
-    index = Index()
-    assert Transform(index).replace_all("a b a", "a", "c") == "c b c"
-
-
 def test_replace_all_atributes():
     index = Index()
     assert Transform(index).replace_all_atributes(
