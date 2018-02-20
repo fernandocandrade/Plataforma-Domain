@@ -11,7 +11,6 @@ class Query:
         self.app_id = None
         self.mapped_entity = None
         self.entity = None
-        self.query = None
         self.entity_cls = None
 
     def set_query_context(self, app_id, mapped_entity, entity):
@@ -19,7 +18,6 @@ class Query:
         self.mapped_entity = mapped_entity
         self.entity = entity
         self.entity_cls = getattr(domain, self.entity.title())
-        self.query = self.session.query(entity_cls)
 
     def build_select(self, projection):
         fields = [
@@ -37,22 +35,5 @@ class Query:
             return q_.filter(stmt).all()
         return q_.all()
 
-    def build_where(self, projection):
-        params = projection['where']['params']
-        params.pop('filter')
-        where_clause = projection['where']['query']
-        par_regex = re.compile(":\w*")
-        #  par_regex = re.compile(":\w*\[\]")
-
-        def build_param(g):
-            arr_filter = ""
-            current_pars = params.pop('ids')
-            for i in range(len(current_pars)):
-                lbl_par = f'ids{i}'
-                arr_filter += f':{lbl_par},'
-                params[lbl_par] = current_pars[i]
-            return arr_filter
-
-        #  q_ = q_.filter(text(where_clause).bindparams(**params))
 
 
