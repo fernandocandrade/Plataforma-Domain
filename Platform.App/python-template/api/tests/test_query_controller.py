@@ -52,8 +52,6 @@ def test_get_data_from_map(app):
     s.add(c)
     s.add(c_)
     s.commit()
-    print(c.id)
-    print(c_.id)
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
         response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)

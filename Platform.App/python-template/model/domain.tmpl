@@ -3,7 +3,7 @@ from uuid import uuid4
 from core.temporal.models import TemporalModelMixin
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
+from sqlalchemy import *
 import datetime
 
 
@@ -12,21 +12,21 @@ class MigrationHistory(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
 def get_db_name():
-    return "{{database_name}}"
+    return "{{{database_name}}}"
 
 {{#each model}}
 
 class {{up_first @key}}(Base, TemporalModelMixin):
 
-    def __init__(self, {{#join . ","}}{{name}}=None{{/join}}, _metadata=None, **kwargs):
+    def __init__(self, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
         {{#each .}}
-        self.{{@key}} = {{@key}}
+        self.{{{@key}}} = {{{@key}}}
         {{/each}}
         self._metadata = _metadata
 
     def dict(self):
         return {
-            {{#join . ","}}"{{name}}": self.{{name}}{{/join}},
+            {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
             "id": self.id,
             "_metadata": self._metadata
         }
@@ -34,12 +34,12 @@ class {{up_first @key}}(Base, TemporalModelMixin):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-    
+
     class Temporal:
-        fields = ({{#join . ","}}'{{name}}'{{/join}}, )
+        fields = ({{#join . ","}}'{{{name}}}'{{/join}}, )
 
     {{#each . }}
-    {{@key}} = Column({{type}})
+    {{{@key}}} = Column({{{type}}})
     {{/each}}
 
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)

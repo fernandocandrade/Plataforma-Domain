@@ -24,33 +24,14 @@ class Query:
             for a in projection['attributes'] if a[0] != 'meta_instance_id'
         ]
 
-    def build_where(self, projection):
-        params = projection['where']['params']
-        where_clause = projection['where']['query']
-        import re
-        arr_regex = r":\w*\[\]"
-        matches = re.finditer(arr_regex, where_clause)
-
-
-
-        #  p_ids = {f'id{i}': query_['ids'][i] for i in range(len(query_['ids']))}
-        #  p_.pop('filter')
-        #  q_ = q_.filter(text(filter_).bindparams(**p_ids))
-
     def execute(self, projection):
         query_select = self.build_select(projection)
-        #  q_ = self.session.query(*query_select)
-
+        q_ = self.session.query(*query_select)
         if 'where' in projection:
-            self.build_where(projection)
-
-            #  filter_ = "id in (:ids[])"
-            #  query_ = {'ids': [10, 20, 30, 40, 50]}
-            #  ff = ', '.join([f':id{i}' for i in range(len(query_['ids']))])
-#
-
-        filter_ = filter_.replace(':ids[]', ff)
-
+            query = projection["where"]["query"]
+            stmt = text(query)
+            stmt = stmt.bindparams(**projection["where"]["params"])
+            return q_.filter(stmt).all()
         return q_.all()
 
 

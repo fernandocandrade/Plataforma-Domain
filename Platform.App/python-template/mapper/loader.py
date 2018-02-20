@@ -6,7 +6,7 @@ import os.path
 from settings.loader import Loader as EnvLoader
 from sdk.map_core import MapCore
 from core.component import Component
-
+import log
 class Loader(Component):
     def __init__(self):
         Component.__init__(self)
@@ -49,5 +49,9 @@ class Loader(Component):
     def build(self):
         """ returns all maps available to this application """
         local_maps = self.build_local_maps()
-        remote_maps = self.build_remote_maps()
+        remote_maps = []
+        try:
+            remote_maps = self.build_remote_maps()
+        except Exception as expt:
+            log.info(str(expt))
         return local_maps + list(remote_maps)

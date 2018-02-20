@@ -14,8 +14,8 @@ def disable_log():
     logging.getLogger("app").setLevel(logging.NOTSET)
 
 def debug(msg):
-    logging.debug(msg)
+    logging.getLogger("app").debug(msg)
 def critical(msg):
-    logging.critical(msg)
+    logging.getLogger("app").critical(msg)
 def info(msg):
-    logging.info(msg)
+    logging.getLogger("app").info(msg)

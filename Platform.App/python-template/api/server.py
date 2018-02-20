@@ -10,7 +10,7 @@ from database import create_session
 
 env = SettingsLoader().load()
 app = Flask(__name__, instance_relative_config=True)
-app.debug = True
+app.debug = False
 
 
 @app.route("/<app_id>/<entity>", methods=['GET'])
