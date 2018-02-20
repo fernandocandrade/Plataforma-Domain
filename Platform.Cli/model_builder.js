@@ -115,11 +115,12 @@ module.exports = (function () {
         "boolean": "Boolean",
         "time": "Time",
         "date": "Date",
+        "datetime": "DateTime",
         "hstore": "HsStore",
         "json": "Json",
         "jsonb": "Jsonb",
         "blob": "Blob",
-        "uuid": "UUID",
+        "uuid": "sap.UUID(as_uuid\=True)",
         "uuidV1": "UUIDV1",
         "uuidV4": "UUIDV4"
     };
