@@ -20,7 +20,7 @@ class Query:
         self.entity_cls = getattr(domain, self.entity.title())
 
     def build_select(self, projection):
-        fields = [
+        return [
             getattr(self.entity_cls, a[0]).label(a[1])
             for a in projection['attributes'] if a[0] != 'meta_instance_id'
         ]

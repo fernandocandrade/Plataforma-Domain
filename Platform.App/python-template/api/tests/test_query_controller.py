@@ -54,10 +54,9 @@ def test_get_data_from_map(app):
     s.commit()
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
-        #  response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)
-        #  assert response.status_code == 200
-        #  assert len(json.loads(response.data)) == 2
+        response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)
+        assert response.status_code == 200
+        assert len(json.loads(response.data)) == 2
         response = client.get(f'/Conta/Conta?filter=clientes&ids={c.id};{c_.id}')
         assert response.status_code == 200
         assert len(json.loads(response.data)) == 2
-
