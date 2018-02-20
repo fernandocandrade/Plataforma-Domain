@@ -11,9 +11,9 @@ module.exports = class InstallPlatformAction{
 
         inquirer.prompt(this.getQuestions()).then(answers => {
             var environment = answers.environment;
-            console.log(os.tmpdir());
+            console.log(os.homedir());
             new StopPlatformAction().exec();
-            var path = os.tmpdir()+"/installed_plataforma";
+            var path = os.homedir()+"/installed_plataforma";
             shell.rm("-rf",path);
             shell.mkdir('-p', path);
             shell.cd(path);
