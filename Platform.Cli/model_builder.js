@@ -84,7 +84,6 @@ module.exports = (function () {
         var source = fs.readFileSync(root + "python-template/model/domain.tmpl").toString();
         var template = Handlebars.compile(source);
         var obj = { "database_name": appName, "model": self.sequelizeModel, "relations": self.model.relationships };
-        console.log(JSON.stringify(obj,null,4));
         var compiled = template(obj);
         return compiled;
     };

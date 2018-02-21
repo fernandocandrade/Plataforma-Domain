@@ -7,5 +7,7 @@ ENV POSTGRES_USER postgres
 
 RUN pip install -r requirements.txt
 
-EXPOSE 5000
+ENV PORT={{port}}
+
+EXPOSE {{port}}
 ENTRYPOINT ["python", "main.py"]

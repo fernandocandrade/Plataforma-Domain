@@ -13,11 +13,11 @@ def load_config_file():
     config["database"]["user"] = os.environ.get('POSTGRES_USER', "postgres")
     config["database"]["password"] = os.environ.get('POSTGRES_PASSWROD', "")
     if os.environ.get('PORT', "") != "":
-        config.http.port = os.environ.get('PORT')
+        config["http"]["port"] = int(os.environ.get('PORT'))
     elif os.path.exists("plataforma.instance.lock"):
         instance_config = json.loads(open("plataforma.instance.lock", "r").read())
         if "port" in instance_config:
-            config["http"]["port"] = instance_config["port"]
+            config["http"]["port"] = int(instance_config["port"])
         else:
             config["http"]["port"] = 9090
     if not "core_services" in config:
