@@ -26,8 +26,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     prepare(env) {
         var promise = new Promise((resolve, reject) => {
             console.log("Preparing Deploy");
-            var path = os.tmpdir() + "/installed_plataforma";
-            var fullPath = path + "/apps/" + env.conf.app.version + "_" + env.conf.app.id;
+            var path = os.homedir() + "/installed_plataforma";
+            var fullPath = path+"/apps/"+env.conf.app.version+"_"+env.conf.app.id;
             env.conf.fullPath = fullPath;
             env.conf.path = path;
             env.conf.appPath = process.cwd();
