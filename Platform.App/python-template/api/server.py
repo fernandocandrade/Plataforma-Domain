@@ -50,6 +50,9 @@ def persist_map(app_id):
     finally:
         req_session.close()
 
+@app.route("/ping", methods=['GET'])
+def ping():
+    return "pong"
 
 def get_app():
     return app
