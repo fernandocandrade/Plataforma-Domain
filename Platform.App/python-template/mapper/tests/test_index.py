@@ -78,31 +78,31 @@ def test_parse():
 def test_get_map_by_app_id():
     index = Index()
     index.parse(build_map())
-    assert index.get_map_by_app_id('BankApp') != None
+    assert index.get_map('BankApp') != None
 
 
 def test_get_map_by_app_id_wrong():
     index = Index()
     index.parse(build_map())
-    assert index.get_map_by_app_id('Wrong') == dict()
+    assert index.get_map('Wrong') == dict()
 
 
 def test_get_map_by_app_id_and_name():
     index = Index()
     index.parse(build_map())
-    assert index.get_map_by_app_id_and_name('BankApp', 'Conta') != None
+    assert index.get_map('BankApp', 'Conta') != None
 
 
 def test_get_map_by_app_id_and_name_wrong_name():
     index = Index()
     index.parse(build_map())
-    assert index.get_map_by_app_id_and_name('BankApp', 'Wrong') == dict()
+    assert index.get_map('BankApp', 'Wrong') == dict()
 
 
 def test_get_map_by_app_id_and_name_wrong():
     index = Index()
     index.parse(build_map())
-    assert index.get_map_by_app_id_and_name('Wrong', 'Wrong') == dict()
+    assert index.get_map('Wrong', 'Wrong') == dict()
 
 
 def test_get_projection():
@@ -166,6 +166,6 @@ def test_columns_from_map_type():
     index = Index()
     index.parse(build_map())
     _map = index.columns_from_map_type("BankApp","Conta")
-    for attr in _map:
-        assert attr[0] == attr[1]
+    for col, reference in _map:
+        assert col == reference
 

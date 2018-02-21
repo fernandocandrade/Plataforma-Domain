@@ -60,24 +60,18 @@ class Index(Component):
                 proj = [field_obj['column'], field]
                 projections[mapped_model]['attributes'].append(proj)
 
-    def get_map_by_app_id(self, app_id):
+    def get_map(self, app_id, app_name=None):
         """ returns cached map for an app_id """
-        if app_id in self.model_cache:
-            return self.model_cache[app_id]
-        return dict()
+        app_map = self.model_cache.get(app_id, {})
 
-    def get_map_by_app_id_and_name(self, app_id, name):
-        """ get map by app id and name """
-        if app_id in self.model_cache and name in self.model_cache[app_id]:
-            return self.model_cache[app_id][name]
-        else:
-            return dict()
+        if not app_name:
+            return app_map
+
+        return app_map.get(app_name, {})
 
     def get_projection(self, app_id):
         """ returns projection list of a app_id """
-        if app_id in self.projection_cache:
-            return self.projection_cache[app_id]
-        return dict()
+        return self.projection_cache.get(app_id, {})
 
     def get_filters(self, app_id, map_name):
         """ returns filters on map  """
@@ -93,10 +87,8 @@ class Index(Component):
 
     def get_model_name(self, app_id, map_name):
         """ returns entity models name """
-        _map = self.get_map_by_app_id_and_name(app_id, map_name)
-        if 'model' in _map:
-            return _map['model']
-        return dict()
+        _map = self.get_map(app_id, map_name)
+        return _map.get('model', {})
 
     def get_functions(self, app_id, map_name):
         """ returns function fields in map """
@@ -113,16 +105,12 @@ class Index(Component):
     def columns_from_map_type(self, app_id, map_name):
         """ return 1 to 1 map -> domain """
         field_obj = self.model_cache[app_id][map_name]['fields']
-        _list = []
-        for map_column in field_obj:
-            if "column" in field_obj[map_column]:
-                reference = field_obj[map_column]['column']
-            if "type" in field_obj[map_column]:
-                reference = field_obj[map_column]['type']
-            if reference == "function":
-                continue
-            _list.append([map_column, reference])
-        return _list
+
+        for map_column, map_field in field_obj.items():
+            reference = map_field.get('column', map_field.get('type'))
+
+            if reference != "function":
+                yield map_column, reference
 
     def has_entity_to_map(self, app_id, domain_type):
         return app_id in self.entity_to_map and domain_type in self.entity_to_map[app_id]
