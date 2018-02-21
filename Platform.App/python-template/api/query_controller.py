@@ -2,11 +2,10 @@
 
 
 class QueryController:
-    def __init__(self, app_id, entity, request, mapper, query_service):
-        self.request = request
+    def __init__(self, app_id, entity, query, mapper, query_service):
         self.app_id = app_id
         self.mapped_entity = entity
-        self.req = request
+        self.query_string = query
         self.mapper = mapper
         self.query_service = query_service
 
@@ -18,7 +17,7 @@ class QueryController:
         if not self.mapped_entity in projection:
             raise Exception(f"{self.mapped_entity} not found in map")
         projection = projection[self.mapped_entity]
-        projection['where'] = self.mapper.transform.get_filters(self.app_id, self.mapped_entity, self.req.args.to_dict())
+        projection['where'] = self.mapper.transform.get_filters(self.app_id, self.mapped_entity, self.query_string)
         if not list(projection["where"].keys()):
             projection.pop('where', None)
         return self.query_service.filter(self.app_id, self.mapped_entity, entity, projection)

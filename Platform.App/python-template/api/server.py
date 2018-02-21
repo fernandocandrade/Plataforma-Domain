@@ -22,7 +22,7 @@ def query_map(app_id, entity):
         reference_date = request.headers.get('Reference-Date')
         version = request.headers.get('Version')
         query_service = QueryService(reference_date, version, req_session)
-        controller = QueryController(app_id, entity, request, mapper,
+        controller = QueryController(app_id, entity, request.args.to_dict(), mapper,
                                      query_service)
         return jsonify(controller.query())
     except Exception as excpt:
@@ -38,6 +38,7 @@ def persist_map(app_id):
     instance_id = request.headers.get('Instance-Id')
     reference_date = request.headers.get('Reference-Date')
     body = json.loads(request.data)
+    print(body)
     controller = CommandController(app_id, body, instance_id, reference_date)
     try:
         return jsonify(controller.persist())
