@@ -11,11 +11,11 @@ ch.setFormatter(formatter)
 root.addHandler(ch)
 
 def disable_log():
-    logging.getLogger("app").setLevel(logging.NOTSET)
+    root.setLevel(logging.CRITICAL)
 
 def debug(msg):
-    logging.getLogger("app").debug(msg)
+    root.debug(msg)
 def critical(msg):
-    logging.getLogger("app").critical(msg)
+    root.critical(msg)
 def info(msg):
-    logging.getLogger("app").info(msg)
+    root.info(msg)

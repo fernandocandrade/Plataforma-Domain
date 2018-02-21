@@ -13,14 +13,12 @@ import datetime
 env = Loader().load()
 
 
-def sync_db(name = db_name):
+def sync_db(name=db_name):
     if should_create_database(name):
         create_database(name)
         log.info("created database")
-        Base.metadata.create_all(bind=engine)
-        log.info("database synchronized")
-    else:
-        Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    log.info("database synchronized")
 
 
 def create_database(db_name):
