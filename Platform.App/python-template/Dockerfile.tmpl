@@ -11,5 +11,4 @@ RUN pip install gunicorn
 ARG port={{port}}
 ENV port=${port:-8000}
 EXPOSE $port
-
-ENTRYPOINT gunicorn -b 0.0.0.0:$port api.server:app
+ENTRYPOINT python main.py && gunicorn -b 0.0.0.0:$port api.server:app
