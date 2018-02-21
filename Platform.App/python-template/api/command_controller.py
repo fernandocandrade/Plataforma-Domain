@@ -1,21 +1,25 @@
 from model.persistence import Persistence
 import json
+from mapper.builder import MapBuilder
+from database import create_session
 """ Command Controller persist data on domain """
 
 
 class CommandController:
-    def __init__(self, app_id, body, mapper, instance_id, session, reference_date):
+    def __init__(self, app_id, body, instance_id, reference_date):
         self.app_id = app_id
         self.body = body
-        self.mapper = mapper
+        self.mapper =  MapBuilder().build()
         self.instance_id = instance_id
-        self.repository = Persistence(session)
+        self.session = create_session()
+        self.repository = Persistence(self.session)
         self.reference_date = reference_date
 
     def persist(self):
         """ Persist data on domain """
         if len(self.body) == 0:
             return []
+
         domain_obj = self.to_domain()
         instances = self.repository.persist(domain_obj)
         self.repository.commit()

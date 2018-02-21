@@ -35,24 +35,23 @@ def query_map(app_id, entity):
 @app.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
-    req_session = create_session()
+    instance_id = request.headers.get('Instance-Id')
+    reference_date = request.headers.get('Reference-Date')
+    body = json.loads(request.data)
+    controller = CommandController(app_id, body, instance_id, reference_date)
     try:
-        instance_id = request.headers.get('Instance-Id')
-        reference_date = request.headers.get('Reference-Date')
-        mapper = MapBuilder().build()
-        body = json.loads(request.data)
-        controller = CommandController(app_id, body, mapper, instance_id,
-                                       req_session, reference_date)
         return jsonify(controller.persist())
     except Exception as excpt:
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
     finally:
-        req_session.close()
+        controller.session.close()
+
 
 @app.route("/ping", methods=['GET'])
 def ping():
     return "pong"
+
 
 def get_app():
     return app
