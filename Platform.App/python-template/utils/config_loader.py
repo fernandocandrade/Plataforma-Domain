@@ -6,12 +6,13 @@ def load_config_file():
     """ Load confiuration file """
     config = open("plataforma.json", "r")
     config = json.loads(config.read())
+    print(config)
     config["http"] = {}
     config["database"] = {}
     config["database"]["name"] = config["app"]["name"]
     config["database"]["host"] = os.environ.get("POSTGRES_HOST", "localhost")
     config["database"]["user"] = os.environ.get('POSTGRES_USER', "postgres")
-    config["database"]["password"] = os.environ.get('POSTGRES_PASSWROD', "")
+    config["database"]["password"] = os.environ.get('POSTGRES_PASSWORD', "")
     if os.environ.get('PORT', "") != "":
         config["http"]["port"] = int(os.environ.get('PORT'))
     elif os.path.exists("plataforma.instance.lock"):

@@ -3,10 +3,11 @@
 import yaml
 from os import listdir
 import os.path
-from settings.loader import Loader as EnvLoader
 from sdk.map_core import MapCore
 from core.component import Component
 import log
+
+
 class Loader(Component):
     def __init__(self):
         Component.__init__(self)
@@ -49,6 +50,8 @@ class Loader(Component):
     def build(self):
         """ returns all maps available to this application """
         local_maps = self.build_local_maps()
+        if self.config["app"]["name"] == "apicore":
+            return local_maps
         remote_maps = []
         try:
             remote_maps = self.build_remote_maps()

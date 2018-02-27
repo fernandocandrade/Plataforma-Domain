@@ -22,11 +22,7 @@ module.exports = class DockerService{
     }
     compileDockerFile(env){
       return new Promise((resolve,reject)=>{
-        var source = fs.readFileSync(`${env.path}/Dockerfile.tmpl`).toString();
-        var template = Handlebars.compile(source);
-        var compiled = template(env.docker);
-        fs.writeFileSync(`${env.path}/Dockerfile`,compiled,'utf-8');
-        resolve(compiled);
+        resolve(env);
       });
 
     }
