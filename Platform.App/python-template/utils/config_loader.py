@@ -6,7 +6,6 @@ def load_config_file():
     """ Load confiuration file """
     config = open("plataforma.json", "r")
     config = json.loads(config.read())
-    print(config)
     config["http"] = {}
     config["database"] = {}
     config["database"]["name"] = config["app"]["name"]
