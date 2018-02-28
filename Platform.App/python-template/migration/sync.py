@@ -9,6 +9,7 @@ import glob
 import yaml
 from uuid import uuid4
 import datetime
+import time
 
 env = Loader().load()
 
@@ -19,6 +20,24 @@ def sync_db(name=db_name):
         log.info("created database")
     Base.metadata.create_all(bind=engine)
     log.info("database synchronized")
+
+
+def wait_postgres():
+    total = 10
+    count = 1
+    while count <= total:
+        try:
+            con = psycopg2.connect(host=env["database"]["host"], database="postgres",
+                            user=env["database"]["user"], password=env["database"]["password"])
+            con.close()
+            return True
+        except Exception as ex:
+            log.info(f"cannot connect to postgres retry: {count} left: {total - count}")
+            time.sleep(5)
+            count += 1
+
+    log.info(f"cannot connect to postgres after {total} retries")
+    return False
 
 
 def create_database(db_name):
