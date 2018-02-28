@@ -49,7 +49,8 @@ class HttpClient:
     """
     @staticmethod
     def _request(uri, verb, **kwargs):
-        def _error(message, status_code=None):
+        log("request invoked.")
+        def error(message, status_code=None):
             return ExecutionResult.error(
                 status_code=status_code,
                 message=message + f"""
@@ -60,7 +61,7 @@ class HttpClient:
 
         try:
             data = None
-            response = verb(uri, **kwargs)
+            response = verb(uri, timeout=1, **kwargs)
             response.raise_for_status()
 
             if response.text:
@@ -70,9 +71,26 @@ class HttpClient:
                 status_code=response.status_code,
                 data=data
             )
-        except Exception as excpt:
-            return ExecutionResult.error(
-                message=excpt.args[0])
+        except requests.exceptions.ConnectionError:
+            return error(
+                message='Could not connect to host.')
+        except requests.exceptions.Timeout:
+            return error(
+                message="Request timed out.")
+        except requests.TooManyRedirects:
+            return error(
+                message="Too many redirects.")
+        except requests.exceptions.HTTPError:
+            return error(
+                message="Request failed.",
+                status_code=response.status_code)
+        except requests.exceptions.RequestException:
+            return error(
+                message="Request failed for unknown reason.")
+        except ValueError:
+            return error(
+                message="Response body is not a valid json.",
+                status_code=response.status_code)
 
     @classmethod
     def get(cls, uri):
@@ -86,3 +104,4 @@ class HttpClient:
             args['json'] = data
 
         return cls._request(uri=uri, verb=VERBS.POST, **args)
+

@@ -7,6 +7,10 @@ from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, crea
 import datetime
 
 class MigrationHistory(Base):
+    def __init__(self, name, created_date=None):
+        self.name = name
+        self.created_date = created_date
+
     name = Column(String(80), unique=True, nullable=False)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
 

@@ -9,10 +9,10 @@ import log
 
 
 class Loader(Component):
-    def __init__(self):
-        Component.__init__(self)
+    def __init__(self, local_source='maps'):
+        super().__init__()
         self.map_core = MapCore()
-        self.local_source = "maps"
+        self.local_source = local_source
 
     def get_local_map_file_names(self):
         """ return local files to load """

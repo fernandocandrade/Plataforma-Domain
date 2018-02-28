@@ -5,7 +5,7 @@ from mock import patch
 from utils.http import HttpClient, ExecutionResult
 import database
 import json
-from migration.sync import sync_db
+#  from migration.sync import sync_db
 
 
 def apicore_map():
@@ -42,7 +42,6 @@ def test_persist_invalid_params(app):
 
 @pytest.mark.usefixtures('app')
 def test_query_valid_params(app):
-    sync_db()
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         obj = {
             "saldo": 1,
@@ -91,7 +90,7 @@ def test_with_empty_list(app):
 
 @pytest.mark.usefixtures('app')
 def test_full_persist(app):
-    sync_db("app_name")
+    #  sync_db("app_name")
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         _list = []
         obj = {

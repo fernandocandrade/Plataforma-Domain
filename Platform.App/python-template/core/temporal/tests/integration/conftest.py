@@ -32,12 +32,6 @@ def engine(request):
 def db(request, engine):
     _db = pytest.BaseModel.metadata
     _db.create_all(engine)
-
-    def teardown():
-        if not SETTINGS.KEEP_DB:
-            _db.drop_all(engine)
-
-    request.addfinalizer(teardown)
     return _db
 
 
