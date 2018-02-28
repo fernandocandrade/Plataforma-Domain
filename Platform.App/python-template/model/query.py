@@ -1,7 +1,7 @@
 import re
 from model import domain
 from sqlalchemy.sql import text
-
+import uuid
 
 class Query:
     def __init__(self, reference_date, version, session):
@@ -32,8 +32,25 @@ class Query:
             query = projection["where"]["query"]
             stmt = text(query)
             stmt = stmt.bindparams(**projection["where"]["params"])
-            return q_.filter(stmt).all()
-        return q_.all()
+            resultset = q_.filter(stmt).all()
+            return self.row2dict(resultset, projection)
 
+        resultset = q_.all()
+        return self.row2dict(resultset, projection)
 
-
+    def row2dict(self, rows, projection):
+        d = {}
+        result = []
+        for row in rows:
+            d = {}
+            cont = 0
+            for column in row:
+                if type(column) == uuid.UUID:
+                    column = str(column)
+                d[projection['attributes'][cont][0]] = column
+                cont += 1
+            d["_metadata"] = {
+                "type": self.entity
+            }
+            result.append(d)
+        return result

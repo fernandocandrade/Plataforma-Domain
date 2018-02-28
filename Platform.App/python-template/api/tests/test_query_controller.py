@@ -55,8 +55,14 @@ def test_get_data_from_map(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
         response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)
+        resp = json.loads(response.data)
         assert response.status_code == 200
-        assert len(json.loads(response.data)) == 2
+        assert len(resp) == 2
+        assert "saldo" and "titular" and "_metadata" in resp[0]
+        assert resp[0]["titular"] == "Fabio"
+        assert resp[1]["titular"] == "Moneda"
+        assert "branch" in resp[0]["_metadata"]
+        assert "branch" in resp[1]["_metadata"]
         response = client.get(f'/Conta/Conta?filter=clientes&ids={c.id};{c_.id}')
         assert response.status_code == 200
         assert len(json.loads(response.data)) == 2
