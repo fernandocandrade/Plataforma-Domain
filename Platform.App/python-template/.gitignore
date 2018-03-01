@@ -8,8 +8,6 @@ __pycache__/
 *$py.class
 
 
-migrations/
-
 # C extensions
 *.so
 
