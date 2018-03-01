@@ -6,13 +6,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
 import datetime
 
-class MigrationHistory(Base):
-    def __init__(self, name, created_date=None):
-        self.name = name
-        self.created_date = created_date
 
-    name = Column(String(80), unique=True, nullable=False)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
 def get_db_name():
     return "domain"
