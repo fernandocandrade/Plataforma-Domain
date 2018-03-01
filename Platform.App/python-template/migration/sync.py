@@ -25,8 +25,6 @@ def sync_db(name=db_name):
 def wait_postgres():
     total = 10
     count = 1
-    if should_create_database(env["database"]["name"]):
-        create_database(env["database"]["name"])
     while count <= total:
         try:
             con = psycopg2.connect(host=env["database"]["host"], database="postgres",
@@ -50,35 +48,6 @@ def create_database(db_name):
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = con.cursor()
     sql = f'create database "{db_name}"'
-    cur.execute(sql)
-    con.close()
-
-def drop_database(db_name):
-    if db_name == "postgres":
-        return
-    con = psycopg2.connect(host=env["database"]["host"], database="postgres",
-                           user=env["database"]["user"], password=env["database"]["password"])
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cur = con.cursor()
-    sql = f'drop database "{db_name}"'
-    cur.execute(sql)
-    con.close()
-
-def raw_sql(db_name, sql):
-    con = psycopg2.connect(host=env["database"]["host"], database=db_name,
-                           user=env["database"]["user"], password=env["database"]["password"])
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cur = con.cursor()
-    cur.execute(sql)
-    recset = cur.fetchall()
-    con.close()
-    return recset
-
-def raw_execute(db_name, sql):
-    con = psycopg2.connect(host=env["database"]["host"], database=db_name,
-                           user=env["database"]["user"], password=env["database"]["password"])
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cur = con.cursor()
     cur.execute(sql)
     con.close()
 
