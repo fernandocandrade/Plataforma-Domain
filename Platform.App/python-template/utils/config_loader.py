@@ -20,7 +20,7 @@ def load_config_file():
 
     config["database"] = {
         "name": config["app"]["name"],
-        "host": os.environ.get("POSTGRES_HOST", "postgres"),
+        "host": os.environ.get("POSTGRES_HOST", "localhost"),
         "user": os.environ.get('POSTGRES_USER', "postgres"),
         "password": os.environ.get('POSTGRES_PASSWORD', ""),
     }

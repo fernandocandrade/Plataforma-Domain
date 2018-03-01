@@ -2,6 +2,7 @@ from model.domain import MigrationHistory, conta
 from database import create_session
 
 
+
 def test_save_migration_history(session):
     m = MigrationHistory(name="teste")
 
@@ -16,5 +17,4 @@ def test_save_conta():
     c.titular = "Teste"
     session.add(c)
     session.commit()
-
     assert session.query(conta).count() == 1
