@@ -18,7 +18,7 @@ def get_db_name():
     return "domain"
 
 
-class Conta(Base, TemporalModelMixin):
+class conta(Base, TemporalModelMixin):
 
     def __init__(self, titular=None,saldo=None, _metadata=None, **kwargs):
         self.titular = titular

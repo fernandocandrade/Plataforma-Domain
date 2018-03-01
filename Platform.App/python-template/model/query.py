@@ -17,7 +17,7 @@ class Query:
         self.app_id = app_id
         self.mapped_entity = mapped_entity
         self.entity = entity
-        self.entity_cls = getattr(domain, self.entity.title())
+        self.entity_cls = getattr(domain, self.entity.lower())
 
     def build_select(self, projection):
         return [

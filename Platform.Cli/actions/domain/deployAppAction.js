@@ -47,18 +47,10 @@ module.exports = class DeployAppAction {
             port: env.docker.port
         };
         this.installedAppCore = new InstalledAppCore(env.apiCore);
-        this.installedAppCore.findBySystemId(config.solution.id).then(s => {
-            if (s.length > 0) {
-                this.installedAppCore.destroy(s[0]).then(() => {
-                    this.installedAppCore.create(appInfo).then(s => {
-                        console.log("App deployed");
-                    });
-                });
-            } else {
-                this.installedAppCore.create(appInfo).then(s => {
-                    console.log("App deployed");
-                });
-            }
+        console.log("Ola");
+        console.log(appInfo);
+        this.installedAppCore.create(appInfo).then(s => {
+            console.log("App deployed");
         }).catch(e => {
             console.log(e);
         });

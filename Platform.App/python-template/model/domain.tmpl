@@ -16,7 +16,7 @@ def get_db_name():
 
 {{#each model}}
 
-class {{up_first @key}}(Base, TemporalModelMixin):
+class {{@key}}(Base, TemporalModelMixin):
 
     def __init__(self, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
         {{#each .}}

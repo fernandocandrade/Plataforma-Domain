@@ -44,10 +44,10 @@ def test_query_valid_params_and_query(app):
         assert response.status_code == 200
 
 def test_get_data_from_map(app):
-    from model.domain import Conta
+    from model.domain import conta
     from database import create_session
-    c = Conta(titular="Fabio", saldo=10000)
-    c_ = Conta(titular="Moneda", saldo=100)
+    c = conta(titular="Fabio", saldo=10000)
+    c_ = conta(titular="Moneda", saldo=100)
     s = create_session()
     s.add(c)
     s.add(c_)

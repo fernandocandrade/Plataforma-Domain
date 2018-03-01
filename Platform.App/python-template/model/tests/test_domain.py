@@ -1,4 +1,5 @@
-from model.domain import MigrationHistory, Conta
+from model.domain import MigrationHistory, conta
+from database import create_session
 
 
 def test_save_migration_history(session):
@@ -7,11 +8,13 @@ def test_save_migration_history(session):
     session.add(m)
     session.commit()
 
-    assert session.query(MigrationHistory).count() == 1
+def test_save_conta():
 
-def test_save_conta(session):
-    c = Conta(saldo=1, titular="Teste")
+    c = conta()
+    session = create_session()
+    c.saldo = 1
+    c.titular = "Teste"
     session.add(c)
     session.commit()
 
-    assert session.query(Conta).count() == 1
+    assert session.query(conta).count() == 1
