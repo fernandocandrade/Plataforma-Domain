@@ -25,9 +25,14 @@ class Query:
             for a in projection['attributes'] if a[0] != 'meta_instance_id'
         ]
 
-    def execute(self, projection):
+    def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
         q_ = self.session.query(*query_select)
+
+        if page and page_size:
+            page -= 1
+            q_ = q_.slice(page * page_size, page * page_size + page_size)
+
         if 'where' in projection:
             query = projection["where"]["query"]
             stmt = text(query)

@@ -5,6 +5,9 @@ from mock import patch
 from utils.http import HttpClient, ExecutionResult
 import json
 
+from model.domain import conta
+
+
 def apicore_map():
     res = ExecutionResult(200)
     r = dict()
@@ -43,8 +46,22 @@ def test_query_valid_params_and_query(app):
         response = client.get(f'/Conta/Conta?filter=transferencia&origem=042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf&destino=042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf', follow_redirects=True)
         assert response.status_code == 200
 
+def test_get_data_from_map_paginated(app):
+    from database import create_session
+
+    session = create_session()
+    for i in range(100):
+        session.add(conta(titular="Fabio", saldo=10000))
+    session.commit()
+
+    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        client = app.test_client()
+        response = client.get(f'/Conta/Conta?page=1&page_size=10', follow_redirects=True)
+        data = json.loads(response.data)
+        assert len(data) == 10
+
+
 def test_get_data_from_map(app):
-    from model.domain import conta
     from database import create_session
     c = conta(titular="Fabio", saldo=10000)
     c_ = conta(titular="Moneda", saldo=100)
@@ -52,6 +69,7 @@ def test_get_data_from_map(app):
     s.add(c)
     s.add(c_)
     s.commit()
+
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         client = app.test_client()
         response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)
