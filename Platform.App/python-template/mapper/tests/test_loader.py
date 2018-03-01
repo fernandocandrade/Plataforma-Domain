@@ -21,13 +21,13 @@ def apicore_map():
 
 
 def test_get_files_to_load():
-    l = Loader(local_source="fixtures/maps")
+    l = Loader(local_source="fixtures/mps")
     files = l.get_local_map_file_names()
     assert len(files) == 1
 
 
 def test_build_local_maps():
-    l = Loader(local_source="fixtures/maps")
+    l = Loader(local_source="fixtures/mps")
     m = l.build_local_maps()
     assert len(m) == 1
     assert m[0]['app_name'] == "Conta"
@@ -35,7 +35,7 @@ def test_build_local_maps():
 
 def test_build_remote_maps():
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        l = Loader(local_source="fixtures/maps")
+        l = Loader(local_source="fixtures/mps")
         m = list(l.build_remote_maps())
     assert len(m) == 1
     assert m[0]['app_name'] == "Conta"
@@ -43,6 +43,6 @@ def test_build_remote_maps():
 
 def test_build_maps():
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        l = Loader(local_source="fixtures/maps")
+        l = Loader(local_source="fixtures/mps")
         m = list(l.build())
     assert len(m) == 2

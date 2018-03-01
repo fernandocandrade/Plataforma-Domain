@@ -11,7 +11,7 @@ def config():
 
 
 def test_should_load_migration_files():
-    migrations = get_migration_files(source='./fixtures/migrations')
+    migrations = get_migration_files(source='./fixtures/migrs')
     name, content = migrations[0]
 
     assert len(migrations) == 2
