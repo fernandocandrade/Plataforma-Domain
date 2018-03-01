@@ -22,5 +22,4 @@ def test_should_load_migration_files():
 def test_should_return_no_migration_to_migrate(session):
     to_migrate = diff_migrations()
     assert len(to_migrate) == 0
-    assert "B" in to_migrate
 
