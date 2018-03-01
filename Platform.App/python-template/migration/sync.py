@@ -25,6 +25,8 @@ def sync_db(name=db_name):
 def wait_postgres():
     total = 10
     count = 1
+    if should_create_database(env["database"]["name"]):
+        create_database(env["database"]["name"])
     while count <= total:
         try:
             con = psycopg2.connect(host=env["database"]["host"], database="postgres",
@@ -32,6 +34,8 @@ def wait_postgres():
             con.close()
             return True
         except Exception as ex:
+            log.info(str(ex))
+            log.info(f"host: {env['database']['host']}")
             log.info(f"cannot connect to postgres retry: {count} left: {total - count}")
             time.sleep(5)
             count += 1
@@ -50,6 +54,8 @@ def create_database(db_name):
     con.close()
 
 def drop_database(db_name):
+    if db_name == "postgres":
+        return
     con = psycopg2.connect(host=env["database"]["host"], database="postgres",
                            user=env["database"]["user"], password=env["database"]["password"])
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
