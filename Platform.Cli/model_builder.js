@@ -121,7 +121,8 @@ module.exports = (function () {
         "blob": "Blob",
         "uuid": "sap.UUID(as_uuid\=True)",
         "uuidV1": "UUIDV1",
-        "uuidV4": "UUIDV4"
+        "uuidV4": "UUIDV4",
+        "timestamp":"TIMESTAMP"
     };
 
     self.sequelizeModel = {};
