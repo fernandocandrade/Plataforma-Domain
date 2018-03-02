@@ -6,7 +6,9 @@ from database import create_session, create_db
 from .blueprints.mapping import mapping
 
 
-def create_app():
+def create_app(a,b):
+    print(a)
+    print(b)
     env = SettingsLoader().load()
     app = Flask(__name__, instance_relative_config=True)
     app.debug = False
