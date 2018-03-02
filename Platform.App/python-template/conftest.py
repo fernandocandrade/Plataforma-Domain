@@ -1,14 +1,13 @@
-from uuid import uuid4
+import json
 
 import pytest
-from sqlalchemy import create_engine, orm, Column
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import create_engine, orm
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from core.temporal.session import sessionmaker
 
 from database import Base
+from api.server import get_app
 
 
 class SETTINGS:
@@ -46,19 +45,62 @@ def db(request, engine):
     return _db
 
 
-@pytest.fixture(scope='function')
-def session(request, engine):
+def test_session_factory(connection, transaction):
     """Creates a new temporal session for a test."""
-    connection = engine.connect()
-    transaction = connection.begin()
-
     session_factory = sessionmaker(bind=connection)
     session = orm.scoped_session(session_factory)
+    return session
+
+
+@pytest.fixture(scope='session')
+def connection(request, engine):
+    c = engine.connect()
 
     def teardown():
-        transaction.rollback()
-        connection.close()
+        c.close()
+
+    request.addfinalizer(teardown)
+    return c
+
+
+@pytest.fixture(scope="function")
+def transaction(request, connection):
+    t = connection.begin()
+
+    def teardown():
+        t.rollback()
+
+    request.addfinalizer(teardown)
+    return t
+
+
+@pytest.fixture(scope="function")
+def app(connection, transaction):
+    _app = get_app()
+    _app.debug = True
+    _app.testing = True
+    _app.session_factory = lambda: test_session_factory(connection, transaction)
+    return _app
+
+
+@pytest.fixture(scope='function')
+def session(request, connection, app,):
+    session = app.session_factory()
+
+    def teardown():
         session.remove()
 
     request.addfinalizer(teardown)
     return session
+
+
+@pytest.fixture(scope="function")
+def test_client(request, app):
+    client = app.test_client()
+
+    def get_json(uri):
+        response = client.get(uri, follow_redirects=True)
+        return (response.status_code, json.loads(response.data), )
+
+    setattr(client, 'get_json', get_json)
+    return client

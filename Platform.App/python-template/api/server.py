@@ -8,21 +8,29 @@ from app.query_service import QueryService
 from settings.loader import Loader as SettingsLoader
 from database import create_session
 
+from flask import request
+
+
 env = SettingsLoader().load()
 app = Flask(__name__, instance_relative_config=True)
 app.debug = False
+app.session_factory = create_session
+
+
+@app.before_request
+def create_request_session():
+    setattr(request, 'session', app.session_factory())
 
 
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
-    req_session = create_session()
     try:
         mapper = MapBuilder().build()
         reference_date = request.headers.get('Reference-Date')
         version = request.headers.get('Version')
 
-        query_service = QueryService(reference_date, version, req_session)
+        query_service = QueryService(reference_date, version, request.session)
         controller = QueryController(app_id, entity, request.args.to_dict(), mapper,
                                      query_service)
 
@@ -40,7 +48,6 @@ def persist_map(app_id):
     instance_id = request.headers.get('Instance-Id')
     reference_date = request.headers.get('Reference-Date')
     body = json.loads(request.data)
-    print(body)
     controller = CommandController(app_id, body, instance_id, reference_date)
     try:
         return jsonify(controller.persist())

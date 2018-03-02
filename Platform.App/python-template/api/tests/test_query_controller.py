@@ -1,9 +1,5 @@
-from flask import url_for
-import pytest
-from api.server import get_app
 from mock import patch
 from utils.http import HttpClient, ExecutionResult
-import json
 
 from model.domain import conta
 
@@ -24,63 +20,55 @@ def apicore_map():
     return res
 
 
-@pytest.mark.usefixtures('app')
-def test_query_invalid_params(app):
+def test_query_invalid_params(test_client):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.get('/conta/conta', follow_redirects=True)
+        response = test_client.get('/conta/conta')
         assert response.status_code == 400
 
 
-@pytest.mark.usefixtures('app')
-def test_query_valid_params(app):
+def test_query_valid_params(test_client):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.get('/Conta/Conta', follow_redirects=True)
+        response = test_client.get('/Conta/Conta')
         assert response.status_code == 200
 
-@pytest.mark.usefixtures('app')
-def test_query_valid_params_and_query(app):
+
+def test_query_valid_params_and_query(test_client):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.get(f'/Conta/Conta?filter=transferencia&origem=042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf&destino=042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf', follow_redirects=True)
+        origem = '042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf'
+        destino = '042f54bc-c5a1-4f9b-8ed7-d8e01ca130bf'
+        uri = f'/Conta/Conta?filter=transferencia&origem={origem}&destino={destino}'
+        response = test_client.get(uri)
         assert response.status_code == 200
 
-def test_get_data_from_map_paginated(app):
-    from database import create_session
 
-    session = create_session()
-    for i in range(100):
-        session.add(conta(titular="Fabio", saldo=10000))
+def test_get_data_from_map_paginated(session, test_client):
+    contas = [conta(titular="Foo", saldo=i*100) for i in range(20)]
+    session.add_all(contas)
     session.commit()
 
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.get(f'/Conta/Conta?page=1&page_size=10', follow_redirects=True)
-        data = json.loads(response.data)
+        status_code, data = test_client.get_json(f'/Conta/Conta?page=1&page_size=10')
+        assert status_code == 200
         assert len(data) == 10
 
 
-def test_get_data_from_map(app):
-    from database import create_session
-    c = conta(titular="Fabio", saldo=10000)
-    c_ = conta(titular="Moneda", saldo=100)
-    s = create_session()
-    s.add(c)
-    s.add(c_)
-    s.commit()
+def test_get_data_from_map(session, test_client):
+    origem = conta(titular="Fabio", saldo=10000)
+    destino = conta(titular="Moneda", saldo=100)
+    session.add_all([origem, destino])
+    session.commit()
 
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.get(f'/Conta/Conta?filter=transferencia&origem={c.id}&destino={c_.id}', follow_redirects=True)
-        resp = json.loads(response.data)
-        assert response.status_code == 200
+        uri = f'/Conta/Conta?filter=transferencia&origem={origem.id}&destino={destino.id}'
+        status_code, resp = test_client.get_json(uri)
+
+        assert status_code == 200
         assert len(resp) == 2
-        assert "saldo" and "titular" and "_metadata" in resp[0]
+
         assert resp[0]["titular"] == "Fabio"
+        assert resp[0]["_metadata"]["branch"] == "master"
+        assert resp[0]["saldo"] == 10000
+
         assert resp[1]["titular"] == "Moneda"
-        assert "branch" in resp[0]["_metadata"]
-        assert "branch" in resp[1]["_metadata"]
-        response = client.get(f'/Conta/Conta?filter=clientes&ids={c.id};{c_.id}')
-        assert response.status_code == 200
-        assert len(json.loads(response.data)) == 2
+        assert resp[1]["_metadata"]["branch"] == "master"
+        assert resp[1]["saldo"] == 100
