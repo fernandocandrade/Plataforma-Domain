@@ -75,23 +75,5 @@ def test_get_data_from_map(session, test_client):
 
 
 
-def test_destroy_data(session, test_client):
-    origem = conta(titular="Fabio", saldo=10000)
-    destino = conta(titular="Moneda", saldo=100)
-    session.add_all([origem, destino])
-    session.commit()
 
-    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        uri = f'/Conta/Conta?filter=transferencia&origem={origem.id}&destino={destino.id}'
-        status_code, resp = test_client.get_json(uri)
-        print(resp)
-        assert status_code == 200
-        assert len(resp) == 2
 
-        assert resp[0]["titular"] == "Fabio"
-        assert resp[0]["_metadata"]["branch"] == "master"
-        assert resp[0]["saldo"] == 10000
-
-        assert resp[1]["titular"] == "Moneda"
-        assert resp[1]["_metadata"]["branch"] == "master"
-        assert resp[1]["saldo"] == 100

@@ -64,7 +64,6 @@ class Persistence:
                 del o['meta_instance_id']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
             obj.deleted = True
-            yield instance
 
     def is_to_create(self, obj):
         return obj["_metadata"]["changeTrack"] == "create"
