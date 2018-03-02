@@ -22,6 +22,12 @@ def create_request_session():
     setattr(request, 'session', app.session_factory())
 
 
+@app.after_request
+def destroy_request_session(response):
+    request.session.close()
+    return response
+
+
 @app.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
@@ -54,14 +60,3 @@ def persist_map(app_id):
     except Exception as excpt:
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
-    finally:
-        controller.session.close()
-
-
-@app.route("/ping", methods=['GET'])
-def ping():
-    return "pong"
-
-
-def get_app():
-    return app

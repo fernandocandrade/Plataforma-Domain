@@ -1,11 +1,9 @@
 from flask import url_for
 import pytest
-from api.server import get_app
 from mock import patch
 from utils.http import HttpClient, ExecutionResult
 import database
 import json
-#  from migration.sync import sync_db
 
 
 def apicore_map():
@@ -90,7 +88,6 @@ def test_with_empty_list(app):
 
 @pytest.mark.usefixtures('app')
 def test_full_persist(app):
-    #  sync_db("app_name")
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         _list = []
         obj = {
