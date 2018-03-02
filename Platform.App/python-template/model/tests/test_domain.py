@@ -1,5 +1,4 @@
 from model.domain import conta
-from migration.sync import sync_db
 from database import create_session
 
 def test_save_conta(session):

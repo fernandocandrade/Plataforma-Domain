@@ -7,7 +7,7 @@ from sqlalchemy_utils import database_exists, create_database, drop_database
 from core.temporal.session import sessionmaker
 
 from database import Base
-from api.server import app as application
+from app import create_app
 
 
 class SETTINGS:
@@ -76,6 +76,7 @@ def transaction(request, connection):
 
 @pytest.fixture(scope="function")
 def app(connection, transaction):
+    application = create_app()
     application.debug = True
     application.testing = True
     application.session_factory = lambda: test_session_factory(connection, transaction)

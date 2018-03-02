@@ -1,19 +1,20 @@
 import logging
+from uuid import uuid4
+
+from sqlalchemy import create_engine, Column
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy_utils import database_exists, create_database, drop_database
+
+from settings.loader import Loader
+from core.temporal.session import sessionmaker
+
 
 logging.getLogger('sqlalchemy.engine').setLevel(logging.FATAL)
 logging.getLogger('sqlalchemy.dialects').setLevel(logging.FATAL)
 logging.getLogger('sqlalchemy.pool').setLevel(logging.FATAL)
 logging.getLogger('sqlalchemy.orm').setLevel(logging.FATAL)
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.declarative import declared_attr
-import sqlalchemy.dialects.postgresql as sap
-from uuid import uuid4
-from settings.loader import Loader
-from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
-from core.temporal.session import sessionmaker
 
 conf = Loader().load()
 db_host = conf["database"]["host"]
@@ -26,10 +27,17 @@ session_factory = sessionmaker(bind=engine)
 db_session = scoped_session(session_factory)
 
 
+def create_db():
+    from model import domain
+
+    if not database_exists(engine.url):
+        create_database(engine.url)
+
+    Base.metadata.create_all(bind=engine)
+
 
 def create_session():
-    session = scoped_session(session_factory)()
-    return session
+    return scoped_session(session_factory)()
 
 
 class ModelBase(object):
@@ -37,13 +45,8 @@ class ModelBase(object):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
-    def save(self):
-        self.objects.save(self)
 
 Base = declarative_base(cls=ModelBase)
-
 Base.query = db_session.query_property()
-
-import model.domain

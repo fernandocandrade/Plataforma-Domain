@@ -14,14 +14,6 @@ import time
 env = Loader().load()
 
 
-def sync_db(name=db_name):
-    if should_create_database(name):
-        create_database(name)
-        log.info("created database")
-    Base.metadata.create_all(bind=engine)
-    log.info("database synchronized")
-
-
 def wait_postgres():
     total = 10
     count = 1
@@ -40,31 +32,4 @@ def wait_postgres():
 
     log.info(f"cannot connect to postgres after {total} retries")
     return False
-
-
-def create_database(db_name):
-    con = psycopg2.connect(host=env["database"]["host"], database="postgres",
-                           user=env["database"]["user"], password=env["database"]["password"])
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cur = con.cursor()
-    sql = f'create database "{db_name}"'
-    cur.execute(sql)
-    con.close()
-
-
-def should_create_database(db_name):
-    con = psycopg2.connect(host=env["database"]["host"], database="postgres",
-                           user=env["database"]["user"], password=env["database"]["password"])
-    cur = con.cursor()
-    cur.execute(
-        f"SELECT datname FROM pg_database where datname='{db_name}'")
-    recset = cur.fetchall()
-    result = []
-    for rec in recset:
-        result.append(rec)
-    con.close()
-    return not result
-
-
-
 
