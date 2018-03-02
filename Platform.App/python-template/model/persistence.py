@@ -55,7 +55,16 @@ class Persistence:
             yield instance
 
     def destroy(self, objs):
-        return []
+        for o in objs:
+            _type = o["_metadata"]["type"].lower()
+            cls = globals()[_type]
+            instance = cls(**o)
+            del o['_metadata']
+            if 'meta_instance_id' in o:
+                del o['meta_instance_id']
+            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
+            obj.deleted = True
+            yield instance
 
     def is_to_create(self, obj):
         return obj["_metadata"]["changeTrack"] == "create"

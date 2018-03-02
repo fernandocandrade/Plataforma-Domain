@@ -18,7 +18,9 @@ def get_db_name():
 
 class {{@key}}(Base, TemporalModelMixin):
 
-    def __init__(self, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
+    def __init__(self, id=None, deleted=False, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
+        self.id = id
+        self.deleted = deleted
         {{#each .}}
         self.{{{@key}}} = {{{@key}}}
         {{/each}}
@@ -28,6 +30,7 @@ class {{@key}}(Base, TemporalModelMixin):
         return {
             {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
             "id": self.id,
+            "deleted": self.deleted,
             "_metadata": self._metadata
         }
 
@@ -36,13 +39,14 @@ class {{@key}}(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ({{#join . ","}}'{{{name}}}'{{/join}}, )
+        fields = ('deleted', {{#join . ","}}'{{{name}}}'{{/join}}, )
 
     {{#each . }}
     {{{@key}}} = Column({{{type}}})
     {{/each}}
 
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
+    deleted = Column(sap.BOOLEAN())
 
 {{/each}}
 
