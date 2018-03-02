@@ -2,12 +2,13 @@ from model.persistence import Persistence
 import json
 from mapper.builder import MapBuilder
 from database import create_session
-""" Command Controller persist data on domain """
 
 from flask import request
 
 
 class CommandController:
+    """ Command Controller persist data on domain """
+
     def __init__(self, app_id, body, instance_id, reference_date):
         self.app_id = app_id
         self.body = body
