@@ -35,6 +35,8 @@ class Query:
 
         if 'where' in projection:
             query = projection["where"]["query"]
+            #TODO melhorar a implementação
+            query = query + " and deleted = false"
             stmt = text(query)
             stmt = stmt.bindparams(**projection["where"]["params"])
             resultset = q_.filter(stmt).all()

@@ -30,7 +30,6 @@ class {{@key}}(Base, TemporalModelMixin):
         return {
             {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
             "id": self.id,
-            "deleted": self.deleted,
             "_metadata": self._metadata
         }
 
