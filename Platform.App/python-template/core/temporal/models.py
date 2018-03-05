@@ -48,6 +48,7 @@ class TemporalMapper:
             "effective": datetime_range(),
             "entity_id": foreign_key(table.name),
             "entity": sa.orm.relationship(cls.__name__),
+            "deleted": sa.Column(sa.Boolean, default=False),
         })
 
 

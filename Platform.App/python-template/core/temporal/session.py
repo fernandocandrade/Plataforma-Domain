@@ -7,6 +7,10 @@ from core.temporal.utils import effective_now
 
 
 class TemporalSession(orm.session.Session):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.temporal_deleted = []
+
     def create_clock(self, entity, period=effective_now()):
         """creates a new clock for a temporal model.
         """

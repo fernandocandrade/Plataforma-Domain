@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 
 from sqlalchemy import orm
 from core.temporal.tests.integration.mocks import User
@@ -87,3 +88,14 @@ def test_update_model_does_not_duplicate_unchanged_fields(session, create_model,
     assert age_history[0].ticks.lower == 1
     assert age_history[0].ticks.upper is None
 
+
+def test_delete_model_mark_clock_as_deleted(session, create_model, delete_model, query_entity_clock):
+    # act
+    user = create_model(User, name='Foo', age=20,)
+    delete_model(user)
+
+    #  retrieve
+    user_clock = query_entity_clock(user, period=datetime.now(tz=timezone.utc))
+
+    # assert
+    assert user_clock.one().deleted == True

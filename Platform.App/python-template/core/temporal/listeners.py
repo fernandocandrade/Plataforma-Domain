@@ -5,6 +5,14 @@ def before_flush(session, flush_context, instances):
     """This method is intended to listen 'before_flush'
        event from a SQL Alchemy session.
     """
+    for entity in session.deleted:
+        if not hasattr(entity, 'Temporal'):
+            continue
+
+        clock, _ = session.get_or_create_clock(entity)
+        clock.deleted = True
+        session.expunge(entity)
+
     for entity in itertools.chain(session.new, session.dirty):
         if not hasattr(entity, 'Temporal'):
             continue

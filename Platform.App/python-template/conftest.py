@@ -84,7 +84,7 @@ def app(connection, transaction):
 
 
 @pytest.fixture(scope='function')
-def session(request, connection, app,):
+def session(request, connection, app):
     session = app.session_factory()
 
     def teardown():

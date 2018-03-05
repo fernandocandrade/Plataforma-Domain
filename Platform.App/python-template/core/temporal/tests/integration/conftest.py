@@ -46,6 +46,7 @@ def session(db, engine, request):
 
     def teardown():
         transaction.rollback()
+        print("rollback")
         connection.close()
         session.remove()
 
@@ -84,10 +85,18 @@ def create_model(request, session):
 @pytest.fixture
 def update_model(session):
     def _update_model(instance, **kwargs):
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(instance, k, v)
         session.commit()
     return _update_model
+
+
+@pytest.fixture
+def delete_model(session):
+    def _delete_model(instance):
+        session.delete(instance)
+        session.commit()
+    return _delete_model
 
 
 @pytest.fixture
@@ -97,8 +106,19 @@ def query_by_entity(session):
         if order_by:
             return query.order_by(cls.value)
         return query
-
     return _query_by_entity
+
+
+@pytest.fixture
+def query_entity_clock(session, query_by_entity):
+    def _query_entity_clock(entity, period):
+        return query_by_entity(
+            cls=entity._clock,
+            entity_id=entity.id,
+        ).filter(entity._clock.effective.contains(period))
+
+    return _query_entity_clock
+
 
 @pytest.fixture
 def query_entity_history(session, query_by_entity):
