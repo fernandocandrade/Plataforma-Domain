@@ -109,9 +109,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.systemId = env.conf.solution.id;
                 operation.processId = env.conf.app.id;
                 operation.event_in = operation.event;
-                operation.event_out = `${operation.name}_done`;
-                operation.container = this.docker.getContainer(env);
-                this.saveOperationCore(env, operation).then((c) => {
+                operation.event_out = `${operation.name}.done`;
+                operation.image = this.docker.getContainer(env);
+                this.saveOperationCore(env,operation).then((c)=>{
                     resolve(env);
                 })
             } catch (e) {
