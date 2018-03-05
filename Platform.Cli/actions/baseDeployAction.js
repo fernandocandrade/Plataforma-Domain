@@ -53,8 +53,17 @@ module.exports = class BaseDeployAction{
         var promise = new Promise((resolve,reject)=>{
             try{
                 //TODO mudar para o metodo save
-                processCore.create(process).then(()=>{
-                    resolve(env);
+                processCore.findById(process.id).then((process)=>{
+                    if (!process){
+                        processCore.create(process).then(()=>{
+                            resolve(env);
+                        }).catch(reject);
+                    }else{
+                        processCore.save(process).then(()=>{
+                            resolve(env);
+                        }).catch(reject);
+                    }
+
                 }).catch(reject);
             }catch(e){
                 reject(e);
