@@ -109,7 +109,7 @@ module.exports = (function () {
         "bigint": "BigInt",
         "float": "Float",
         "real": "Real",
-        "double": "Double",
+        "double": "Float",
         "decimal": "Decimal",
         "boolean": "Boolean",
         "time": "Time",

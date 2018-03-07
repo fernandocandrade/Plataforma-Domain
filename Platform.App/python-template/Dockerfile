@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt
 RUN pip install gunicorn
 
 EXPOSE 9110
-ENTRYPOINT python main.py && gunicorn -b 0.0.0.0:9110 app.wsgi:app
+ENTRYPOINT python main.py && gunicorn -b 0.0.0.0:9110 --timeout 300 app.wsgi:app
