@@ -10,7 +10,7 @@ def effective_now():
     """UTC DateTime Range starting from now.
     """
     utc_now = datetime.now(tz=timezone.utc)
-    return pg_extras.DateTimeTZRange(utc_now, None)
+    return pg_extras.DateTimeTZRange(utc_now.date(), None)
 
 
 def primary_key():

@@ -90,12 +90,38 @@ def test_update_model_does_not_duplicate_unchanged_fields(session, create_model,
 
 
 def test_delete_model_mark_clock_as_deleted(session, create_model, delete_model, query_entity_clock):
-    # act
+    # mock
     user = create_model(User, name='Foo', age=20,)
-    delete_model(user)
 
-    #  retrieve
+    # act
+    delete_model(user)
     user_clock = query_entity_clock(user, period=datetime.now(tz=timezone.utc))
 
     # assert
     assert user_clock.one().deleted == True
+
+
+def test_get_model_history(session, create_model, update_model):
+    # mock
+    user = create_model(User, name='Foo', age=20,)
+    update_model(user, name='Bar')
+
+    # act
+    users = session.query(User).history()
+
+    # assert
+    assert 1 == users.count()
+    assert users[0].name == 'Bar' and users[0].age == 20
+
+
+def test_get_model_history_at_specific_version(session, create_model, update_model):
+    #  mock
+    user = create_model(User, name='Foo', age=20,)
+    update_model(user, name='Bar')
+
+    # act
+    users = session.query(User).history(version=1)
+
+    # assert
+    assert 1 == users.count()
+    assert users[0].name == 'Foo' and users[0].age == 20

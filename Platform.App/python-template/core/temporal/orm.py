@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import orm
 
@@ -23,7 +23,7 @@ class TemporalQuery(orm.Query):
             cls.ticks.contains(clock.ticks),
         ).one_or_none()
 
-    def history(self, period=datetime.utcnow(), version=None, fields=None):
+    def history(self, period=datetime.now(tz=timezone.utc), version=None, fields=None):
         cls = self.column_descriptions[0]['entity']
 
         if not hasattr(cls, 'Temporal'):
@@ -35,12 +35,14 @@ class TemporalQuery(orm.Query):
 
         for field in fields if fields else cls.Temporal.fields:
             history = cls._history[field]
+            clock = cls._clock
             query = query\
                 .add_column(history.value.label(field))\
-                .join(history, cls.id == history.entity_id)
-
-            if version:
-                query = query.filter(
-                    history.ticks.contains(version))
+                .join(
+                    history,
+                    (cls.id == history.entity_id)
+                    & (history.clock_id == clock.id)
+                    & (history.ticks.contains(version or clock.ticks))
+                )
 
         return query
