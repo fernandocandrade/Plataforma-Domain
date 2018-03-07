@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from psycopg2 import extras as pg_extras
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-
+import sqlalchemy.util as sa_util
 
 def effective_now():
     """UTC DateTime Range starting from now.
@@ -48,3 +48,14 @@ def foreign_key(target_table, nullable=False):
         postgresql.UUID(as_uuid=True),
         sa.ForeignKey(f'{target_table.lower()}.id'),
         nullable=nullable)
+
+def truncate_identifier(identifier):
+    """ensure identifier doesn't exceed max characters postgres allows
+    """
+    max_len = postgresql.dialect.max_index_name_length or postgresql.dialect.max_identifier_length
+
+    if len(identifier) > max_len:
+        return "%s_%s" % (identifier[0:max_len - 8],
+                          sa_util.md5_hex(identifier)[-4:])
+
+    return identifier

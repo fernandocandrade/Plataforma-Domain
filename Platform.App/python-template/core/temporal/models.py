@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects import postgresql
 
-from core.temporal.utils import primary_key, foreign_key, int_range, datetime_range
+from core.temporal.utils import primary_key, foreign_key, int_range, datetime_range, truncate_identifier
 
 
 class TemporalMapper:
@@ -23,8 +23,8 @@ class TemporalMapper:
             if field in cls._history:
                 continue
 
-            history_table_name = f'{cls.__name__}{field}history'
-            clock_name = f'{cls._clock.__name__}'
+            history_table_name = truncate_identifier(f'{cls.__name__}{field}History')
+            clock_name = truncate_identifier(f'{cls._clock.__name__}')
             field_type = getattr(cls, field).property.columns[0].type
 
             cls._history[field] = type(history_table_name, (cls.__bases__[0], ),{
@@ -41,7 +41,7 @@ class TemporalMapper:
         if not hasattr(cls, '_clock'):
             setattr(cls, '_clock', dict())
 
-        clock_table_name = f'{cls.__name__}Clock'
+        clock_table_name = truncate_identifier(f'{cls.__name__}Clock')
         cls._clock = type(clock_table_name, (cls.__bases__[0],), {
             "id": primary_key(),
             "ticks": sa.Column(sa.Integer, default=0),
