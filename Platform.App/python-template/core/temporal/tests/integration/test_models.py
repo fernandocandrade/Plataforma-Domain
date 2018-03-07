@@ -107,11 +107,10 @@ def test_get_model_history(session, create_model, update_model):
     update_model(user, name='Bar')
 
     # act
-    users = session.query(User).history()
+    users = session.query(User).history().one()
 
     # assert
-    assert 1 == users.count()
-    assert users[0].name == 'Bar' and users[0].age == 20
+    assert user.name == 'Bar' and user.age == 20
 
 
 def test_get_model_history_at_specific_version(session, create_model, update_model):
@@ -120,8 +119,7 @@ def test_get_model_history_at_specific_version(session, create_model, update_mod
     update_model(user, name='Bar')
 
     # act
-    users = session.query(User).history(version=1)
+    user = session.query(User).history(version=1).one()
 
     # assert
-    assert 1 == users.count()
-    assert users[0].name == 'Foo' and users[0].age == 20
+    assert user.name == 'Foo' and user.age == 20
