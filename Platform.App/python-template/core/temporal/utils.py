@@ -49,6 +49,7 @@ def foreign_key(target_table, nullable=False):
         sa.ForeignKey(f'{target_table.lower()}.id'),
         nullable=nullable)
 
+
 def truncate_identifier(identifier):
     """ensure identifier doesn't exceed max characters postgres allows
     """
