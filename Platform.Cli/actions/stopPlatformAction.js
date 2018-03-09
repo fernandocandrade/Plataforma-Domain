@@ -4,9 +4,8 @@ module.exports = class StopPlatformAction{
     constructor(){}
 
     exec(){
-        var path = os.tmpdir()+"/installed_plataforma";
+        var path = os.homedir()+"/installed_plataforma";
         shell.cd(path+"/Plataforma-Installer");
-        shell.exec("docker-compose down");
-        //shell.exec("docker network rm plataforma_network");
+        shell.exec("docker-compose stop");
     }
 };

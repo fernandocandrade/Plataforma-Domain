@@ -4,11 +4,12 @@ from settings.loader import Loader as SettingsLoader
 from database import create_session, create_db
 
 from .blueprints.mapping import mapping
-
+from utils.encoders.json import Encoder
 
 def create_app():
     env = SettingsLoader().load()
     app = Flask(__name__, instance_relative_config=True)
+    app.json_encoder = Encoder
     app.debug = False
     app.session_factory = create_session
 
