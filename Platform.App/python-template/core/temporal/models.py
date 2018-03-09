@@ -7,6 +7,7 @@ from sqlalchemy.dialects import postgresql
 from core.temporal.utils import primary_key, foreign_key, int_range, datetime_range, truncate_identifier
 
 
+
 class TemporalMapper:
     def __call__(self, cls, *args, **kwargs):
         mapper = sa.orm.mapper(cls, *args, **kwargs)

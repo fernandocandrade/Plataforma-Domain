@@ -123,3 +123,14 @@ def test_get_model_history_at_specific_version(session, create_model, update_mod
 
     # assert
     assert user.name == 'Foo' and user.age == 20
+
+
+def test_create_1k_models(session):
+    users = [User(name=f'Foo {i}', age=i) for i in range(2000)]
+    import time
+    start = time.time()
+    session.add_all(users)
+    session.commit()
+    stop = time.time() - start
+    print(f'\n\n*** Execution time: {stop}')
+

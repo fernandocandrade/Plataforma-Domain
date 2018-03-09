@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy import create_engine, orm, Column
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.dialects import postgresql
+from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from core.temporal.session import sessionmaker
 
@@ -14,7 +15,7 @@ class SETTINGS:
     DB_NAME = "app_name"
     DB_USER = "postgres"
     DB_PASSWORD = ""
-    KEEP_DB = False
+    KEEP_DB = True
 
 
 @pytest.fixture(scope='session')
@@ -25,6 +26,14 @@ def engine(request):
         f'postgresql+psycopg2://{SETTINGS.DB_USER}@{SETTINGS.DB_HOST}:{SETTINGS.DB_PORT}/{SETTINGS.DB_NAME}',
         echo=False)
 
+    if not database_exists(engine.url):
+        create_database(engine.url)
+
+    #  def teardown():
+        #  if not SETTINGS.KEEP_DB:
+            #  drop_database(engine.url)
+
+    #  request.addfinalizer(teardown)
     return engine
 
 
