@@ -55,7 +55,6 @@ def session(db, engine, request):
 
     def teardown():
         transaction.rollback()
-        print("rollback")
         connection.close()
         session.remove()
 
