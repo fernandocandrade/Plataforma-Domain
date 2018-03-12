@@ -13,7 +13,7 @@ def apicore_map():
     r["name"] = "Conta"
     r["systemId"] = "ec498841-59e5-47fd-8075-136d79155705"
     r["processId"] = "61728cac-a576-4643-8e58-82a83b304053"
-    r["content"] = "Conta:\r\n  model: conta\r\n  fields:\r\n    saldo:\r\n      column: saldo\r\n    titular:\r\n      column: titular\r\n  filters:\r\n    transferencia: \"id in (:origem, :destino)\""
+    r["content"] = "Conta:\r\n  model: conta\r\n  fields:\r\n    _saldo:\r\n      column: saldo\r\n    _titular:\r\n      column: titular\r\n  filters:\r\n    transferencia: \"id in (:origem, :destino)\""
     r["id"] = "3bc8b1b3-cd79-480b-99ca-c63de74c4f65"
     r["_metadata"] = dict()
     r["_metadata"]["type"] = "map"
@@ -43,7 +43,7 @@ def test_persist_invalid_params(app):
 def test_query_valid_params(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         obj = {
-            "saldo": 1,
+            "_saldo": 1,
             "_metadata": {
                 "type": "Conta",
                 "changeTrack": "create"
@@ -62,7 +62,7 @@ def test_query_valid_params(app):
 def test_with_instance_id(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         obj = {
-            "saldo": 1,
+            "_saldo": 1,
             "_metadata": {
                 "type": "Conta",
                 "changeTrack": "create"
@@ -92,7 +92,7 @@ def test_full_persist(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         _list = []
         obj = {
-            "saldo": 1,
+            "_saldo": 1,
             "_metadata": {
                 "type": "Conta",
                 "changeTrack": "create"
@@ -101,7 +101,7 @@ def test_full_persist(app):
         _list.append(obj)
 
         obj3 = {
-            "saldo": 1,
+            "_saldo": 1,
             "id": "3",
             "_metadata": {
                 "type": "Conta",
@@ -111,13 +111,13 @@ def test_full_persist(app):
         _list.append(obj3)
 
         obj4 = {
-            "saldo": 1,
+            "_saldo": 1,
             "id": "3"
         }
         _list.append(obj4)
 
         obj5 = {
-            "saldo": 1,
+            "_saldo": 1,
             "id": "3",
             "_metadata": {
                 "type": "Conta"

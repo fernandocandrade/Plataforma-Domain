@@ -26,8 +26,8 @@ class QueryController:
         if not list(projection["where"].keys()):
             projection.pop('where', None)
 
-        g = lambda x: self.mapper.translator.to_map(self.app_id,x)
-        result = [g(x) for x in self.query_service.filter(
-            self.app_id, self.mapped_entity, entity, projection, self.page, self.page_size)]
-        result = self.mapper.transform.apply_runtime_fields(self.app_id,self.mapped_entity,result)
+
+        result = self.query_service.filter(self.app_id, self.mapped_entity, entity, projection, self.page, self.page_size)
+        #Performance Boost
+        #result = self.mapper.transform.apply_runtime_fields(self.app_id,self.mapped_entity,result)
         return result

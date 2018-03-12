@@ -54,10 +54,11 @@ class Query:
             for column in row:
                 if type(column) == uuid.UUID:
                     column = str(column)
-                d[projection['attributes'][cont][0]] = column
+                d[projection['attributes'][cont][1]] = column
                 cont += 1
             d["_metadata"] = {
-                "type": self.entity
+                "type": self.mapped_entity,
+                "branch":"master"
             }
             result.append(d)
         return result
