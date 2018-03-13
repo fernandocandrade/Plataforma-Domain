@@ -44,3 +44,8 @@ def persist_map(app_id):
     except Exception as excpt:
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
+
+@mapping.route("/<app_id>/<instance_id>/persist_async", methods=['POST'])
+def persist_async(app_id, instance_id):
+    """ Persist data on domain based on process memory last commit"""
+    return jsonify([])
