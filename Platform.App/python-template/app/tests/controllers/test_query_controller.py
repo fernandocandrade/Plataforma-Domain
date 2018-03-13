@@ -53,6 +53,8 @@ def test_get_data_from_map_paginated(session, test_client):
 
 
 def test_get_data_from_map(session, test_client):
+    from mapper.builder import MapBuilder
+    MapBuilder.loaded = False
     origem = conta(titular="Fabio", saldo=10000)
     destino = conta(titular="Moneda", saldo=100)
     session.add_all([origem, destino])

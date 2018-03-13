@@ -13,6 +13,7 @@ class Loader(Component):
         super().__init__()
         self.map_core = MapCore()
         self.local_source = local_source
+        self.cache = {}
 
     def get_local_map_file_names(self):
         """ return local files to load """

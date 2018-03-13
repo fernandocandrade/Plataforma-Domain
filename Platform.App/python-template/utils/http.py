@@ -49,8 +49,8 @@ class HttpClient:
     """
     @staticmethod
     def _request(uri, verb, **kwargs):
-        log("request invoked.")
         def error(message, status_code=None):
+            log(message)
             return ExecutionResult.error(
                 status_code=status_code,
                 message=message + f"""

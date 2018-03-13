@@ -2,15 +2,23 @@ from mapper.index import Index
 from mapper.loader import Loader
 from mapper.transform import Transform
 from mapper.translator import Translator
+import datetime
 
 class MapBuilder:
+    loaded = False
+    built = {}
+    loaded_at = datetime.datetime.now()
     def build(self):
-        maps = Loader().build()
-        index = Index()
-        index.parse(maps)
-        transform = Transform(index)
-        translator = Translator(index)
-        return Mapper(index,transform,translator)
+        if not MapBuilder.loaded or (datetime.datetime.now() - MapBuilder.loaded_at).seconds > 10:
+            maps = Loader().build()
+            index = Index()
+            index.parse(maps)
+            transform = Transform(index)
+            translator = Translator(index)
+            MapBuilder.built = Mapper(index,transform,translator)
+            MapBuilder.loaded = True
+            MapBuilder.loaded_at = datetime.datetime.now()
+        return MapBuilder.built
 
 class Mapper:
     def __init__(self, index, transform, translator):

@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify
 from mapper.builder import MapBuilder
 from app.services import QueryService
 from app.controllers import QueryController, CommandController
-
+import log
 
 mapping = Blueprint('simple_page', __name__)
 
@@ -22,8 +22,10 @@ def query_map(app_id, entity):
         controller = QueryController(app_id, entity, request.args.to_dict(), mapper,
                                      query_service)
 
-        return jsonify(controller.query())
+        r = controller.query()
+        return jsonify(r)
     except Exception as excpt:
+        log.critical(str(excpt))
         resp = dict()
         resp["message"] = str(excpt)
         resp["code"] = 400
