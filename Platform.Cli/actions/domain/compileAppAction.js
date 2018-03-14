@@ -22,6 +22,7 @@ module.exports = class CompileAppAction {
             config.lock = this.appInstance.getLockInstance();
             env.docker = {
                 tag: this.docker.getContainer(env),
+                worker_tag: this.docker.getContainer(env,"worker"),
                 port: this.ports.getNextAvailablePort()
             };
             if (env.conf.lock.id) {

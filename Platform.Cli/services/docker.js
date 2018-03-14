@@ -7,12 +7,15 @@ module.exports = class DockerService{
 
     }
 
-    build(env,tag){
+    build(env,tag, dockerfile){
         var promise = new Promise((resolve,reject)=>{
             try{
-                var cmd = `docker build . --tag ${tag} -q --no-cache`;
-                var first = shell.exec(cmd).stdout.toString().split("sha256:")[1];
-                var imageId = first.replace("\n","");
+                var cmd = `docker build . --tag ${tag}  --no-cache`;
+                if(dockerfile){
+                  cmd = `docker build . -f ${dockerfile} --tag ${tag}  --no-cache`;
+                }
+                console.log(cmd);
+                var imageId = shell.exec(cmd).stdout.toString();
                 resolve({imageId:imageId});
             }catch(e){
                 reject(e);
@@ -72,7 +75,10 @@ module.exports = class DockerService{
       });
     }
 
-    getContainer(env){
+    getContainer(env,worker){
+      if (worker){
+        return `registry:5000/${env.conf.app.name}_${worker}:${env.conf.app.newVersion}`;
+      }
       return `registry:5000/${env.conf.app.name}:${env.conf.app.newVersion}`;
     }
 
