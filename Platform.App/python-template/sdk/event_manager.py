@@ -13,7 +13,7 @@ def base_url():
 def push(event):
     url = base_url()
     client = HttpClient()
-    resp = client.put(f"{url}/sendevent",event)
+    resp = client.put(f"{url}/sendevent?appOrigin=domain_worker",event)
     if resp.has_error:
         return {}
     return resp.data
