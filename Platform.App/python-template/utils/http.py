@@ -10,8 +10,9 @@ def log(msg, *args, **kwargs):
 class VERBS:
     """HTTP Verbs
     """
-    GET = requests.get
+    GET  = requests.get
     POST = requests.post
+    PUT  = requests.put
 
 
 class ExecutionResult:
@@ -61,7 +62,7 @@ class HttpClient:
 
         try:
             data = None
-            response = verb(uri, timeout=1, **kwargs)
+            response = verb(uri, timeout=300, **kwargs)
             response.raise_for_status()
 
             if response.text:
@@ -104,4 +105,13 @@ class HttpClient:
             args['json'] = data
 
         return cls._request(uri=uri, verb=VERBS.POST, **args)
+
+    @classmethod
+    def put(cls, uri, data=None):
+        args = {}
+
+        if data:
+            args['json'] = data
+
+        return cls._request(uri=uri, verb=VERBS.PUT, **args)
 

@@ -35,4 +35,16 @@ def load_config_file():
         "port": os.environ.get('COREAPI_PORT', "9110"),
     }
 
+    config['process_memory'] = {
+        "scheme": os.environ.get('PROCESS_MEMORY_SCHEME', "http"),
+        "host": os.environ.get('PROCESS_MEMORY_HOST', "localhost"),
+        "port": os.environ.get('PROCESS_MEMORY_PORT', "9091"),
+    }
+
+    config['event_manager'] = {
+        "scheme": os.environ.get('EVENT_MANAGER_SCHEME', "http"),
+        "host": os.environ.get('EVENT_MANAGER_HOST', "localhost"),
+        "port": os.environ.get('EVENT_MANAGER_PORT', "8081"),
+    }
+
     return config

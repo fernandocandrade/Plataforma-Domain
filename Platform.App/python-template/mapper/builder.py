@@ -20,6 +20,13 @@ class MapBuilder:
             MapBuilder.loaded_at = datetime.datetime.now()
         return MapBuilder.built
 
+    def build_from_map(self, map_):
+        index = Index()
+        index.parse([map_])
+        transform = Transform(index)
+        translator = Translator(index)
+        return Mapper(index,transform,translator)
+
 class Mapper:
     def __init__(self, index, transform, translator):
         self.index = index
