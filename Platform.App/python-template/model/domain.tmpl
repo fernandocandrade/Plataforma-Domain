@@ -1,0 +1,55 @@
+from database import Base
+from uuid import uuid4
+from core.temporal.models import TemporalModelMixin
+import sqlalchemy.dialects.postgresql as sap
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import *
+import datetime
+
+
+class MigrationHistory(Base):
+    name = Column(String(80), unique=True, nullable=False)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+
+def get_db_name():
+    return "{{{database_name}}}"
+
+{{#each model}}
+
+class {{@key}}(Base, TemporalModelMixin):
+
+    def __init__(self, id=None, deleted=False, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
+        self.id = id
+        self.deleted = deleted
+        {{#each .}}
+        self.{{{@key}}} = {{{@key}}}
+        {{/each}}
+        self._metadata = _metadata
+
+    def dict(self):
+        return {
+            {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
+            "id": self.id,
+            "_metadata": self._metadata
+        }
+
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
+    class Temporal:
+        fields = ('deleted', {{#join . ","}}'{{{name}}}'{{/join}}, )
+
+    {{#each . }}
+    {{{@key}}} = Column({{{type}}})
+    {{/each}}
+
+    id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
+    deleted = Column(sap.BOOLEAN())
+
+{{/each}}
+
+
+
+
+

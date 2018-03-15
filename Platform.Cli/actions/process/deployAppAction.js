@@ -26,8 +26,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     prepare(env) {
         var promise = new Promise((resolve, reject) => {
             console.log("Preparing Deploy");
-            var path = os.tmpdir() + "/installed_plataforma";
-            var fullPath = path + "/apps/" + env.conf.app.version + "_" + env.conf.app.id;
+            var path = os.homedir() + "/installed_plataforma";
+            var fullPath = path+"/apps/"+env.conf.app.version+"_"+env.conf.app.id;
             env.conf.fullPath = fullPath;
             env.conf.path = path;
             env.conf.appPath = process.cwd();
@@ -109,9 +109,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.systemId = env.conf.solution.id;
                 operation.processId = env.conf.app.id;
                 operation.event_in = operation.event;
-                operation.event_out = `${operation.name}_done`;
-                operation.container = this.docker.getContainer(env);
-                this.saveOperationCore(env, operation).then((c) => {
+                operation.event_out = `${operation.name}.done`;
+                operation.image = this.docker.getContainer(env);
+                this.saveOperationCore(env,operation).then((c)=>{
                     resolve(env);
                 })
             } catch (e) {

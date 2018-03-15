@@ -7,12 +7,15 @@ module.exports = class DockerService{
 
     }
 
-    build(env,tag){
+    build(env,tag, dockerfile){
         var promise = new Promise((resolve,reject)=>{
             try{
-                var cmd = `docker build . --tag ${tag} -q --no-cache`;
-                var first = shell.exec(cmd).stdout.toString().split("sha256:")[1];
-                var imageId = first.replace("\n","");
+                var cmd = `docker build . --tag ${tag}  --no-cache`;
+                if(dockerfile){
+                  cmd = `docker build . -f ${dockerfile} --tag ${tag}  --no-cache`;
+                }
+                console.log(cmd);
+                var imageId = shell.exec(cmd).stdout.toString();
                 resolve({imageId:imageId});
             }catch(e){
                 reject(e);
@@ -22,11 +25,7 @@ module.exports = class DockerService{
     }
     compileDockerFile(env){
       return new Promise((resolve,reject)=>{
-        var source = fs.readFileSync(`${env.path}/Dockerfile.tmpl`).toString();
-        var template = Handlebars.compile(source);
-        var compiled = template(env.docker);
-        fs.writeFileSync(`${env.path}/Dockerfile`,compiled,'utf-8');
-        resolve(compiled);
+        resolve(env);
       });
 
     }
@@ -45,7 +44,7 @@ module.exports = class DockerService{
 
     run(env,tag){
       return new Promise((resolve,reject)=>{
-          var externalPort = "2" + (parseInt(Math.random()*100)+100);
+          var externalPort = "8087";
           var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} --name ${this.getContainerName(env)} ${tag}`;
           shell.exec(cmd);
           resolve();
@@ -76,7 +75,10 @@ module.exports = class DockerService{
       });
     }
 
-    getContainer(env){
+    getContainer(env,worker){
+      if (worker){
+        return `registry:5000/${env.conf.app.name}_${worker}:${env.conf.app.newVersion}`;
+      }
       return `registry:5000/${env.conf.app.name}:${env.conf.app.newVersion}`;
     }
 

@@ -1,0 +1,13 @@
+
+      create_table:
+        name: tb_address
+        columns:
+            client_id:
+            type: string
+            street:
+            type: string
+            number:
+            type: integer
+            zipCode:
+            type: string
+    

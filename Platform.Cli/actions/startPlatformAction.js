@@ -5,7 +5,7 @@ module.exports = class StartPlatformAction{
     constructor(){}
 
     exec(){
-        var path = os.tmpdir()+"/installed_plataforma";
+        var path = os.homedir()+"/installed_plataforma";
         shell.cd(path+"/Plataforma-Installer");
         shell.exec("docker-compose up -d");
     }

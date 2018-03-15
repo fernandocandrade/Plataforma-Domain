@@ -11,13 +11,13 @@ module.exports = class InstallPlatformAction{
 
         inquirer.prompt(this.getQuestions()).then(answers => {
             var environment = answers.environment;
-            console.log(os.tmpdir());
-            new StopPlatformAction().exec();
-            var path = os.tmpdir()+"/installed_plataforma";
+            console.log(os.homedir());
+            // new StopPlatformAction().exec();
+            var path = os.homedir()+"/installed_plataforma";
             shell.rm("-rf",path);
             shell.mkdir('-p', path);
             shell.cd(path);
-            shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");
+            shell.exec("git clone -b feature/migracao-apicore https://github.com/ONSBR/Plataforma-Installer.git");
             shell.cd("Plataforma-Installer");
             shell.exec("docker network rm plataforma_network");
             shell.exec("docker network create --driver=bridge plataforma_network");
