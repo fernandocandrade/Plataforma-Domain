@@ -13,7 +13,7 @@ def base_url():
 def head(instance_id):
     url = base_url()
     client = HttpClient()
-    resp = client.get(f"{url}/{instance_id}/head?appOrigin=domainWorker")
+    resp = client.get(f"{url}/{instance_id}/head?app_origin=domainWorker")
     if resp.has_error:
         return {}
     return resp.data
