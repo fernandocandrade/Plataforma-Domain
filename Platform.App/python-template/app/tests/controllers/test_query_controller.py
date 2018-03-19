@@ -59,7 +59,6 @@ def test_get_data_from_map(session, test_client):
     destino = conta(titular="Moneda", saldo=100)
     session.add_all([origem, destino])
     session.commit()
-
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         uri = f'/Conta/Conta?filter=transferencia&origem={origem.id}&destino={destino.id}'
         status_code, resp = test_client.get_json(uri)
