@@ -28,6 +28,5 @@ class QueryController:
 
 
         result = self.query_service.filter(self.app_id, self.mapped_entity, entity, projection, self.page, self.page_size)
-        #Performance Boost
         #result = self.mapper.transform.apply_runtime_fields(self.app_id,self.mapped_entity,result)
         return result

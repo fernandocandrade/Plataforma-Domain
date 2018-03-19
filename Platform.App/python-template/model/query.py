@@ -22,7 +22,7 @@ class Query:
     def build_select(self, projection):
         return [
             getattr(self.entity_cls, a[0]).label(a[1])
-            for a in projection['attributes'] if a[0] != 'meta_instance_id'
+            for a in projection['attributes']
         ]
 
     def execute(self, projection, page=None, page_size=None):
@@ -51,14 +51,22 @@ class Query:
         for row in rows:
             d = {}
             cont = 0
+            instance_id = None
             for column in row:
                 if type(column) == uuid.UUID:
                     column = str(column)
+                if projection['attributes'][cont][1] == "meta_instance_id":
+
+                    cont += 1
+                    instance_id = column
+                    continue
                 d[projection['attributes'][cont][1]] = column
                 cont += 1
             d["_metadata"] = {
                 "type": self.mapped_entity,
                 "branch":"master"
             }
+            if instance_id:
+                d["_metadata"]["instance_id"] = instance_id
             result.append(d)
         return result
