@@ -45,7 +45,16 @@ def persist_map(app_id):
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
 
-@mapping.route("/<app_id>/<instance_id>/persist_async", methods=['POST'])
-def persist_async(app_id, instance_id):
-    """ Persist data on domain based on process memory last commit"""
-    return jsonify([])
+@mapping.route("/mapper/cache", methods=['PUT'])
+def enable_cache():
+    MapBuilder.cache_enable = True
+    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+
+@mapping.route("/mapper/cache", methods=['GET'])
+def show_mapper_cache():
+    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+
+@mapping.route("/mapper/cache", methods=['DELETE'])
+def disable_cache():
+    MapBuilder.cache_enable = False
+    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
