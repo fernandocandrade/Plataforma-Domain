@@ -155,3 +155,10 @@ def test_destroy_data(session, test_client):
         assert status_code == 200
         assert len(resp) == 1
         assert resp[0]["id"] != destroyed_id
+
+        uri = f'/Conta/Conta'
+        status_code, resp = test_client.get_json(uri)
+        assert response.status_code == 200
+        assert status_code == 200
+        assert len(resp) == 1
+        assert resp[0]["id"] != destroyed_id

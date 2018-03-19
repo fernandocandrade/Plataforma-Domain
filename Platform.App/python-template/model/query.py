@@ -28,6 +28,7 @@ class Query:
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
         q_ = self.session.query(*query_select)
+        q_ = q_.filter(text("deleted = false"))
 
         if page and page_size:
             page -= 1
@@ -36,7 +37,6 @@ class Query:
         if 'where' in projection:
             query = projection["where"]["query"]
             #TODO melhorar a implementação
-            query = query + " and deleted = false"
             stmt = text(query)
             stmt = stmt.bindparams(**projection["where"]["params"])
             resultset = q_.filter(stmt).all()
