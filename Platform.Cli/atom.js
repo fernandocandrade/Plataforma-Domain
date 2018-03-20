@@ -19,6 +19,8 @@ var cleanAppAction = new (require("./actions/cleanAppAction"));
 var installPlatformAction = new (require("./actions/installPlatformAction"));
 var stopPlatformAction = new (require("./actions/stopPlatformAction"));
 var startPlatformAction = new (require("./actions/startPlatformAction"));
+var upgradeComponentAction = new (require("./actions/upgradeComponentAction"));
+var uninstallPlatformAction = new (require("./actions/uninstallPlatformAction"));
 var program = require('commander');
 var fs = require("fs");
 var os = require("os");
@@ -34,12 +36,16 @@ program
   .option('-o, --compile', 'Compile App')
   .option('-st, --start', 'Sart Platform')
   .option('-mm, --metamapa', 'Mapas e Metadados')
+  .option('-up, --upgrade', 'Faz o upgrade de algum componente da plataforma')
+  .option('-un, --uninstall', 'Remove todos os componentes de plataforma')
   .parse(process.argv);
 
 if (program.new) createAppAction.exec(program.new);
 else if (program.install) installPlatformAction.exec();
 else if (program.stop) stopPlatformAction.exec();
 else if (program.start) startPlatformAction.exec();
+else if (program.upgrade) upgradeComponentAction.exec(program.args);
+else if (program.uninstall) uninstallPlatformAction.exec();
 else if (!fs.existsSync("plataforma.json")) {
   console.log("Não é uma aplicação de plataforma válida");
   process.exit(-1);
