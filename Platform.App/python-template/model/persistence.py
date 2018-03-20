@@ -45,8 +45,6 @@ class Persistence:
             cls = globals()[_type]
             instance = cls(**o)
             del o['_metadata']
-            if 'meta_instance_id' in o:
-                del o['meta_instance_id']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
             for k, v in o.items():
                 if hasattr(obj, k):
@@ -60,8 +58,6 @@ class Persistence:
             cls = globals()[_type]
             instance = cls(**o)
             del o['_metadata']
-            if 'meta_instance_id' in o:
-                del o['meta_instance_id']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
             obj.deleted = True
 

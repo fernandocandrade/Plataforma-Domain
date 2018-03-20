@@ -32,7 +32,7 @@ class BatchPersistence:
 
 
 
-    def get_items_to_persist(self, entities):
+    def get_items_to_persist(self, entities, instance_id):
         """ process head and collect data to persist on domain """
         items = []
         for entity in entities:
@@ -40,6 +40,7 @@ class BatchPersistence:
                 if not self.has_change_track(item):
                     continue
                 domain_obj = self.mapper.translator.to_domain(self.map["app_name"], item)
+                domain_obj["meta_instance_id"] = instance_id
                 items.append(domain_obj)
         return items
 
@@ -54,7 +55,7 @@ class BatchPersistence:
         log.info("extracting data from dataset")
         self.extract_head(head)
         log.info("getting items to persist")
-        items = self.get_items_to_persist(self.entities)
+        items = self.get_items_to_persist(self.entities, instance_id)
         log.info(f"should persist {len(items)} objects in database")
         self.persist(items)
         log.info("objects persisted")
