@@ -45,6 +45,9 @@ module.exports = class DockerService{
     run(env,tag){
       return new Promise((resolve,reject)=>{
           var externalPort = "8087";
+          if (env.conf.app.type === "presentation"){
+            externalPort = "8088";
+          }
           var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} --name ${this.getContainerName(env)} ${tag}`;
           shell.exec(cmd);
           resolve();

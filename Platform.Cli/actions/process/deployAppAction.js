@@ -19,7 +19,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
         }
         prep = prep.then(context => this.uploadMaps(context))
             .then(context => this.uploadMetadata(context));
-
         prep.then(this.finalize).catch(this.onError);
     }
 
@@ -111,6 +110,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.event_in = operation.event;
                 operation.event_out = `${operation.name}.done`;
                 operation.image = this.docker.getContainer(env);
+                env.image = operation.image;
                 this.saveOperationCore(env,operation).then((c)=>{
                     resolve(env);
                 })
@@ -133,7 +133,15 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 console.log("Docker publish...");
                 this.docker.publish(env, process.tag).then(() => {
                     this.saveProcessToCore(env, process).then(() => {
-                        resolve(env);
+                        if (env.conf.app.type === "presentation"){
+                            env.docker = {port:"8087"};
+                            console.log("presentation app should start app");
+                            this.docker.rm(env).then(()=>{
+                                this.docker.run(env, process.tag).then(r => resolve(env));
+                            });
+                        }else{
+                            resolve(env);
+                        }
                     }).catch(reject);
                 });
             }).catch(reject);
