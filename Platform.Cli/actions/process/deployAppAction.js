@@ -137,6 +137,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                             env.docker = {port:"8087"};
                             console.log("presentation app should start app");
                             this.docker.rm(env).then(()=>{
+                                env.variables = {};
+                                env.variables["API_MODE"] = true;
                                 this.docker.run(env, process.tag).then(r => resolve(env));
                             });
                         }else{
