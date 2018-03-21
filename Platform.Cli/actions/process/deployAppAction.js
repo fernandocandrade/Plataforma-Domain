@@ -139,6 +139,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                             this.docker.rm(env).then(()=>{
                                 env.variables = {};
                                 env.variables["API_MODE"] = true;
+                                env.variables["SYSTEM_ID"] = env.conf.solution.id;
                                 this.docker.run(env, process.tag).then(r => resolve(env));
                             });
                         }else{

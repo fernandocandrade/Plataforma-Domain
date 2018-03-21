@@ -47,15 +47,16 @@ module.exports = class DockerService{
           var externalPort = "8087";
           if (env.conf.app.type === "presentation"){
             externalPort = "8088";
+            env.docker.port = "8088";
           }
           var _e = "";
           if(env.variables){
-            _e = "-e ";
             Object.keys(env.variables).forEach(k => {
-              _e = `${_e} ${k}=${env.variables[k]}`;
+              _e = `${_e} -e ${k}=${env.variables[k]}`;
             })
           }
           var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} ${_e} --name ${this.getContainerName(env)} ${tag}`;
+          console.log(cmd);
           shell.exec(cmd);
           resolve();
       });
