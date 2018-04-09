@@ -27,9 +27,7 @@ class Query:
 
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
-        q_ = self.session.query(*query_select)
-        q_ = q_.filter(text("deleted = false"))
-
+        q_ = self.session.query(self.entity_cls).history()
         if page and page_size:
             page -= 1
             q_ = q_.slice(page * page_size, page * page_size + page_size)
