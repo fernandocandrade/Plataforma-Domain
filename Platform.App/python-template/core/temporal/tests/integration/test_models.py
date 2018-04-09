@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import orm
+from sqlalchemy import text
+from sqlalchemy import bindparam
 from core.temporal.tests.integration.mocks import User
 
 
@@ -107,10 +109,24 @@ def test_get_model_history(session, create_model, update_model):
     update_model(user, name='Bar')
 
     # act
-    users = session.query(User).history().one()
+    user_db = session.query(User).history().one()
 
     # assert
-    assert user.name == 'Bar' and user.age == 20
+    assert user_db.name == 'Bar' and user_db.age == 20
+
+
+def test_get_model_history_with_filter(session, create_model, update_model):
+    # mock
+    user = create_model(User, name='Foo', age=21,)
+    user = create_model(User, name='Bar', age=20,)
+
+    # act
+    user = session.query(User).history().filter(text('name=:name', bindparams=[
+        bindparam('name', value='Foo')
+    ])).one()
+
+    # assert
+    assert user.name == 'Foo' and user.age == 21
 
 
 def test_get_model_history_at_specific_version(session, create_model, update_model):
