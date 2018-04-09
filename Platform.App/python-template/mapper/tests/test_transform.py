@@ -26,7 +26,9 @@ def build_map():
             },
             "filters":{
                "transferencia": "id in (:origem, :destino)",
-               "lista_ids": "id in ($ids)"
+               "lista_ids": "id in ($ids)",
+               "filtro_opcional": "[id = :id] [and titular = :titular]",
+               "filtro_opcional_2": "[id in ($ids)] [and titular = :titular]"
             }
          },
          "Pessoa":{
@@ -160,6 +162,53 @@ def test_get_filters_with_in_filters_double():
     assert "ids1"   in _filter["params"]
     assert "ids2"   in _filter["params"]
 
+
+def test_get_filters_with_optional_params():
+    query = {
+        "filter": "filtro_opcional",
+        "id": "1"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert _filter['query'] == "id = :id"
+
+def test_get_filters_with_optional_params_with_no_first_param():
+    query = {
+        "filter": "filtro_opcional",
+        "titular": "1"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert _filter['query'] == "titular = :titular"
+
+def test_get_filters_with_optional_params_all_not_passed():
+    query = {
+        "filter": "filtro_opcional"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert _filter['query'] == ""
+
+def test_get_filters_with_optional_params_list():
+    query = {
+        "filter": "filtro_opcional_2",
+        "ids":"1;2"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert _filter['query'] == "id in (:ids0,:ids1)"
 
 def test_get_filters_with_wrong_filter_name():
     query = {

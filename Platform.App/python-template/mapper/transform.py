@@ -3,7 +3,7 @@ import json
 from mapper.index import Index
 from core.component import Component
 from utils import regex, typing
-
+import re
 
 class Transform(Component):
     def __init__(self, index):
@@ -62,6 +62,31 @@ class Transform(Component):
 
         return place_holder[0:-1]
 
+    def remove_unsed_params(self, query_string, filter_clause):
+        compiled = re.compile("\[.*?\]")
+        args = re.compile(":\w*")
+        opt_params = {}
+        for optional_param in compiled.findall(filter_clause):
+            for attr in args.findall(optional_param):
+                opt_params[attr[1:]] = optional_param
+
+        for param in opt_params:
+            if not param in query_string:
+                filter_clause = filter_clause.replace(opt_params[param],"")
+
+        #TODO faz esse replace apenas com regex
+        filter_clause = filter_clause.replace("[","")
+        filter_clause = filter_clause.replace("]","")
+        filter_clause = filter_clause.strip()
+        if filter_clause.startswith("and"):
+            filter_clause = filter_clause.replace("and","",1)
+            filter_clause = filter_clause.strip()
+        if filter_clause.startswith("or"):
+            filter_clause = filter_clause.replace("or","",1)
+            filter_clause = filter_clause.strip()
+        return filter_clause
+
+
     def get_filters(self, app_id, map_name, query_string):
         """ apply query filter on domain model """
         filters = self.index.get_filters(app_id, map_name)
@@ -70,11 +95,12 @@ class Transform(Component):
 
         if not filter_clause:
             return {}
-
         parser = lambda g: self.parse_array_param(g, query_string)
-
-        return {
+        filter_clause = self.remove_unsed_params(query_string, filter_clause)
+        result = {
             "query": regex.replace("\$\w*", filter_clause, parser),
             "params": query_string
         }
+
+        return result
 
