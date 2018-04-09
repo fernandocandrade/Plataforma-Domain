@@ -1,6 +1,7 @@
 import re
 from model import domain
 from sqlalchemy.sql import text
+from sqlalchemy import bindparam
 import uuid
 
 class Query:
@@ -35,8 +36,8 @@ class Query:
         if 'where' in projection:
             query = projection["where"]["query"]
             #TODO melhorar a implementação
-            stmt = text(query)
-            stmt = stmt.bindparams(**projection["where"]["params"])
+            pars = [bindparam(k, v) for k,v in projection["where"]["params"].items()]
+            stmt = text(query, bindparams=pars)
             resultset = q_.filter(stmt).all()
             return self.row2dict(resultset, projection)
 
