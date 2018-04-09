@@ -29,6 +29,8 @@ class Query:
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
         q_ = self.session.query(self.entity_cls).history()
+        deleted_q = f"{self.entity}.deleted = false"
+        q_ = q_.filter(text(deleted_q))
         if page and page_size:
             page -= 1
             q_ = q_.slice(page * page_size, page * page_size + page_size)
@@ -48,6 +50,7 @@ class Query:
         d = {}
         result = []
         for row in rows:
+            import ipdb; ipdb.set_trace(context=15)
             d = {}
             cont = 0
             instance_id = None
