@@ -70,7 +70,7 @@ def test_with_instance_id(app):
         }
         client = app.test_client()
         response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
-                               content_type='application/json',  headers={'Instance-Id': '1'})
+                               content_type='application/json',  headers={'Instance-Id': 'fef2e75b-6cdb-46a7-96d4-76c20481c1cb'})
         _list = json.loads(response.data)
         assert response.status_code == 200
         assert len(_list) == 1

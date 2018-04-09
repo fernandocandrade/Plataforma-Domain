@@ -72,7 +72,7 @@ class Transform(Component):
             return {}
 
         parser = lambda g: self.parse_array_param(g, query_string)
-
+        #import ipdb; ipdb.set_trace(context=15)
         return {
             "query": regex.replace("\$\w*", filter_clause, parser),
             "params": query_string
