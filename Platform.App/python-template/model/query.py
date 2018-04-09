@@ -36,6 +36,7 @@ class Query:
         if 'where' in projection:
             query = projection["where"]["query"]
             #TODO melhorar a implementação
+            import ipdb; ipdb.set_trace(context=15)
             pars = [bindparam(k, v) for k,v in projection["where"]["params"].items()]
             stmt = text(query, bindparams=pars)
             resultset = q_.filter(stmt).all()

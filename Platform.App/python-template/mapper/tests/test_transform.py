@@ -25,10 +25,10 @@ def build_map():
                }
             },
             "filters":{
-               "transferencia": "id in (:origem, :destino)",
-               "lista_ids": "id in ($ids)",
-               "filtro_opcional": "[id = :id] [and titular = :titular]",
-               "filtro_opcional_2": "[id in ($ids)] [and titular = :titular]"
+               "transferencia": "conta.id in (:origem, :destino)",
+               "lista_ids": "conta.id in ($ids)",
+               "filtro_opcional": "[conta.id = :id] [and conta.titular = :titular]",
+               "filtro_opcional_2": "[conta.id in ($ids)] [and conta.titular = :titular]"
             }
          },
          "Pessoa":{
@@ -38,7 +38,7 @@ def build_map():
                   "column":"nome"
                }
             },
-            "filters": " nome = :nome"
+            "filters": " pessoa.nome = :nome"
          }
       }
    }
@@ -173,7 +173,7 @@ def test_get_filters_with_optional_params():
     _filter = Transform(index).get_filters('BankApp', 'Conta', query)
     assert 'params' in _filter
     assert 'query' in _filter
-    assert _filter['query'] == "id = :id"
+    assert _filter['query'] == "conta.id = :id"
 
 def test_get_filters_with_optional_params_with_no_first_param():
     query = {
@@ -185,7 +185,7 @@ def test_get_filters_with_optional_params_with_no_first_param():
     _filter = Transform(index).get_filters('BankApp', 'Conta', query)
     assert 'params' in _filter
     assert 'query' in _filter
-    assert _filter['query'] == "titular = :titular"
+    assert _filter['query'] == "conta.titular = :titular"
 
 def test_get_filters_with_optional_params_all_not_passed():
     query = {
@@ -208,7 +208,7 @@ def test_get_filters_with_optional_params_list():
     _filter = Transform(index).get_filters('BankApp', 'Conta', query)
     assert 'params' in _filter
     assert 'query' in _filter
-    assert _filter['query'] == "id in (:ids0,:ids1)"
+    assert _filter['query'] == "conta.id in (:ids0,:ids1)"
 
 def test_get_filters_with_wrong_filter_name():
     query = {

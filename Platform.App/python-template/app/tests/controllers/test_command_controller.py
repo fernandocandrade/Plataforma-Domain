@@ -13,7 +13,7 @@ def apicore_map():
     r["name"] = "Conta"
     r["systemId"] = "ec498841-59e5-47fd-8075-136d79155705"
     r["processId"] = "61728cac-a576-4643-8e58-82a83b304053"
-    r["content"] = "Conta:\r\n  model: conta\r\n  fields:\r\n    _saldo:\r\n      column: saldo\r\n    _titular:\r\n      column: titular\r\n  filters:\r\n    transferencia: \"id in (:origem, :destino)\""
+    r["content"] = "Conta:\r\n  model: conta\r\n  fields:\r\n    _saldo:\r\n      column: saldo\r\n    _titular:\r\n      column: titular\r\n  filters:\r\n    transferencia: \"conta.id in (:origem, :destino)\""
     r["id"] = "3bc8b1b3-cd79-480b-99ca-c63de74c4f65"
     r["_metadata"] = dict()
     r["_metadata"]["type"] = "map"
