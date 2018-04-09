@@ -175,6 +175,18 @@ def test_get_filters_with_optional_params():
     assert 'query' in _filter
     assert _filter['query'] == "id = :id"
 
+def test_get_filters_with_optional_params_with_no_first_param():
+    query = {
+        "filter": "filtro_opcional",
+        "titular": "1"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query' in _filter
+    assert _filter['query'] == "titular = :titular"
+
 def test_get_filters_with_optional_params_all_not_passed():
     query = {
         "filter": "filtro_opcional"

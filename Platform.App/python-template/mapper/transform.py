@@ -78,6 +78,12 @@ class Transform(Component):
         filter_clause = filter_clause.replace("[","")
         filter_clause = filter_clause.replace("]","")
         filter_clause = filter_clause.strip()
+        if filter_clause.startswith("and"):
+            filter_clause = filter_clause.replace("and","",1)
+            filter_clause = filter_clause.strip()
+        if filter_clause.startswith("or"):
+            filter_clause = filter_clause.replace("or","",1)
+            filter_clause = filter_clause.strip()
         return filter_clause
 
 
