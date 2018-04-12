@@ -14,11 +14,16 @@ module.exports = class InstallPlatformAction{
             console.log(os.homedir());
             // new StopPlatformAction().exec();
             var path = os.homedir()+"/installed_plataforma";
-            shell.rm("-rf",path);
-            shell.mkdir('-p', path);
-            shell.cd(path);
-            shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");
-            shell.cd("Plataforma-Installer");
+            if (fs.existsSync(path)){
+                shell.cd(path+"/Plataforma-Installer");
+                shell.exec("git pull");
+            }else{
+                shell.rm("-rf",path);
+                shell.mkdir('-p', path);
+                shell.cd(path);
+                shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");
+                shell.cd("Plataforma-Installer");
+            }
             shell.exec("docker network rm plataforma_network");
             shell.exec("docker network create --driver=bridge plataforma_network");
             shell.exec("docker-compose build --no-cache");
