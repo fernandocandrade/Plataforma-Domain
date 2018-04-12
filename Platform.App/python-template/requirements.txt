@@ -1,7 +1,11 @@
 alembic==0.9.7
+amqp==1.4.9
+anyjson==0.3.3
 astroid==1.6.1
 attrs==17.3.0
 autopep8==1.3.4
+billiard==3.3.0.23
+celery==3.1.24
 certifi==2017.11.5
 chardet==3.0.4
 click==6.7
@@ -25,6 +29,7 @@ itsdangerous==0.24
 jedi==0.11.1
 Jinja2==2.10
 json-rpc==1.10.8
+kombu==3.0.37
 lazy-object-proxy==1.3.1
 Mako==1.0.7
 MarkupSafe==1.0
@@ -49,6 +54,7 @@ python-dateutil==2.6.1
 python-editor==1.0.3
 python-language-server==0.14.0
 python-mimeparse==1.6.0
+pytz==2018.4
 PyYAML==3.12
 requests==2.18.4
 rope==0.10.7
@@ -59,6 +65,7 @@ SQLAlchemy==1.2.2
 SQLAlchemy-Utils==0.33.0
 traitlets==4.3.2
 urllib3==1.22
+vine==1.1.4
 wcwidth==0.1.7
 websocket-client==0.46.0
 Werkzeug==0.14.1
