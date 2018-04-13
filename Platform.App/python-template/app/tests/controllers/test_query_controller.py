@@ -46,6 +46,7 @@ def test_get_data_from_map_paginated(session, test_client):
     session.add_all(contas)
     session.commit()
 
+    import ipdb; ipdb.set_trace()
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         status_code, data = test_client.get_json(f'/Conta/Conta?page=1&page_size=10')
         assert status_code == 200

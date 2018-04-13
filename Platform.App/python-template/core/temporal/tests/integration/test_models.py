@@ -117,12 +117,12 @@ def test_get_model_history(session, create_model, update_model):
 
 def test_get_model_history_with_filter(session, create_model, update_model):
     # mock
-    user = create_model(User, name='Foo', age=21,)
-    user = create_model(User, name='Bar', age=20,)
+    user_foo = create_model(User, name='Foo', age=21,)
+    user_bar = create_model(User, name='Bar', age=20,)
 
     # act
-    user = session.query(User).history().filter(text('name=:name', bindparams=[
-        bindparam('name', value='Foo')
+    user = session.query(User).history().filter(text('"user".id=:id', bindparams=[
+        bindparam('id', value=str(user_foo.id))
     ])).one()
 
     # assert
