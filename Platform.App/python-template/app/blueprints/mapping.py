@@ -10,6 +10,15 @@ import log
 mapping = Blueprint('simple_page', __name__)
 
 
+def error(exception, code=400):
+    log.critical(str(exception))
+    resp = {
+        "message": str(exception),
+        "code": code,
+    }
+    return jsonify(resp), code
+
+
 @mapping.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
     """ Query data on domain """
@@ -19,18 +28,30 @@ def query_map(app_id, entity):
         version = request.headers.get('Version')
 
         query_service = QueryService(reference_date, version, request.session)
-        controller = QueryController(app_id, entity, request.args.to_dict(), mapper,
-                                     query_service)
+        controller = QueryController(
+            app_id, entity, request.args.to_dict(), mapper, query_service)
 
         r = controller.query()
         return jsonify(r)
     except Exception as excpt:
-        log.critical(str(excpt))
-        resp = dict()
-        resp["message"] = str(excpt)
-        resp["code"] = 400
-        return jsonify(resp), resp["code"]
+        return error(excpt)
 
+@mapping.route("/<app_id>/<entity>/history", methods=['GET'])
+def query_history(app_id, entity):
+    """ Query data on domain """
+    try:
+        mapper = MapBuilder().build()
+        reference_date = request.headers.get('Reference-Date')
+
+        query_service = QueryService(
+            reference_date, version=None, session=request.session)
+        controller = QueryController(
+            app_id, entity, request.args.to_dict(), mapper, query_service)
+
+        r = list(controller.history())
+        return jsonify(r)
+    except Exception as excpt:
+        return error(excpt)
 
 @mapping.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):

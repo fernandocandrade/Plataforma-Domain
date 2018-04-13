@@ -45,6 +45,28 @@ class Query:
         resultset = q_.all()
         return self.row2dict(resultset, projection)
 
+    def history(self, mapped_entity, entity, projection):
+        domain_entity = getattr(domain, entity)
+        query_select = self.build_select(projection)
+        history = self.session.query(domain_entity).history(
+            fields=query_select, period=self.reference_date)
+
+        ticks_fields = {
+            c['name'] for c in history.column_descriptions
+            if c['name'].endswith('_ticks')
+        }
+
+        for entity_history in history.all():
+            entity_dict = entity_history._asdict()
+            entity_dict['version'] = 0
+            entity_dict.pop(entity)
+
+            for tick_field in ticks_fields:
+                entity_dict['version'] = max(entity_dict['version'], entity_dict[tick_field])
+                entity_dict.pop(tick_field)
+
+            yield entity_dict
+
     def row2dict(self, rows, projection):
         d = {}
         result = []
