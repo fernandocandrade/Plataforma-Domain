@@ -51,6 +51,12 @@ class Query:
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
 
+        if 'where' in projection:
+            query = projection["where"]["query"]
+            stmt = text(query)
+            stmt = stmt.bindparams(**projection["where"]["params"])
+            history = history.filter(stmt)
+
         ticks_fields = {
             c['name'] for c in history.column_descriptions
             if c['name'].endswith('_ticks')
