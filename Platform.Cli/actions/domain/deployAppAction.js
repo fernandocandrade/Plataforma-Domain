@@ -30,29 +30,22 @@ module.exports = class DeployAppAction extends BaseDeployAction {
     }
     createDockerContainer(env) {
         return this.docker.compileDockerFile(env).then(() => {
-            console.log("A");
+
             return this.docker.build(env, env.docker.tag);
         }).then(() => {
-            console.log("B");
             return this.docker.publish(env, env.docker.tag);
         }).then(() => {
-            console.log("C");
             return this.docker.rm(env);
         }).then(() => {
-            console.log("D");
+            env.variables = {"DOMAIN_API":"1"};
             return this.docker.run(env, env.docker.tag);
-        }).then(()=>{
-            console.log("E");
-            return this.docker.build(env, env.docker.worker_tag,"DockerfileWorker");
-        }).then(() => {
-            console.log("F");
-            return this.docker.publish(env, env.docker.worker_tag);
         }).then(()=>{
             return this.saveOperationCore(env,{
                 "event_in": env.conf.solution.id+".persist.request",
                 "event_out": env.conf.solution.id+".persist.done",
-                "image": env.docker.worker_tag,
+                "image": env.docker.tag,
                 "name": env.conf.app.name+".persist",
+                "commit":true,
                 "processId": env.conf.app.id,
                 "systemId": env.conf.solution.id
             });
