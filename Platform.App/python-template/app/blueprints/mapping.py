@@ -36,8 +36,8 @@ def query_map(app_id, entity):
     except Exception as excpt:
         return error(excpt)
 
-@mapping.route("/<app_id>/<entity>/history", methods=['GET'])
-def query_history(app_id, entity):
+@mapping.route("/<app_id>/<entity>/history/<entity_id>", methods=['GET'])
+def query_history(app_id, entity, entity_id):
     """ Query data on domain """
     try:
         mapper = MapBuilder().build()
@@ -48,7 +48,7 @@ def query_history(app_id, entity):
         controller = QueryController(
             app_id, entity, request.args.to_dict(), mapper, query_service)
 
-        r = list(controller.history())
+        r = list(controller.history(entity_id))
         return jsonify(r)
     except Exception as excpt:
         return error(excpt)

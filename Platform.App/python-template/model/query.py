@@ -45,17 +45,12 @@ class Query:
         resultset = q_.all()
         return self.row2dict(resultset, projection)
 
-    def history(self, mapped_entity, entity, projection):
+    def history(self, mapped_entity, entity, projection, entity_id):
         domain_entity = getattr(domain, entity)
         query_select = self.build_select(projection)
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
-
-        if 'where' in projection:
-            query = projection["where"]["query"]
-            stmt = text(query)
-            stmt = stmt.bindparams(**projection["where"]["params"])
-            history = history.filter(stmt)
+        history = history.filter(domain_entity.id==entity_id)
 
         ticks_fields = {
             c['name'] for c in history.column_descriptions

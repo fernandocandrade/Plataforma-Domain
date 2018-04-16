@@ -83,7 +83,7 @@ def test_get_entity_history(session, test_client):
     session.commit()
 
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        status_code, data = test_client.get_json(f'/Conta/Conta/history')
+        status_code, data = test_client.get_json(f'/Conta/Conta/history/{c.id}')
 
         assert status_code == 200
         assert len(data) == 2
