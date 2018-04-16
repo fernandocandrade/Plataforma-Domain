@@ -20,7 +20,7 @@ def load_config_file():
 
     config["database"] = {
         "name": config["app"]["name"],
-        "host": os.environ.get("POSTGRES_HOST", "localhost"),
+        "host": os.environ.get("POSTGRES_HOST", "postgres"),
         "user": os.environ.get('POSTGRES_USER', "postgres"),
         "password": os.environ.get('POSTGRES_PASSWORD', ""),
     }
@@ -37,13 +37,13 @@ def load_config_file():
 
     config['process_memory'] = {
         "scheme": os.environ.get('PROCESS_MEMORY_SCHEME', "http"),
-        "host": os.environ.get('PROCESS_MEMORY_HOST', "localhost"),
+        "host": os.environ.get('PROCESS_MEMORY_HOST', "apicore"),
         "port": os.environ.get('PROCESS_MEMORY_PORT', "9091"),
     }
 
     config['event_manager'] = {
         "scheme": os.environ.get('EVENT_MANAGER_SCHEME', "http"),
-        "host": os.environ.get('EVENT_MANAGER_HOST', "localhost"),
+        "host": os.environ.get('EVENT_MANAGER_HOST', "event_manager"),
         "port": os.environ.get('EVENT_MANAGER_PORT', "8081"),
     }
 
