@@ -38,7 +38,7 @@ def load_config_file():
     config['process_memory'] = {
         "scheme": os.environ.get('PROCESS_MEMORY_SCHEME', "http"),
         "host": os.environ.get('PROCESS_MEMORY_HOST', "apicore"),
-        "port": os.environ.get('PROCESS_MEMORY_PORT', "9091"),
+        "port": os.environ.get('PROCESS_MEMORY_PORT', "9110"),
     }
 
     config['event_manager'] = {
