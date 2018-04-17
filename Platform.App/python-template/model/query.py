@@ -21,10 +21,13 @@ class Query:
         self.entity_cls = getattr(domain, self.entity.lower())
 
     def build_select(self, projection):
-        return [
+        attrs = [
             getattr(self.entity_cls, a[0]).label(a[1])
             for a in projection['attributes']
         ]
+        #attrs.append(getattr(self.entity_cls, "meta_instance_id").label("meta_instance_id"))
+        #attrs.append(getattr(self.entity_cls, "deleted").label("deleted"))
+        return attrs
 
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
@@ -53,11 +56,23 @@ class Query:
             fields=query_select, period=self.reference_date)
         history = history.filter(domain_entity.id==entity_id)
 
+        ranges = []
+        for f in query_select:
+            parts = str(f.element).split(".")
+            if len(parts) < 2:
+                continue
+            n = parts[1]
+            if n in ["id"]:
+                continue
+            ranges.append(entity+n+"history.ticks")
+        log.info(ranges)
+        history = history.filter(f"not isEmpty({' * '.join(ranges)})")
+
         ticks_fields = {
             c['name'] for c in history.column_descriptions
             if c['name'].endswith('_ticks')
         }
-
+        log.info(str(history))
         for entity_history in history.all():
             entity_dict = entity_history._asdict()
             log.info(entity_dict)
