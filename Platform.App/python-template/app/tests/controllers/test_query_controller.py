@@ -88,10 +88,10 @@ def test_get_entity_history(session, test_client):
         assert status_code == 200
         assert len(data) == 2
 
-        assert data[0]['version'] == 1
+        assert data[0]["_metadata"]['version'] == 1
         assert data[0]['saldo'] == 100
 
-        assert data[1]['version'] == 2
+        assert data[1]["_metadata"]['version'] == 2
         assert data[1]['saldo'] == 200
 
 
