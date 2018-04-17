@@ -43,12 +43,14 @@ class TemporalQuery(orm.Query):
             if field.name in ('id', 'meta_instance_id'):
                 continue
 
-            history = cls._history[field.name]
+            f = field.element
+            parts = str(f).split(".")
+            name = parts[1]
+            history = cls._history[name]
             clock = cls._clock
-            ticks_name = f'{field.name}_ticks'
-
+            ticks_name = f'{name}_ticks'
             query = query\
-                .add_column(history.value.label(field.name))\
+                .add_column(history.value.label(name))\
                 .add_column(func.lower(history.ticks).label(ticks_name))\
                 .join(
                     history,
