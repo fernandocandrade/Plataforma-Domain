@@ -27,6 +27,7 @@ def build_map():
             "filters":{
                "transferencia": "id in (:origem, :destino)",
                "lista_ids": "id in ($ids)",
+               "lista_ids1": "id in ($ids!)",
                "filtro_opcional": "[id = :id] [and titular = :titular]",
                "filtro_opcional_2": "[id in ($ids)] [and titular = :titular]"
             }
@@ -129,6 +130,24 @@ def test_get_filters_with_in_filters_integer():
     assert "ids0"   in _filter["params"]
     assert "ids1"   in _filter["params"]
     assert "ids2"   in _filter["params"]
+
+def test_get_filters_with_in_filters_integer_as_string():
+    query = {
+        "filter": "lista_ids1",
+        "ids": "1;2;3"
+    }
+    index = Index()
+    index.parse(build_map())
+    _filter = Transform(index).get_filters('BankApp', 'Conta', query)
+    assert 'params' in _filter
+    assert 'query'  in _filter
+    assert "ids"    not in _filter["params"]
+    assert "ids0"   in _filter["params"]
+    assert "ids1"   in _filter["params"]
+    assert "ids2"   in _filter["params"]
+    assert type(_filter["params"]["ids0"]) is str
+    assert type(_filter["params"]["ids1"]) is str
+    assert type(_filter["params"]["ids2"]) is str
 
 
 def test_get_filters_with_in_filters_string():

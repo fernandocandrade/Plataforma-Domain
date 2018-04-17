@@ -51,14 +51,24 @@ class Transform(Component):
 
     def parse_array_param(self, match_group, query_string):
         """ converts an array parameter into a list of conventional parameters."""
-        param = match_group.group()[1:]
+        group = match_group.group()
+        should_convert_type = True
+        import ipdb; ipdb.set_trace(context=15)
+        if group.endswith("!"):
+            param = group[1:-1]
+            should_convert_type = False
+        else:
+            param = group[1:]
         query = query_string.pop(param).split(';')
         place_holder = ''
 
         for index, value in enumerate(query):
             param_name = f'{param}{index}'
             place_holder += f':{param_name},'
-            query_string[param_name] = typing.convert(value)
+            if should_convert_type:
+                query_string[param_name] = typing.convert(value)
+            else:
+                query_string[param_name] = value
 
         return place_holder[0:-1]
 
@@ -98,9 +108,8 @@ class Transform(Component):
         parser = lambda g: self.parse_array_param(g, query_string)
         filter_clause = self.remove_unsed_params(query_string, filter_clause)
         result = {
-            "query": regex.replace("\$\w*", filter_clause, parser),
+            "query": regex.replace("\$\w*!*", filter_clause, parser),
             "params": query_string
         }
-
         return result
 
