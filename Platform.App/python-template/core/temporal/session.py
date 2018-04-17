@@ -50,8 +50,8 @@ class TemporalSession(orm.session.Session):
         """
         new_value = getattr(entity, field)
 
-        if not new_value:
-            return None, False
+        #if not new_value:
+        #    return None, False
 
         if entity.id:
             history = self.query(entity.__class__).field_history(

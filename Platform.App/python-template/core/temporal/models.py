@@ -31,7 +31,7 @@ class TemporalMapper:
             cls._history[field] = type(history_table_name, (cls.__bases__[0], ),{
                 "id": primary_key(),
                 "ticks": int_range(lower=1),
-                "value": sa.Column(field_type, nullable=False),
+                "value": sa.Column(field_type, nullable=True),
                 "entity_id": foreign_key(table.name),
                 "entity": sa.orm.relationship(cls.__name__),
                 "clock_id": foreign_key(clock_name),

@@ -2,6 +2,7 @@ import re
 from model import domain
 from sqlalchemy.sql import text
 import uuid
+import log
 
 class Query:
     def __init__(self, reference_date, version, session):
@@ -59,15 +60,18 @@ class Query:
 
         for entity_history in history.all():
             entity_dict = entity_history._asdict()
+            log.info(entity_dict)
             entity_dict["_metadata"] = {}
             entity_dict["_metadata"]["type"] = self.mapped_entity
             entity_dict["_metadata"]['version'] = 0
+            entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
             entity_dict.pop(entity)
-
+            entity_dict.pop("meta_instance_id")
             for tick_field in ticks_fields:
                 if not entity_dict[tick_field]:
                     entity_dict.pop(tick_field)
                     continue
+
                 entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
                 entity_dict.pop(tick_field)
 

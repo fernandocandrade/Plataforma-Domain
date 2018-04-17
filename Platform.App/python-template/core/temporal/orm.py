@@ -40,7 +40,7 @@ class TemporalQuery(orm.Query):
             .filter(cls._clock.effective.contains(period))
 
         for field in fields if fields else cls.Temporal.fields:
-            if field.name in ('id', 'meta_instance_id'):
+            if field.name in ('id'):
                 continue
 
             f = field.element
@@ -56,7 +56,6 @@ class TemporalQuery(orm.Query):
                 .join(
                     history,
                     (cls.id == history.entity_id)
-                    & (history.clock_id == clock.id)
-                ,isouter=True)
+                    & (history.clock_id == clock.id))
 
         return query
