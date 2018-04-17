@@ -51,30 +51,24 @@ class Query:
         query_select = self.build_select(projection)
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
-        history = history.filter(domain_entity.id==entity_id)
+        items = history.filter(domain_entity.id==entity_id).all()
 
-        ticks_fields = {
-            c['name'] for c in history.column_descriptions
-            if c['name'].endswith('_ticks')
-        }
+        if not items:
+            return []
 
-        for entity_history in history.all():
-            entity_dict = entity_history._asdict()
-            log.info(entity_dict)
-            entity_dict["_metadata"] = {}
-            entity_dict["_metadata"]["type"] = self.mapped_entity
-            entity_dict["_metadata"]['version'] = 0
-            entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
-            entity_dict.pop(entity)
-            entity_dict.pop("meta_instance_id")
-            for tick_field in ticks_fields:
-                if not entity_dict[tick_field]:
-                    entity_dict.pop(tick_field)
-                    continue
+        tree = {f[1]:{} for f in projection['attributes'] if f[1] not in {'id', 'meta_instance_id',}}
+        ticks = items[0][1]
 
-                entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
-                entity_dict.pop(tick_field)
-            yield entity_dict
+        for item in items:
+            item_dict = item._asdict()
+            for key, tick_range in tree.items():
+                tick_range[item_dict[f'{key}_ticks']] = item_dict[key]
+
+        for tick in range(1, ticks + 1):
+            obj = {'_metadata': { 'version': tick }}
+            for field, tick_tree in tree.items():
+                obj.update({field: v for t, v in tick_tree.items() if tick in t})
+            yield obj
 
     def row2dict(self, rows, projection):
         d = {}

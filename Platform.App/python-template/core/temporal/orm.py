@@ -36,6 +36,7 @@ class TemporalQuery(orm.Query):
             raise Exception("not temporal")
 
         query = self.options(orm.load_only('id'))\
+            .add_column(cls._clock.ticks)\
             .join((cls._clock, cls.id == cls._clock.entity_id))\
             .filter(cls._clock.effective.contains(period))
 
@@ -52,7 +53,7 @@ class TemporalQuery(orm.Query):
             ticks_name = f'{name}_ticks'
             query = query\
                 .add_column(history.value.label(label))\
-                .add_column(func.lower(history.ticks).label(ticks_name))\
+                .add_column(history.ticks.label(ticks_name))\
                 .join(
                     history,
                     (cls.id == history.entity_id)

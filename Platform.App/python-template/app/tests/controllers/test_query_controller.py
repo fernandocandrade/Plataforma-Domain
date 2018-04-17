@@ -75,23 +75,31 @@ def test_get_data_from_map(session, test_client):
         assert resp[1]["saldo"] == 100
 
 def test_get_entity_history(session, test_client):
-    c = conta(titular="Foo", saldo=100)
+    c = conta(titular="A", saldo=100)
     session.add(c)
     session.commit()
 
     c.saldo = 200
     session.commit()
 
+    c.titular = 'B'
+    session.commit()
+
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         status_code, data = test_client.get_json(f'/Conta/Conta/history/{c.id}')
 
         assert status_code == 200
-        assert len(data) == 2
+        assert len(data) == 3
 
         assert data[0]["_metadata"]['version'] == 1
+        assert data[0]['titular'] == 'A'
         assert data[0]['saldo'] == 100
 
         assert data[1]["_metadata"]['version'] == 2
+        assert data[1]['titular'] == 'A'
         assert data[1]['saldo'] == 200
 
+        assert data[2]["_metadata"]['version'] == 3
+        assert data[2]['titular'] == 'B'
+        assert data[2]['saldo'] == 200
 
