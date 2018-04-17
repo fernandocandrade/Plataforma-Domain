@@ -46,16 +46,17 @@ class TemporalQuery(orm.Query):
             f = field.element
             parts = str(f).split(".")
             name = parts[1]
+            label = field.name
             history = cls._history[name]
             clock = cls._clock
             ticks_name = f'{name}_ticks'
             query = query\
-                .add_column(history.value.label(name))\
+                .add_column(history.value.label(label))\
                 .add_column(func.lower(history.ticks).label(ticks_name))\
                 .join(
                     history,
                     (cls.id == history.entity_id)
                     & (history.clock_id == clock.id)
-                )
+                ,isouter=True)
 
         return query

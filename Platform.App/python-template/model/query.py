@@ -59,13 +59,24 @@ class Query:
 
         for entity_history in history.all():
             entity_dict = entity_history._asdict()
-            entity_dict['version'] = 0
+            entity_dict["_metadata"] = {}
+            entity_dict["_metadata"]["type"] = self.mapped_entity
+            entity_dict["_metadata"]['version'] = 0
             entity_dict.pop(entity)
 
             for tick_field in ticks_fields:
-                entity_dict['version'] = max(entity_dict['version'], entity_dict[tick_field])
+                if not entity_dict[tick_field]:
+                    entity_dict.pop(tick_field)
+                    continue
+                entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
                 entity_dict.pop(tick_field)
 
+            to_pop = []
+            for k in entity_dict:
+                if not entity_dict[k]:
+                    to_pop.append(k)
+            for k in to_pop:
+                entity_dict.pop(k)
             yield entity_dict
 
     def row2dict(self, rows, projection):
@@ -79,7 +90,6 @@ class Query:
                 if type(column) == uuid.UUID:
                     column = str(column)
                 if projection['attributes'][cont][1] == "meta_instance_id":
-
                     cont += 1
                     instance_id = column
                     continue
