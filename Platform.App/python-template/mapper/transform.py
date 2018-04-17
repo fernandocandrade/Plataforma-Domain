@@ -53,7 +53,6 @@ class Transform(Component):
         """ converts an array parameter into a list of conventional parameters."""
         group = match_group.group()
         should_convert_type = True
-        import ipdb; ipdb.set_trace(context=15)
         if group.endswith("!"):
             param = group[1:-1]
             should_convert_type = False
