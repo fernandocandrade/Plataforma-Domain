@@ -74,13 +74,6 @@ class Query:
 
                 entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
                 entity_dict.pop(tick_field)
-
-            to_pop = []
-            for k in entity_dict:
-                if not entity_dict[k]:
-                    to_pop.append(k)
-            for k in to_pop:
-                entity_dict.pop(k)
             yield entity_dict
 
     def row2dict(self, rows, projection):
