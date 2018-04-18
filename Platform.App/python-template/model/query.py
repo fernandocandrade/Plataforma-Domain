@@ -75,6 +75,7 @@ class Query:
             entity_dict["_metadata"]["type"] = self.mapped_entity
             entity_dict["_metadata"]['version'] = 0
             entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
+            entity_dict["id"] = entity_id
             if entity_dict["destroy"]:
                 entity_dict["_metadata"]["destroy"] = entity_dict["destroy"]
             entity_dict.pop(entity)
