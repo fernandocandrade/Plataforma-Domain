@@ -46,7 +46,7 @@ class {{@key}}(Base, TemporalModelMixin):
     {{/each}}
 
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
-    deleted = Column(sap.BOOLEAN())
+    deleted = Column(sap.BOOLEAN(), default=False)
     meta_instance_id = Column(sap.UUID(as_uuid=True))
 
 {{/each}}

@@ -25,8 +25,6 @@ class Query:
             getattr(self.entity_cls, a[0]).label(a[1])
             for a in projection['attributes']
         ]
-        #attrs.append(getattr(self.entity_cls, "meta_instance_id").label("meta_instance_id"))
-        #attrs.append(getattr(self.entity_cls, "deleted").label("deleted"))
         return attrs
 
     def execute(self, projection, page=None, page_size=None):
@@ -52,6 +50,7 @@ class Query:
     def history(self, mapped_entity, entity, projection, entity_id):
         domain_entity = getattr(domain, entity)
         query_select = self.build_select(projection)
+        query_select.append(getattr(self.entity_cls, "deleted").label("destroy"))
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
         history = history.filter(domain_entity.id==entity_id)
@@ -59,13 +58,10 @@ class Query:
         ranges = []
         for f in query_select:
             parts = str(f.element).split(".")
-            if len(parts) < 2:
-                continue
             n = parts[1]
             if n in ["id"]:
                 continue
             ranges.append(entity+n+"history.ticks")
-        log.info(ranges)
         history = history.filter(f"not isEmpty({' * '.join(ranges)})")
 
         ticks_fields = {
@@ -80,13 +76,15 @@ class Query:
             entity_dict["_metadata"]["type"] = self.mapped_entity
             entity_dict["_metadata"]['version'] = 0
             entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
+            if entity_dict["destroy"]:
+                entity_dict["_metadata"]["destroy"] = entity_dict["destroy"]
             entity_dict.pop(entity)
+            entity_dict.pop("destroy")
             entity_dict.pop("meta_instance_id")
             for tick_field in ticks_fields:
                 if not entity_dict[tick_field]:
                     entity_dict.pop(tick_field)
                     continue
-
                 entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
                 entity_dict.pop(tick_field)
             yield entity_dict

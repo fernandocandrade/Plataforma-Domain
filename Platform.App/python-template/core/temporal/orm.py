@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import orm
 from sqlalchemy import func
-
+import log
 from core.temporal.utils import effective_now
 
 
@@ -44,6 +44,7 @@ class TemporalQuery(orm.Query):
                 continue
 
             f = field.element
+            log.info(f)
             parts = str(f).split(".")
             name = parts[1]
             label = field.name
