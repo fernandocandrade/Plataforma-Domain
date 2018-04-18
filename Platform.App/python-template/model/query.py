@@ -68,7 +68,6 @@ class Query:
             c['name'] for c in history.column_descriptions
             if c['name'].endswith('_ticks')
         }
-        log.info(str(history))
         for entity_history in history.all():
             entity_dict = entity_history._asdict()
             log.info(entity_dict)
