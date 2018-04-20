@@ -11,10 +11,12 @@ session = create_session()
 try:
     batch = BatchPersistence(session)
     batch.run(instance_id)
+    log.info("Batch persist executed with success")
 except Exception as ex:
     log.critical(str(ex))
     session.rollback()
 finally:
     session.close()
-log.info("Batch persist executed with success")
+    log.info("Batch persist worker finished")
+
 

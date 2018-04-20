@@ -29,6 +29,7 @@ class BatchPersistence:
             self.entities = head["dataset"].get("entities",[])
         else:
             self.entities = []
+        self.event_out = head.get("eventOut","system.persist.eventout.undefined")
 
 
 
@@ -50,21 +51,27 @@ class BatchPersistence:
 
 
     def run(self, instance_id):
-        log.info(f"getting data from process memory with instance id {instance_id}")
-        head = self.get_head_of_process_memory(instance_id)
-        log.info("extracting data from dataset")
-        self.extract_head(head)
-        log.info("getting items to persist")
-        items = self.get_items_to_persist(self.entities, instance_id)
-        log.info(f"should persist {len(items)} objects in database")
-        self.persist(items)
-        log.info("objects persisted")
-        parts = self.event["name"].split(".")
-        parts.pop()
-        parts.append("done")
-        name = ".".join(parts)
-        log.info(f"pushing event {name} to event manager")
-        event_manager.push({"name":name, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
+        try:
+            log.info(f"getting data from process memory with instance id {instance_id}")
+            head = self.get_head_of_process_memory(instance_id)
+            log.info("extracting data from dataset")
+            self.extract_head(head)
+            log.info("getting items to persist")
+            items = self.get_items_to_persist(self.entities, instance_id)
+            log.info(f"should persist {len(items)} objects in database")
+            self.persist(items)
+            log.info("objects persisted")
+            parts = self.event["name"].split(".")
+            parts.pop()
+            parts.append("done")
+            name = ".".join(parts)
+            log.info(f"pushing event {name} to event manager")
+            event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
+        except Exception as e:
+            event_manager.push({"name":"process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
+            log.info("expcetion ocurred")
+            log.critical(e)
+
 
     def persist(self, items):
         repository = Persistence(self.session)
