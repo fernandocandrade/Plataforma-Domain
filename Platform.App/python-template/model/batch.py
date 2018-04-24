@@ -66,9 +66,9 @@ class BatchPersistence:
             parts.append("done")
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
-            event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
+            event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
         except Exception as e:
-            event_manager.push({"name":"process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
+            event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
             log.info("expcetion ocurred")
             log.critical(e)
 
