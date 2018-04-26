@@ -6,9 +6,10 @@ from mapper.builder import MapBuilder
 from app.services import QueryService
 from app.controllers import QueryController, CommandController
 import log
+from model import domain
+from sdk import event_manager
 
 mapping = Blueprint('simple_page', __name__)
-
 
 def error(exception, code=400):
     log.critical(str(exception))
@@ -18,6 +19,11 @@ def error(exception, code=400):
     }
     return jsonify(resp), code
 
+def push_track_event(instance_id, objects):
+    payload = {"instanceId": instance_id, "objects": objects}
+    event_manager.push({"name": "system.tracking-object.request",
+                            "payload": payload}, domain.get_db_name())
+
 
 @mapping.route("/<app_id>/<entity>", methods=['GET'])
 def query_map(app_id, entity):
@@ -25,6 +31,7 @@ def query_map(app_id, entity):
     try:
         mapper = MapBuilder().build()
         reference_date = request.headers.get('Reference-Date')
+        instance_id = request.headers.get('Instance-Id')
         version = request.headers.get('Version')
 
         query_service = QueryService(reference_date, version, request.session)
@@ -32,9 +39,12 @@ def query_map(app_id, entity):
             app_id, entity, request.args.to_dict(), mapper, query_service)
 
         r = controller.query()
-        return jsonify(r)
+        js = jsonify(r)
+        push_track_event(instance_id, js)
+        return js
     except Exception as excpt:
         return error(excpt)
+
 
 @mapping.route("/<app_id>/<entity>/history/<entity_id>", methods=['GET'])
 def query_history(app_id, entity, entity_id):
@@ -53,6 +63,7 @@ def query_history(app_id, entity, entity_id):
     except Exception as excpt:
         return error(excpt)
 
+
 @mapping.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
@@ -66,16 +77,19 @@ def persist_map(app_id):
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
 
+
 @mapping.route("/mapper/cache", methods=['PUT'])
 def enable_cache():
     MapBuilder.cache_enable = True
-    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+    return jsonify({"message": f"Cache enabled={MapBuilder.cache_enable}"})
+
 
 @mapping.route("/mapper/cache", methods=['GET'])
 def show_mapper_cache():
-    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+    return jsonify({"message": f"Cache enabled={MapBuilder.cache_enable}"})
+
 
 @mapping.route("/mapper/cache", methods=['DELETE'])
 def disable_cache():
     MapBuilder.cache_enable = False
-    return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+    return jsonify({"message": f"Cache enabled={MapBuilder.cache_enable}"})
