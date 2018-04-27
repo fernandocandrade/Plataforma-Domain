@@ -19,8 +19,8 @@ def error(exception, code=400):
     }
     return jsonify(resp), code
 
-def push_track_event(instance_id, objects):
-    payload = {"instanceId": instance_id, "objects": objects}
+def push_track_event(instance_id, objects, metadata):
+    payload = {"instanceId": instance_id, "objects": objects, "metadata":metadata}
     event_manager.push({"name": "system.tracking-object.request",
                             "payload": payload}, domain.get_db_name())
 
@@ -33,15 +33,15 @@ def query_map(app_id, entity):
         reference_date = request.headers.get('Reference-Date')
         instance_id = request.headers.get('Instance-Id')
         version = request.headers.get('Version')
+        qs = request.args.to_dict()
 
         query_service = QueryService(reference_date, version, request.session)
         controller = QueryController(
             app_id, entity, request.args.to_dict(), mapper, query_service)
 
         r = controller.query()
-        js = jsonify(r)
-        push_track_event(instance_id, js)
-        return js
+        push_track_event(instance_id, r, qs)
+        return jsonify(r)
     except Exception as excpt:
         return error(excpt)
 
