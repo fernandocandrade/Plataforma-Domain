@@ -13,9 +13,17 @@ log.info("Executing batch persist")
 session = create_session()
 
 
+class Fork:
+    def __init__(self, session):
+        self.session = session
+
+    def run(self):
+        log.info('create fork')
+
+
 strategies = {
     f'{solution_id}.persist.request': BatchPersistence,
-    #  f'{solution_id}.fork.request': CreateFork,  # TODO: Implementar CreateFork
+    f'{solution_id}.fork.request': Fork,
 }
 
 
