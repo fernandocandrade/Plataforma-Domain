@@ -4,12 +4,7 @@ from core.temporal.models import TemporalModelMixin
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import *
-import datetime
-
-
-class MigrationHistory(Base):
-    name = Column(String(80), unique=True, nullable=False)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+from datetime import datetime
 
 def get_db_name():
     return "{{{database_name}}}"
@@ -18,7 +13,7 @@ def get_db_name():
 
 class {{@key}}(Base, TemporalModelMixin):
 
-    def __init__(self, id=None, deleted=False, meta_instance_id=None, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, **kwargs):
+    def __init__(self, id=None, deleted=False, meta_instance_id=None, {{#join . ","}}{{{name}}}=None{{/join}}, _metadata=None, branch='master', **kwargs):
         self.id = id
         self.deleted = deleted
         self.meta_instance_id = meta_instance_id
@@ -26,6 +21,7 @@ class {{@key}}(Base, TemporalModelMixin):
         self.{{{@key}}} = {{{@key}}}
         {{/each}}
         self._metadata = _metadata
+        self.branch = branch 
 
     def dict(self):
         return {
@@ -39,7 +35,7 @@ class {{@key}}(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted','meta_instance_id', {{#join . ","}}'{{{name}}}'{{/join}}, )
+        fields = ('deleted','modified', 'meta_instance_id', {{#join . ","}}'{{{name}}}'{{/join}}, )
 
     {{#each . }}
     {{{@key}}} = Column({{{type}}})
@@ -48,6 +44,9 @@ class {{@key}}(Base, TemporalModelMixin):
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
     deleted = Column(sap.BOOLEAN(), default=False)
     meta_instance_id = Column(sap.UUID(as_uuid=True))
+    modified = Column(DateTime(), default=datetime.utcnow())
+    branch = Column(String(), default='master')
+    from_id = Column(sap.UUID(as_uuid=True), nullable=True)
 
 {{/each}}
 

@@ -1,4 +1,3 @@
-
 from model.persistence import Persistence
 from model.domain import *
 from sdk import process_memory, event_manager
@@ -9,8 +8,6 @@ class BatchPersistence:
 
     def __init__(self,session):
         self.session = session
-
-
 
     def get_head_of_process_memory(self, instance_id):
         return process_memory.head(instance_id)
@@ -30,8 +27,6 @@ class BatchPersistence:
         else:
             self.entities = []
         self.event_out = head.get("eventOut","system.persist.eventout.undefined")
-
-
 
     def get_items_to_persist(self, entities, instance_id):
         """ process head and collect data to persist on domain """

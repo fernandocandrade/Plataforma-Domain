@@ -1,15 +1,26 @@
 import os
-instance_id = os.environ.get("INSTANCE_ID", "undefined")
 from model.persistence import Persistence
-from mapper.builder import MapBuilder
 from database import create_db, create_session
 from model.batch import BatchPersistence
 import log
+
+instance_id = os.environ.get("INSTANCE_ID", "undefined")
+solution_id = os.environ.get("SYSTEM_ID")
+event = os.environ.get('EVENT')
+
 create_db()
 log.info("Executing batch persist")
 session = create_session()
+
+
+strategies = {
+    f'{solution_id}.persist.request': BatchPersistence,
+    #  f'{solution_id}.fork.request': CreateFork,  # TODO: Implementar CreateFork
+}
+
+
 try:
-    batch = BatchPersistence(session)
+    batch = strategies[event](session)
     batch.run(instance_id)
     log.info("Batch persist executed with success")
 except Exception as ex:
