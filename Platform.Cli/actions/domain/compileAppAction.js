@@ -32,6 +32,7 @@ module.exports = class CompileAppAction {
             }
             console.log("Getting templates");
             var currentPath = process.cwd();
+            env.appPath = currentPath;
             shell.cd(__dirname);
             shell.cd("../..");
             var cliPath = shell.pwd().toString();

@@ -130,8 +130,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.tag = this.docker.getContainer(env);
             this.docker.build(env, process.tag).then((r) => {
                 process.image = r.imageId;
-                console.log("Docker publish...");
-                this.docker.publish(env, process.tag).then(() => {
+                //console.log("Docker publish...");
+                //this.docker.publish(env, process.tag).then(() => {
                     this.saveProcessToCore(env, process).then(() => {
                         if (env.conf.app.type === "presentation"){
                             env.docker = {port:"8087"};
@@ -146,7 +146,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                             resolve(env);
                         }
                     }).catch(reject);
-                });
+                //});
             }).catch(reject);
         });
         return promise;

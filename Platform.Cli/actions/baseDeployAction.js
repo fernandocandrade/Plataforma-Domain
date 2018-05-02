@@ -27,7 +27,22 @@ module.exports = class BaseDeployAction{
         return promise;
     }
 
+    indexMapFields(env,map){
+        var promise = new Promise((resolve,reject)=>{
+            try{
+                console.log(map);
+                resolve();
+            }catch(e){
+                reject(e);
+            }
+        });
+        return promise;
+    }
+
     saveMapToCore(env,map){
+        return this.indexMapFields(env, map).then(() => this.persistMapToCore(env,map));
+    }
+    persistMapToCore(env,map){
         var mapCore = new MapCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
