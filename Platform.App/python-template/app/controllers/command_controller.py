@@ -30,9 +30,10 @@ class CommandController:
     def to_domain(self):
         for o in self.body:
             curr = self.mapper.translator.to_domain(self.app_id, o)
+            curr["meta_instance_id"] = self.instance_id
 
-            if self.instance_id:
-                curr["meta_instance_id"] = self.instance_id
+            if "_metadata" in o and "branch" in o["_metadata"]:
+                curr["branch"] = o["_metadata"]["branch"]
 
             yield curr
 

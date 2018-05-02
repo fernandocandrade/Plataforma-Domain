@@ -17,7 +17,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 .then(context => this.registerApp(context));
         }
         prep = prep.then(context => this.uploadMaps(context))
-            .then(context => this.uploadMetadata(context));
+            .then(context => this.uploadMetadata(context))
+            .then(context => this.uploadDomainDependency(context));
         prep.then(this.finalize).catch(this.onError);
     }
 
@@ -118,6 +119,14 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             }
         });
     }
+
+    uploadDomainDependency(env) {
+        return new Promise((resolve, reject)=>{
+            console.log(JSON.stringify(env,null,4));
+            resolve(env);
+        });
+    }
+
     registerApp(env) {
         var promise = new Promise((resolve, reject) => {
             var process = {};

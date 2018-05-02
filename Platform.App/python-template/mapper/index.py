@@ -34,6 +34,8 @@ class Index(Component):
         for entity in yaml['map']:
             add_attr(entity, "id")
             add_attr(entity, "meta_instance_id")
+            add_attr(entity, "fromId")
+            add_attr(entity, "branch")
         return yaml
 
     def generate_index(self, yaml):
