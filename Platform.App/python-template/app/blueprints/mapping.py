@@ -7,6 +7,7 @@ from app.services import QueryService
 from app.controllers import QueryController, CommandController
 import log
 
+
 mapping = Blueprint('simple_page', __name__)
 
 
@@ -19,22 +20,32 @@ def error(exception, code=400):
     return jsonify(resp), code
 
 
+def http_handler(func):
+    def _handler(*args, **kwargs):
+        try:
+            ret = func(*args, **kwargs)
+            return jsonify(ret)
+        except Exception as ex:
+            return error(ex)
+    return _handler
+
+
 @mapping.route("/<app_id>/<entity>", methods=['GET'])
-def query_map(app_id, entity):
+@http_handler
+def query_map(app_id, entity,):
     """ Query data on domain """
-    try:
-        mapper = MapBuilder().build()
-        reference_date = request.headers.get('Reference-Date')
-        version = request.headers.get('Version')
+    mapper = MapBuilder().build()
+    reference_date = request.headers.get('Reference-Date')
+    version = request.headers.get('Version')
+    branch = request.headers.get('Branch', 'master')
 
-        query_service = QueryService(reference_date, version, request.session)
-        controller = QueryController(
-            app_id, entity, request.args.to_dict(), mapper, query_service)
+    query_service = QueryService(
+        reference_date, version, request.session, branch)
+    controller = QueryController(
+        app_id, entity, request.args.to_dict(), mapper, query_service)
 
-        r = controller.query()
-        return jsonify(r)
-    except Exception as excpt:
-        return error(excpt)
+    return controller.query()
+
 
 @mapping.route("/<app_id>/<entity>/history/<entity_id>", methods=['GET'])
 def query_history(app_id, entity, entity_id):
@@ -53,6 +64,7 @@ def query_history(app_id, entity, entity_id):
     except Exception as excpt:
         return error(excpt)
 
+
 @mapping.route("/<app_id>/persist", methods=['POST'])
 def persist_map(app_id):
     """ Persist data on domain """
@@ -66,14 +78,17 @@ def persist_map(app_id):
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
 
+
 @mapping.route("/mapper/cache", methods=['PUT'])
 def enable_cache():
     MapBuilder.cache_enable = True
     return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
 
+
 @mapping.route("/mapper/cache", methods=['GET'])
 def show_mapper_cache():
     return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+
 
 @mapping.route("/mapper/cache", methods=['DELETE'])
 def disable_cache():

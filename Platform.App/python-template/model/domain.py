@@ -13,14 +13,17 @@ def get_db_name():
 
 
 class conta(Base, TemporalModelMixin):
-
-    def __init__(self, id=None, deleted=False,meta_instance_id=None , titular=None,saldo=None, _metadata=None, **kwargs):
-        self.id = id
+    def __init__(self, _id=None, deleted=False, meta_instance_id=None,
+                 titular=None, saldo=None, _metadata=None, branch='master',
+                 from_id=None, **kwargs):
+        self.id = _id
         self.deleted = deleted
         self.titular = titular
         self.saldo = saldo
         self._metadata = _metadata
         self.meta_instance_id = meta_instance_id
+        self.branch = branch
+        self.from_id = from_id
 
     def dict(self):
         return {
@@ -34,7 +37,7 @@ class conta(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted','titular','saldo', 'meta_instance_id', )
+        fields = ('deleted', 'titular', 'saldo', 'meta_instance_id', )
 
     titular = Column(String)
     saldo = Column(Integer)
@@ -42,3 +45,5 @@ class conta(Base, TemporalModelMixin):
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
     deleted = Column(sap.BOOLEAN())
     meta_instance_id = Column(sap.UUID(as_uuid=True))
+    branch = Column(String, default='master')
+    from_id = Column(sap.UUID(as_uuid=True))

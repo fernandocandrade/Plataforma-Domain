@@ -5,10 +5,11 @@ import uuid
 import log
 
 class Query:
-    def __init__(self, reference_date, version, session):
+    def __init__(self, reference_date, version, session, branch='master'):
         self.reference_date = reference_date
         self.version = version
         self.session = session
+        self.branch = branch
         self.app_id = None
         self.mapped_entity = None
         self.entity = None
@@ -29,23 +30,20 @@ class Query:
 
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
-        q_ = self.session.query(*query_select)
-        q_ = q_.filter(text("deleted = false"))
+        query = self.session.query(*query_select)
+        query = query.filter(text(f"deleted = false and branch = '{self.branch}'"))
+
+        if 'where' in projection:
+            where_clause = projection["where"]["query"]
+            stmt = text(where_clause).bindparams(**projection["where"]["params"])
+            query = query.filter(stmt)
 
         if page and page_size:
             page -= 1
-            q_ = q_.slice(page * page_size, page * page_size + page_size)
+            query = query.slice(page * page_size, page * page_size + page_size)
 
-        if 'where' in projection:
-            query = projection["where"]["query"]
-            #TODO melhorar a implementação
-            stmt = text(query)
-            stmt = stmt.bindparams(**projection["where"]["params"])
-            resultset = q_.filter(stmt).all()
-            return self.row2dict(resultset, projection)
+        return self.row2dict(query.all(), projection)
 
-        resultset = q_.all()
-        return self.row2dict(resultset, projection)
 
     def history(self, mapped_entity, entity, projection, entity_id):
         domain_entity = getattr(domain, entity)
