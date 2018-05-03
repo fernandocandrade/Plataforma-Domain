@@ -6,8 +6,11 @@ const PortsService = require("../../services/ports");
 const shell = require("shelljs");
 const os = require("os");
 const InstalledAppCore = require("plataforma-sdk/services/api-core/installedApp");
+const DomainModelCore = require("plataforma-sdk/services/api-core/domainModel");
 const BaseDeployAction = require("../baseDeployAction");
 const uuid = require("uuid/v4");
+var yaml = require('js-yaml');
+
 module.exports = class DeployAppAction extends BaseDeployAction {
     constructor(appInstance) {
         super();
@@ -21,7 +24,8 @@ module.exports = class DeployAppAction extends BaseDeployAction {
         this.compiler.exec(_env).then(env =>{
             this.createDockerContainer(env).then(() => {
                 if (env.conf.app.name !== "apicore") {
-                    this.saveToApiCore(env);
+                    this.saveDomainToApiCore(env).then(() => this.saveToApiCore(env));
+                    //this.saveToApiCore(env);
                 } else {
                     console.log("App deployed");
                 }
@@ -30,11 +34,10 @@ module.exports = class DeployAppAction extends BaseDeployAction {
     }
     createDockerContainer(env) {
         return this.docker.compileDockerFile(env).then(() => {
-
             return this.docker.build(env, env.docker.tag);
-        }).then(() => {
-            return this.docker.publish(env, env.docker.tag);
-        }).then(() => {
+        })/*.then(() => {
+        //    return this.docker.publish(env, env.docker.tag);
+        })*/.then(() => {
             return this.docker.rm(env);
         }).then(() => {
             env.variables = {"DOMAIN_API":"1"};
@@ -52,6 +55,27 @@ module.exports = class DeployAppAction extends BaseDeployAction {
 
         });
     }
+
+
+    saveDomainToApiCore(env){
+        return new Promise((resolve, reject)=>{
+            this.domainModel = new DomainModelCore(env.apiCore);
+            var basePath = env.appPath+"/Dominio";
+            var entities = shell.ls(basePath).map(c => c);
+            var entities = entities.map(e => ({
+                systemId: env.conf.solution.id,
+                name:e.split(".")[0],
+                model:fs.readFileSync(basePath + "/"+e).toString(),
+                version:env.conf.app.newVersion
+            }))
+            this.domainModel.findBySystemId(env.conf.solution.id).then(regs => {
+                this.domainModel.destroy(regs).then(()=>{
+                    this.domainModel.create(entities).then(resolve).catch(reject);
+                }).catch(reject);
+            })
+        });
+    }
+
     saveToApiCore(env) {
         var config = env.conf;
         var appInfo = {
