@@ -5,4 +5,4 @@ def test_save_conta(session):
     c = conta(saldo=1, titular="Teste")
     session.add(c)
     session.commit()
-    assert session.query(conta).count() >= 1
+    assert session.query(conta).count() == 1
