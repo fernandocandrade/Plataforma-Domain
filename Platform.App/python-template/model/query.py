@@ -57,7 +57,7 @@ class Query:
         for f in query_select:
             parts = str(f.element).split(".")
             n = parts[1]
-            if n in ["id"]:
+            if n in ["id", "branch", "from_id"]:
                 continue
             ranges.append(entity+n+"history.ticks")
         history = history.filter(f"not isEmpty({' * '.join(ranges)})")
