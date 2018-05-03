@@ -28,6 +28,7 @@ class {{@key}}(Base, TemporalModelMixin):
         return {
             {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
             "id": self.id,
+            "branch":self.branch,
             "_metadata": self._metadata
         }
 

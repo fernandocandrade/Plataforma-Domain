@@ -1,6 +1,5 @@
 from core.component import Component
 
-
 class Translator(Component):
     def __init__(self, index):
         Component.__init__(self)
@@ -35,11 +34,10 @@ class Translator(Component):
         map_type = self.index.get_map_type_by_domain_type(
             app_id, mapped['_metadata']['type'])
         _map = self.index.get_map(app_id, map_type)
-
         translated = dict()
-        translated['_metadata'] = {'type': map_type}
+        translated['_metadata'] = {'type': map_type, 'branch': mapped['branch']}
         _list = self.index.columns_from_map_type(app_id, map_type)
-
+        mapped.pop('branch')
         for _to, _from in _list:
             if _from in mapped:
                 translated[_to] = mapped[_from]
