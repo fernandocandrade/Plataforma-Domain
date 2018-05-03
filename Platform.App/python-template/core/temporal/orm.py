@@ -43,10 +43,7 @@ class TemporalQuery(orm.Query):
             fields = (getattr(cls, field).label(field) for field in cls.Temporal.fields)
 
         ignored_fields = {'id', }
-        for field in fields:
-            if field.name in ignored_fields:
-                continue
-
+        for field in [f for f in fields if f.name not in ignored_fields]:
             f = field.element
             log.info(f)
             parts = str(f).split(".")
