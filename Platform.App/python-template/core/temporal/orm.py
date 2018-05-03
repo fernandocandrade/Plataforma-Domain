@@ -39,8 +39,12 @@ class TemporalQuery(orm.Query):
             .join((cls._clock, cls.id == cls._clock.entity_id))\
             .filter(cls._clock.effective.contains(period))
 
-        for field in fields if fields else cls.Temporal.fields:
-            if field.name in ('id'):
+        if not fields:
+            fields = (getattr(cls, field).label(field) for field in cls.Temporal.fields)
+
+        ignored_fields = {'id', }
+        for field in fields:
+            if field.name in ignored_fields:
                 continue
 
             f = field.element
