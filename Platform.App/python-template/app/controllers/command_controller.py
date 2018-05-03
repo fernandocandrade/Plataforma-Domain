@@ -35,6 +35,8 @@ class CommandController:
             if "_metadata" in o and "branch" in o["_metadata"]:
                 curr["branch"] = o["_metadata"]["branch"]
 
+            curr["from_id"] = o.get("fromId")
+
             yield curr
 
     def from_domain(self, instances):

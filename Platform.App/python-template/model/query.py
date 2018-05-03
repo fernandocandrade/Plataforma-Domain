@@ -107,8 +107,12 @@ class Query:
                 cont += 1
             d["_metadata"] = {
                 "type": self.mapped_entity,
-                "branch":"master"
+                "branch":d["branch"]
             }
+            d.pop("branch")
+            if d["from_id"]:
+                d["_metadata"]["origin"] = d["from_id"]
+            d.pop("from_id")
             if instance_id:
                 d["_metadata"]["instance_id"] = instance_id
             result.append(d)

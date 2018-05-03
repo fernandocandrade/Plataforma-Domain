@@ -37,6 +37,8 @@ class BatchPersistence:
                     continue
                 domain_obj = self.mapper.translator.to_domain(self.map["app_name"], item)
                 domain_obj["meta_instance_id"] = instance_id
+                domain_obj["branch"] = item["_metadata"].get("branch", "master")
+                domain_obj["from_id"] = item.get("fromId")
                 items.append(domain_obj)
         return items
 
@@ -53,6 +55,7 @@ class BatchPersistence:
             self.extract_head(head)
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
+            log.info(items)
             log.info(f"should persist {len(items)} objects in database")
             self.persist(items)
             log.info("objects persisted")
