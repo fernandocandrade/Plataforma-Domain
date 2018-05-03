@@ -104,3 +104,29 @@ def test_get_entity_history(session, test_client):
         assert data[2]['titular'] == 'B'
         assert data[2]['saldo'] == 200
 
+
+
+def test_get_entity_history_with_version(session, test_client):
+    c = conta(titular="A", saldo=100)
+    objs = []
+    objs.append(c.dict())
+    session.add(c)
+    session.commit()
+
+    c.saldo = 200
+    objs.append(c.dict())
+    session.commit()
+
+    c.titular = 'B'
+    session.commit()
+    objs.append(c.dict())
+    with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        versions = [1,2,3]
+        for v in versions:
+            status_code, data = test_client.get_json(f'/Conta/Conta/history/{c.id}?version={v}')
+            assert status_code == 200
+            assert len(data) == 1
+
+            assert data[0]["_metadata"]['version'] == v
+            assert data[0]['titular'] == objs[v-1]['titular']
+            assert data[0]['saldo'] == objs[v-1]['saldo']

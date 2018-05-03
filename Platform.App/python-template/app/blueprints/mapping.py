@@ -53,13 +53,13 @@ def query_history(app_id, entity, entity_id):
     try:
         mapper = MapBuilder().build()
         reference_date = request.headers.get('Reference-Date')
-
+        version = request.args.get('version')
         query_service = QueryService(
             reference_date, version=None, session=request.session)
         controller = QueryController(
             app_id, entity, request.args.to_dict(), mapper, query_service)
 
-        r = list(controller.history(entity_id))
+        r = list(controller.history(entity_id, version))
         return jsonify(r)
     except Exception as excpt:
         return error(excpt)

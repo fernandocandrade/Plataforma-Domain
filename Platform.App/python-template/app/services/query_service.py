@@ -15,9 +15,9 @@ class QueryService:
 
         return query.execute(projection, page=page, page_size=page_size)
 
-    def history(self, app_id, mapped_entity, entity, projection, entity_id):
+    def history(self, app_id, mapped_entity, entity, projection, entity_id, version):
         """ gets an entity history """
         query = Query(self.reference_date, version=None, session=self.session, branch=self.branch)
         query.set_query_context(app_id, mapped_entity, entity)
 
-        return query.history(mapped_entity, entity, projection, entity_id)
+        return query.history(mapped_entity, entity, projection, entity_id, version)
