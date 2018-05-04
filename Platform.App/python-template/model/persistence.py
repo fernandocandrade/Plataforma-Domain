@@ -1,20 +1,52 @@
 from model.domain import *
 import log
+from core.component import Component
+from sdk.branch_link import BranchLink
 
-
-class Persistence:
+class Persistence(Component):
 
     def __init__(self, session):
+        super().__init__()
         self.session = session
+        self.branch_link = BranchLink()
 
     def commit(self):
         self.session.commit()
+
+    def link_branch(self, items):
+        if self.is_apicore():
+            return
+        current_links = self.branch_link.get_links()
+        new_links = self.get_branches_to_link(items)
+        new_links_to_persist = self.diff_branch_links(current_links, new_links)
+        self.branch_link.save(new_links_to_persist)
+
+    def diff_branch_links(self, incomming_links, current_links):
+        keys = [self.get_key_from_metadata(item) for item in current_links]
+        for l in incomming_links:
+            key = self.get_key_from_metadata(l)
+            if key in keys:
+                continue
+            yield {"entity": l["type"], "branch":l["branch"]}
+
+    def get_key_from_metadata(self,item):
+        return item["_metadata"]["type"]+":"+item["_metadata"]["branch"]
+
+    def get_branches_to_link(self, items):
+        linked = {}
+        for item in items:
+            key = self.get_key_from_metadata(item)
+            if key in linked:
+                continue
+            linked
+            yield item["_metadata"]
 
     def persist(self, objs):
         """ split object collection into 3 operation list for
             creating, updating, destroying looking for changeTrack
             on each object
         """
+        self.link_branch(objs)
         to_create = []
         to_update = []
         to_destroy = []

@@ -2,6 +2,7 @@ from flask import url_for
 import pytest
 from mock import patch
 from utils.http import HttpClient, ExecutionResult
+from sdk.branch_link import BranchLink
 import database
 from model.domain import conta
 import json
@@ -26,112 +27,122 @@ def apicore_map():
 @pytest.mark.usefixtures('app')
 def test_persist_invalid_params(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        obj = {
-            "aaaa": 1,
-            "_metadata": {
-                "type": "wrong",
-                "changeTrack": "create"
-            }
-        }
-        response = client.post('/conta/persist', follow_redirects=True, data=json.dumps([obj]),
-                               content_type='application/json')
-        assert response.status_code == 400
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                client = app.test_client()
+                obj = {
+                    "aaaa": 1,
+                    "_metadata": {
+                        "type": "wrong",
+                        "changeTrack": "create"
+                    }
+                }
+                response = client.post('/conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                                    content_type='application/json')
+                assert response.status_code == 400
 
 
 @pytest.mark.usefixtures('app')
 def test_query_valid_params(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        obj = {
-            "_saldo": 1,
-            "_metadata": {
-                "type": "Conta",
-                "changeTrack": "create"
-            }
-        }
-        client = app.test_client()
-        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
-                               content_type='application/json')
-        _list = json.loads(response.data)
-        assert response.status_code == 200
-        assert len(_list) == 1
-        assert "id" in _list[0]
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                obj = {
+                    "_saldo": 1,
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "create"
+                    }
+                }
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                                    content_type='application/json')
+                _list = json.loads(response.data)
+                assert response.status_code == 200
+                assert len(_list) == 1
+                assert "id" in _list[0]
 
 
 @pytest.mark.usefixtures('app')
 def test_with_instance_id(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        obj = {
-            "_saldo": 1,
-            "_metadata": {
-                "type": "Conta",
-                "changeTrack": "create"
-            }
-        }
-        client = app.test_client()
-        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
-                               content_type='application/json',  headers={'Instance-Id': 'fef2e75b-6cdb-46a7-96d4-76c20481c1cb'})
-        _list = json.loads(response.data)
-        assert response.status_code == 200
-        assert len(_list) == 1
-        assert "id" in _list[0]
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                obj = {
+                    "_saldo": 1,
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "create"
+                    }
+                }
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                                    content_type='application/json',  headers={'Instance-Id': 'fef2e75b-6cdb-46a7-96d4-76c20481c1cb'})
+                _list = json.loads(response.data)
+                assert response.status_code == 200
+                assert len(_list) == 1
+                assert "id" in _list[0]
 
 
 @pytest.mark.usefixtures('app')
 def test_with_empty_list(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        client = app.test_client()
-        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([]),
-                               content_type='application/json')
-        _list = json.loads(response.data)
-        assert response.status_code == 200
-        assert len(_list) == 0
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([]),
+                                    content_type='application/json')
+                _list = json.loads(response.data)
+                assert response.status_code == 200
+                assert len(_list) == 0
 
 @pytest.mark.usefixtures('app')
 def test_full_persist(app):
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        _list = []
-        obj = {
-            "_saldo": 1,
-            "_metadata": {
-                "type": "Conta",
-                "changeTrack": "create"
-            }
-        }
-        _list.append(obj)
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                _list = []
+                obj = {
+                    "_saldo": 1,
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "create"
+                    }
+                }
+                _list.append(obj)
 
-        obj3 = {
-            "_saldo": 1,
-            "id": "3",
-            "_metadata": {
-                "type": "Conta",
-                "changeTrack": "wrong"
-            }
-        }
-        _list.append(obj3)
+                obj3 = {
+                    "_saldo": 1,
+                    "id": "3",
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "wrong"
+                    }
+                }
+                _list.append(obj3)
 
-        obj4 = {
-            "_saldo": 1,
-            "id": "3"
-        }
-        _list.append(obj4)
+                obj4 = {
+                    "_saldo": 1,
+                    "id": "3"
+                }
+                _list.append(obj4)
 
-        obj5 = {
-            "_saldo": 1,
-            "id": "3",
-            "_metadata": {
-                "type": "Conta"
-            }
-        }
-        _list.append(obj5)
+                obj5 = {
+                    "_saldo": 1,
+                    "id": "3",
+                    "_metadata": {
+                        "type": "Conta"
+                    }
+                }
+                _list.append(obj5)
 
-        client = app.test_client()
-        response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps(_list),
-                               content_type='application/json')
-        _list = json.loads(response.data)
-        assert response.status_code == 200
-        assert len(_list) == 1
-        assert "id" in _list[0]
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps(_list),
+                                    content_type='application/json')
+                _list = json.loads(response.data)
+                assert response.status_code == 200
+                assert len(_list) == 1
+                assert "id" in _list[0]
 
 def test_destroy_data(session, test_client):
     origem = conta(titular="Fabio", saldo=10000)
@@ -140,25 +151,27 @@ def test_destroy_data(session, test_client):
     session.commit()
 
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        uri = f'/Conta/Conta?filter=transferencia&origem={origem.id}&destino={destino.id}'
-        status_code, resp = test_client.get_json(uri)
-        destroyed_id = resp[0]["id"]
-        resp[0]["_metadata"]["changeTrack"] = "destroy"
-        body = json.dumps([resp[0]])
-        assert len(resp) == 2
-        response = test_client.post('/Conta/persist',follow_redirects=True, data=body,
-                               content_type='application/json')
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_method1:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_method2:
+                uri = f'/Conta/Conta?filter=transferencia&origem={origem.id}&destino={destino.id}'
+                status_code, resp = test_client.get_json(uri)
+                destroyed_id = resp[0]["id"]
+                resp[0]["_metadata"]["changeTrack"] = "destroy"
+                body = json.dumps([resp[0]])
+                assert len(resp) == 2
+                response = test_client.post('/Conta/persist',follow_redirects=True, data=body,
+                                    content_type='application/json')
 
-        assert response.status_code == 200
+                assert response.status_code == 200
 
-        status_code, resp = test_client.get_json(uri)
-        assert status_code == 200
-        assert len(resp) == 1
-        assert resp[0]["id"] != destroyed_id
+                status_code, resp = test_client.get_json(uri)
+                assert status_code == 200
+                assert len(resp) == 1
+                assert resp[0]["id"] != destroyed_id
 
-        uri = f'/Conta/Conta'
-        status_code, resp = test_client.get_json(uri)
-        assert response.status_code == 200
-        assert status_code == 200
-        assert len(resp) == 1
-        assert resp[0]["id"] != destroyed_id
+                uri = f'/Conta/Conta'
+                status_code, resp = test_client.get_json(uri)
+                assert response.status_code == 200
+                assert status_code == 200
+                assert len(resp) == 1
+                assert resp[0]["id"] != destroyed_id

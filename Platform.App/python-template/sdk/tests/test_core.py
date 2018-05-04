@@ -2,6 +2,7 @@ import pytest
 from mock import patch
 from utils.http import HttpClient, ExecutionResult
 from sdk.map_core import MapCore
+from sdk.branch_link import BranchLink
 import json
 
 def apicore_map():
@@ -19,6 +20,19 @@ def apicore_map():
     res.data = [r]
     return res
 
+def apicore_branch_link():
+    res = ExecutionResult(200)
+    r = dict()
+    r["systemId"] = "ec498841-59e5-47fd-8075-136d79155705"
+    r["entity"] = "conta"
+    r["branch"] = "cenario-01"
+    r["id"] = "3bc8b1b3-cd79-480b-99ca-c63de74c4f65"
+    r["_metadata"] = dict()
+    r["_metadata"]["type"] = "branchLink"
+    r["_metadata"]["instance_id"] = "62141389-2ef2-4715-8675-a670ad7a00cc"
+    r["_metadata"]["branch"] = "master"
+    res.data = [r]
+    return res
 
 
 def test_valid_system_id():
@@ -34,3 +48,13 @@ def test_invalid_system_id():
         core = MapCore()
         _map = core.find_by_system_id("1")
         assert _map == []
+
+
+def test_get_branch_link_with_valid_system_id():
+    with patch.object(HttpClient, 'get', return_value=apicore_branch_link()) as mock_method:
+        core = BranchLink()
+        _map = core.get_by_system_id("1")
+        assert "systemId" in _map[0]
+        assert "branch" in _map[0]
+        assert "entity" in _map[0]
+
