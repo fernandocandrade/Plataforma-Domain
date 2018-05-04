@@ -25,7 +25,7 @@ def apicore_map():
 
 def link_branch():
     r = dict()
-    r["branch"] = "cenario-01"
+    r["branchName"] = "cenario-01"
     r["entity"] = "conta"
     r["systemId"] = "ec498841-59e5-47fd-8075-136d79155705"
     r["id"] = "3bc8b1b3-cd79-480b-99ca-c63de74c4f65"
@@ -223,4 +223,4 @@ def test_should_insert_new_link_branch(app):
                 response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
                                     content_type='application/json')
                 assert response.status_code == 200
-                mock_save.assert_called_with([{"entity":"conta", "branch":"cenario-02"}])
+                mock_save.assert_called_with([{"entity":"conta", "branchName":"cenario-02"}])

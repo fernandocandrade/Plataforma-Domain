@@ -28,12 +28,13 @@ class Persistence(Component):
             key = self.get_key_from_metadata(l)
             if key in keys:
                 continue
+
             branch = l.get("branch","master")
-            result.append({"entity": l["type"], "branch":branch})
+            result.append({"entity": l["type"], "branchName":branch})
         return result
 
     def get_key_from_metadata(self,item):
-        return item.get("type", item.get("entity", ""))+":"+item.get("branch","master")
+        return item.get("type", item.get("entity", ""))+":"+item.get("branch",item.get("branchName","master"))
 
     def get_branches_to_link(self, items):
         result = []

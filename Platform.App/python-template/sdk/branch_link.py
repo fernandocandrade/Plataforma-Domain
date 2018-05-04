@@ -13,6 +13,7 @@ class BranchLink(ApiCore):
         for i in items:
             i["systemId"] = self.system_id()
             i["_metadata"] = {
-                "type":"branchLink"
+                "type":"branchLink",
+                "changeTrack":"create"
             }
         self.persist(items)

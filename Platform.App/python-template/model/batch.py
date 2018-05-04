@@ -55,7 +55,6 @@ class BatchPersistence:
             self.extract_head(head)
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
-            log.info(items)
             log.info(f"should persist {len(items)} objects in database")
             self.persist(items)
             log.info("objects persisted")
@@ -67,7 +66,7 @@ class BatchPersistence:
             event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
         except Exception as e:
             event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
-            log.info("expcetion ocurred")
+            log.info("exception occurred")
             log.critical(e)
 
 

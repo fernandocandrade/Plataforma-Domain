@@ -1,6 +1,7 @@
 from utils.http import HttpClient
 from settings.loader import Loader
 from core.component import Component
+import log
 
 class ApiCore(Component):
 
@@ -19,6 +20,7 @@ class ApiCore(Component):
                 query_string += str(k) + "=" + str(v) + "&"
 
         url += query_string
+        return url
 
     def get(self, entity, params):
         """ get on api core"""
@@ -37,6 +39,8 @@ class ApiCore(Component):
         return self.get(entity, params)
 
     def persist(self, items):
+        if len(items) == 0:
+            return
         core_services = self.config["core_services"]
         url = f"{core_services['scheme']}://{core_services['host']}:{core_services['port']}/core/persist"
         result = self.http.post(url, items)
