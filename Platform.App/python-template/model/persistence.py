@@ -18,7 +18,7 @@ class Persistence(Component):
             return
         current_links = self.branch_link.get_links()
         new_links = self.get_branches_to_link(items)
-        new_links_to_persist = self.diff_branch_links(current_links, new_links)
+        new_links_to_persist = self.diff_branch_links(new_links, current_links)
         self.branch_link.save(new_links_to_persist)
 
     def diff_branch_links(self, incomming_links, current_links):
@@ -33,7 +33,7 @@ class Persistence(Component):
         return result
 
     def get_key_from_metadata(self,item):
-        return item["type"]+":"+item.get("branch","master")
+        return item.get("type", item.get("entity", ""))+":"+item.get("branch","master")
 
     def get_branches_to_link(self, items):
         result = []

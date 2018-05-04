@@ -24,7 +24,6 @@ def apicore_map():
     return res
 
 def link_branch():
-    res = ExecutionResult(200)
     r = dict()
     r["branch"] = "cenario-01"
     r["entity"] = "conta"
@@ -34,8 +33,7 @@ def link_branch():
     r["_metadata"]["type"] = "branchLink"
     r["_metadata"]["instance_id"] = "62141389-2ef2-4715-8675-a670ad7a00cc"
     r["_metadata"]["branch"] = "master"
-    res.data = [r]
-    return res
+    return [r]
 
 
 @pytest.mark.usefixtures('app')
@@ -191,9 +189,9 @@ def test_destroy_data(session, test_client):
                 assert resp[0]["id"] != destroyed_id
 
 
-def test_should_insert_link_branch(app):
+def test_should_not_insert_new_link_branch(app):
      with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
-        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_get_links:
+        with patch.object(BranchLink, 'get_links', return_value=link_branch()) as mock_get_links:
             with patch.object(BranchLink, 'save', return_value=[]) as mock_save:
                 obj = {
                     "_saldo": 1,
@@ -208,3 +206,21 @@ def test_should_insert_link_branch(app):
                                     content_type='application/json')
                 assert response.status_code == 200
                 mock_save.assert_called_with([])
+
+def test_should_insert_new_link_branch(app):
+     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_get_links:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_save:
+                obj = {
+                    "_saldo": 1,
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "create",
+                        "branch": "cenario-02"
+                    }
+                }
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                                    content_type='application/json')
+                assert response.status_code == 200
+                mock_save.assert_called_with([{"entity":"conta", "branch":"cenario-02"}])
