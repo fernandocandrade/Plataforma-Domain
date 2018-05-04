@@ -23,6 +23,20 @@ def apicore_map():
     res.data = [r]
     return res
 
+def link_branch():
+    res = ExecutionResult(200)
+    r = dict()
+    r["branch"] = "cenario-01"
+    r["entity"] = "conta"
+    r["systemId"] = "ec498841-59e5-47fd-8075-136d79155705"
+    r["id"] = "3bc8b1b3-cd79-480b-99ca-c63de74c4f65"
+    r["_metadata"] = dict()
+    r["_metadata"]["type"] = "branchLink"
+    r["_metadata"]["instance_id"] = "62141389-2ef2-4715-8675-a670ad7a00cc"
+    r["_metadata"]["branch"] = "master"
+    res.data = [r]
+    return res
+
 
 @pytest.mark.usefixtures('app')
 def test_persist_invalid_params(app):
@@ -175,3 +189,22 @@ def test_destroy_data(session, test_client):
                 assert status_code == 200
                 assert len(resp) == 1
                 assert resp[0]["id"] != destroyed_id
+
+
+def test_should_insert_link_branch(app):
+     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
+        with patch.object(BranchLink, 'get_links', return_value=[]) as mock_get_links:
+            with patch.object(BranchLink, 'save', return_value=[]) as mock_save:
+                obj = {
+                    "_saldo": 1,
+                    "_metadata": {
+                        "type": "Conta",
+                        "changeTrack": "create",
+                        "branch": "cenario-01"
+                    }
+                }
+                client = app.test_client()
+                response = client.post('/Conta/persist', follow_redirects=True, data=json.dumps([obj]),
+                                    content_type='application/json')
+                assert response.status_code == 200
+                mock_save.assert_called_with([])

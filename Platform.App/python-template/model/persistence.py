@@ -22,24 +22,31 @@ class Persistence(Component):
         self.branch_link.save(new_links_to_persist)
 
     def diff_branch_links(self, incomming_links, current_links):
+        result = []
         keys = [self.get_key_from_metadata(item) for item in current_links]
         for l in incomming_links:
             key = self.get_key_from_metadata(l)
             if key in keys:
                 continue
-            yield {"entity": l["type"], "branch":l["branch"]}
+            branch = l.get("branch","master")
+            result.append({"entity": l["type"], "branch":branch})
+        return result
 
     def get_key_from_metadata(self,item):
-        return item["_metadata"]["type"]+":"+item["_metadata"]["branch"]
+        return item["type"]+":"+item.get("branch","master")
 
     def get_branches_to_link(self, items):
-        linked = {}
+        result = []
+        linked = set()
         for item in items:
-            key = self.get_key_from_metadata(item)
+            if "_metadata" not in item:
+                continue
+            key = self.get_key_from_metadata(item["_metadata"])
             if key in linked:
                 continue
-            linked
-            yield item["_metadata"]
+            linked.add(key)
+            result.append(item["_metadata"])
+        return result
 
     def persist(self, objs):
         """ split object collection into 3 operation list for

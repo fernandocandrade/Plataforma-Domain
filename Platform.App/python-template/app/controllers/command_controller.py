@@ -22,7 +22,7 @@ class CommandController:
         if not self.body:
             return []
 
-        domain_obj = self.to_domain()
+        domain_obj = list(self.to_domain())
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
         return self.from_domain(instances)
