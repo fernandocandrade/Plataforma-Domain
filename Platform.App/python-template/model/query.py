@@ -56,7 +56,7 @@ class Query:
         for f in query_select:
             parts = str(f.element).split(".")
             n = parts[1]
-            if n in ["id", "branch", "from_id"]:
+            if n in ["id"]:
                 continue
             ranges.append(entity+n+"history.ticks")
         history = history.filter(text(f"not isEmpty({' * '.join(ranges)})"))
@@ -70,13 +70,20 @@ class Query:
             entity_dict["_metadata"] = {}
             entity_dict["_metadata"]["type"] = self.mapped_entity
             entity_dict["_metadata"]['version'] = 0
+            entity_dict["_metadata"]['branch'] = entity_dict["branch"]
+            entity_dict["_metadata"]['origin'] = entity_dict["from_id"]
             entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
+            entity_dict["_metadata"]["modified_at"] = entity_dict["modified"]
             entity_dict["id"] = entity_id
             if entity_dict["destroy"]:
                 entity_dict["_metadata"]["destroy"] = entity_dict["destroy"]
             entity_dict.pop(entity)
             entity_dict.pop("destroy")
             entity_dict.pop("meta_instance_id")
+            entity_dict.pop("modified")
+            entity_dict.pop("branch")
+            entity_dict.pop("from_id")
+
             for tick_field in ticks_fields:
                 if not entity_dict[tick_field]:
                     entity_dict.pop(tick_field)
@@ -105,13 +112,13 @@ class Query:
                 cont += 1
             d["_metadata"] = {
                 "type": self.mapped_entity,
-                "branch":d["branch"]
+                "branch":d["branch"],
+                "modified_at":d["modified"],
+                "origin": d["from_id"],
+                "instance_id": instance_id
             }
             d.pop("branch")
-            if d["from_id"]:
-                d["_metadata"]["origin"] = d["from_id"]
             d.pop("from_id")
-            if instance_id:
-                d["_metadata"]["instance_id"] = instance_id
+            d.pop("modified")
             result.append(d)
         return result

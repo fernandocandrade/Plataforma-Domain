@@ -23,6 +23,7 @@ class {{@key}}(Base, TemporalModelMixin):
         self._metadata = _metadata
         self.branch = kwargs.get('branch', 'master')
         self.from_id = kwargs.get('from_id')
+        self.modified = kwargs.get('modified')
 
     def dict(self):
         return {
@@ -37,7 +38,7 @@ class {{@key}}(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted','modified', 'meta_instance_id', {{#join . ","}}'{{{name}}}'{{/join}}, )
+        fields = ('deleted','modified', 'meta_instance_id', 'from_id', 'branch', {{#join . ","}}'{{{name}}}'{{/join}}, )
 
     {{#each . }}
     {{{@key}}} = Column({{{type}}})

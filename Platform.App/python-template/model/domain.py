@@ -4,7 +4,7 @@ from core.temporal.models import TemporalModelMixin
 import sqlalchemy.dialects.postgresql as sap
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import UniqueConstraint, Column, Integer, String, DateTime, create_engine, orm, ForeignKey, event
-import datetime
+from datetime import datetime
 
 
 
@@ -24,6 +24,7 @@ class conta(Base, TemporalModelMixin):
         self.meta_instance_id = meta_instance_id
         self.branch = branch
         self.from_id = from_id
+        self.modified = kwargs.get('modified',datetime.utcnow())
 
     def dict(self):
         return {
@@ -37,7 +38,7 @@ class conta(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted', 'titular', 'saldo', 'meta_instance_id', )
+        fields = ('deleted', 'titular', 'saldo', 'meta_instance_id', 'modified', 'from_id', 'branch' )
 
     titular = Column(String)
     saldo = Column(Integer)
@@ -45,5 +46,6 @@ class conta(Base, TemporalModelMixin):
     id = Column(sap.UUID(as_uuid=True), primary_key=True, default=uuid4)
     deleted = Column(sap.BOOLEAN())
     meta_instance_id = Column(sap.UUID(as_uuid=True))
+    modified = Column(DateTime(), default=datetime.utcnow())
     branch = Column(String, default='master')
     from_id = Column(sap.UUID(as_uuid=True))

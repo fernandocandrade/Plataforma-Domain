@@ -1,4 +1,5 @@
 from core.component import Component
+import log
 
 class Translator(Component):
     def __init__(self, index):
