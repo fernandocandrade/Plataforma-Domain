@@ -77,7 +77,8 @@ class Persistence(Component):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
             instance = globals()[_type](**o)
-            instance.modified = datetime.utcnow()
+            if not instance.modified:
+                instance.modified = datetime.utcnow()
             self.session.add(instance)
             yield instance
 
@@ -86,7 +87,8 @@ class Persistence(Component):
             _type = o["_metadata"]["type"].lower()
             cls = globals()[_type]
             instance = cls(**o)
-            instance.modified = datetime.utcnow()
+            if not instance.modified:
+                instance.modified = datetime.utcnow()
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
             for k, v in o.items():
@@ -100,7 +102,8 @@ class Persistence(Component):
             _type = o["_metadata"]["type"].lower()
             cls = globals()[_type]
             instance = cls(**o)
-            instance.modified = datetime.utcnow()
+            if not instance.modified:
+                instance.modified = datetime.utcnow()
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).one()
             obj.deleted = True

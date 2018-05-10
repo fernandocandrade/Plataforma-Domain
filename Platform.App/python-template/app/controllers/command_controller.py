@@ -2,9 +2,8 @@ from model.persistence import Persistence
 import json
 from mapper.builder import MapBuilder
 from database import create_session
-
+from dateutil import parser
 from flask import request
-
 
 class CommandController:
     """ Command Controller persist data on domain """
@@ -35,8 +34,8 @@ class CommandController:
             if "_metadata" in o and "branch" in o["_metadata"]:
                 curr["branch"] = o["_metadata"]["branch"]
 
-            if "_metadata" in o and "modifiedAt" in o["_metadata"]:
-                curr["modified_at"] = o["_metadata"]["modifiedAt"]
+            if "_metadata" in o and "modified_at" in o["_metadata"]:
+                curr["modified"] = parser.parse(o["_metadata"]["modified_at"])
 
             curr["from_id"] = o.get("fromId")
 
