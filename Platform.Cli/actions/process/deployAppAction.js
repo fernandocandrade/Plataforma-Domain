@@ -139,7 +139,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                     "entity": model,
                     "systemId": env.conf.solution.id,
                     "processId": env.conf.app.id,
-                    "version": env.conf.app.newVersion
+                    "version": env.conf.app.newVersion,
+                    "appName": env.conf.app.name
                 }
                 var api = new DependencyDomainCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
                 api.save(dep).then(e => {
