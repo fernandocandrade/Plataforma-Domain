@@ -113,10 +113,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.event_in = operation.event;
                 operation.event_out = `${operation.name}.done`;
                 operation.image = this.docker.getContainer(env);
+                operation.version = env.conf.app.newVersion;
                 env.image = operation.image;
                 this.saveOperationCore(env,operation).then((c)=>{
                     resolve(env);
-                })
+                });
             } catch (e) {
                 reject(e);
             }
