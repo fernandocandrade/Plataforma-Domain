@@ -31,7 +31,8 @@ class Query:
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
         query = self.session.query(*query_select)
-        query = query.filter(text(f"deleted = false and branch = '{self.branch}'"))
+        #query = query.filter(text(f"deleted = false and branch = '{self.branch}'"))
+        query = query.filter(text(f"deleted = false and id not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
 
         if 'where' in projection:
             where_clause = projection["where"]["query"]
