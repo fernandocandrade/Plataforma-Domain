@@ -1,8 +1,12 @@
 from model.persistence import Persistence
 from model.domain import *
-from sdk import process_memory, event_manager
+from sdk import process_memory, event_manager, process_instance
 from mapper.builder import MapBuilder
+from dateutil import parser
+from datetime import datetime
+import pytz
 import log
+
 
 class BatchPersistence:
 
@@ -14,6 +18,7 @@ class BatchPersistence:
 
     def extract_head(self, head):
         self.event = head.get("event",{})
+        self.fork = head.get("fork")
         if "map" in head:
             self.map = {
                 "map": head["map"].get("content",{}),
@@ -71,6 +76,28 @@ class BatchPersistence:
 
 
     def persist(self, items):
+        """
+        Identificar qual o b
+
+        """
+        processes = self.get_impacted_processes(items)
+        if len(processes) > 0:
+            log.info(f"Reprocessing {len(processes)} instances")
+
+        log.info(processes)
         repository = Persistence(self.session)
         instances = repository.persist(items)
         repository.commit()
+
+    def get_impacted_processes(self, items):
+        older_data = pytz.UTC.localize(datetime.utcnow())
+        log.info(older_data)
+        for item in items:
+            date = parser.parse(item["_metadata"]["modified_at"])
+            log.info(date)
+            if date < older_data:
+                older_data = date
+
+        log.info(f"Older data at {older_data}")
+        return process_instance.ProcessInstance().get_processes_after(older_data)
+
