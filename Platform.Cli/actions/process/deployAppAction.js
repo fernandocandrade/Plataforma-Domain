@@ -3,6 +3,9 @@ const shell = require("shelljs");
 const os = require("os");
 const BaseDeployAction = require("../baseDeployAction");
 const DockerService = require("../../services/docker");
+const DependencyDomainCore = require("plataforma-sdk/services/api-core/dependencyDomain");
+
+
 module.exports = class DeployProcessAppAction extends BaseDeployAction {
     constructor(appInstance) {
         super();
@@ -122,9 +125,48 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
     uploadDomainDependency(env) {
         return new Promise((resolve, reject)=>{
-            console.log(JSON.stringify(env,null,4));
-            resolve(env);
+            console.log("Compiling data dependency")
+            this.getFiles(env, "mapa", (ctx, v) => {
+                var yaml = require('js-yaml');
+                var map = yaml.safeLoad(v.content);
+                var model = this.getDependency(map);
+                if (!model) {
+                    resolve(env);
+                    return;
+                }
+                var dep = {
+                    "entity": model,
+                    "systemId": env.conf.solution.id,
+                    "processId": env.conf.app.id,
+                    "version": env.conf.app.newVersion
+                }
+                var api = new DependencyDomainCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
+                api.save(dep).then(e => {
+                    resolve(env);
+                }).catch(reject);
+            });
         });
+    };
+
+    getDependency(map) {
+        /**
+         * Para saber se uma process app tem uma dependencia funcional com alguma entidade do dominio
+         * devemos verificar se a process app faz algum filtro no domain
+         * o fato de realizar algum filtro no dominio já caracteriza uma dependencia funcional
+         * pois independente dos campos é muito arriscado, a principio, a plataforma julgar uma dependencia funcional
+         * observando modficações em campos de entidade
+         */
+        var model = null;
+        Object.keys(map).forEach(entity => {
+            if (map[entity]["filters"]) {
+                var filters = map[entity]["filters"]
+                if (Object.keys(filters).length > 0) {
+                    model =  map[entity].model
+                    return false;
+                }
+            }
+        });
+        return model;
     }
 
     registerApp(env) {

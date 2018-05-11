@@ -30,7 +30,6 @@ module.exports = class BaseDeployAction{
     indexMapFields(env,map){
         var promise = new Promise((resolve,reject)=>{
             try{
-                console.log(map);
                 resolve();
             }catch(e){
                 reject(e);
@@ -148,7 +147,6 @@ module.exports = class BaseDeployAction{
     }
 
     getFiles(env, folderName, action){
-        console.log(`Installing ${folderName}`)
         var promise = new Promise((resolve,reject)=>{
             var pathMap = env.conf.fullPath+"/"+folderName+"/";
             this.getFileList(pathMap).then(list =>{

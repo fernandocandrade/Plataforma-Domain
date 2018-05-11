@@ -16,7 +16,6 @@ module.exports = class CreateAppAction{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process', path+"/spec");
             shell.touch(path+"/process/"+plataforma.app.name+".js");
-            shell.touch(path+"/metadados/EventCatalog.js");
             shell.touch(path+"/metadados/"+plataforma.app.name+".yaml");
 
             const Dockerfile = `
