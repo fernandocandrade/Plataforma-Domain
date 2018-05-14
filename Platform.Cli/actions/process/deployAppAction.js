@@ -130,25 +130,36 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             this.getFiles(env, "mapa", (ctx, v) => {
                 var yaml = require('js-yaml');
                 var map = yaml.safeLoad(v.content);
-                var model = this.getDependency(map);
-                if (!model) {
+                var dependency = this.getDependency(map);
+                var model = dependency.model;
+                if (Object.keys(dependency).length === 0) {
                     resolve(env);
                     return;
                 }
-                var dep = {
-                    "entity": model,
-                    "systemId": env.conf.solution.id,
-                    "processId": env.conf.app.id,
-                    "version": env.conf.app.newVersion,
-                    "appName": env.conf.app.name
-                }
+                var list = [];
+                Object.keys(dependency).forEach(entity => {
+                    var dep = {
+                        "entity": dependency[entity].model,
+                        "systemId": env.conf.solution.id,
+                        "processId": env.conf.app.id,
+                        "version": env.conf.app.newVersion,
+                        "name": env.conf.app.name
+                    }
+                    var persistList = dependency[entity].columns.map(f => {
+                        var i = this.clone(dep);
+                        i.columnName = f;
+                        return i
+                    });
+                    list = list.concat(persistList);
+                });
                 var api = new DependencyDomainCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
-                api.save(dep).then(e => {
+                api.save(list).then(e => {
                     resolve(env);
                 }).catch(reject);
             });
         });
     };
+
 
     getDependency(map) {
         /**
@@ -158,17 +169,19 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
          * pois independente dos campos é muito arriscado, a principio, a plataforma julgar uma dependencia funcional
          * observando modficações em campos de entidade
          */
-        var model = null;
+        var dependency = {};
         Object.keys(map).forEach(entity => {
             if (map[entity]["filters"]) {
                 var filters = map[entity]["filters"]
                 if (Object.keys(filters).length > 0) {
-                    model =  map[entity].model
+                    dependency[entity] = {};
+                    dependency[entity].model =  map[entity].model
+                    dependency[entity].columns = Object.keys(map[entity]["fields"]).map(k => map[entity]["fields"][k]["column"])
                     return false;
                 }
             }
         });
-        return model;
+        return dependency;
     }
 
     registerApp(env) {

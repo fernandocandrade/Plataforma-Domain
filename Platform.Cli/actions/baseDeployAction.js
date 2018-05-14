@@ -27,6 +27,10 @@ module.exports = class BaseDeployAction{
         return promise;
     }
 
+    clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
     indexMapFields(env,map){
         var promise = new Promise((resolve,reject)=>{
             try{
