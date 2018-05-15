@@ -1,6 +1,6 @@
 from model.persistence import Persistence
 from model.domain import *
-from sdk import process_memory, event_manager, process_instance
+from sdk import process_memory, event_manager, process_instance, domain_dependency
 from mapper.builder import MapBuilder
 from dateutil import parser
 from datetime import datetime
@@ -65,7 +65,7 @@ class BatchPersistence:
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
             log.info(f"should persist {len(items)} objects in database")
-            self.persist(items)
+            processes = self.persist(items)
             log.info("objects persisted")
             parts = self.event["name"].split(".")
             parts.pop()
@@ -73,10 +73,22 @@ class BatchPersistence:
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
             event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
+            if len(processes) > 0:
+                log.info(f"Reprocessing {len(processes)} instances")
+            for p in processes:
+                log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']}")
+                head = self.get_head_of_process_memory(p["id"])
+                event_to_reprocess = head["event"]
+                event_to_reprocess["scope"] = "execution"
+                event_to_reprocess["branch"] = p["branch"]
+                log.info(event_to_reprocess)
+                event_manager.push(event_to_reprocess)
+
         except Exception as e:
             event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
             log.info("exception occurred")
             log.critical(e)
+            raise e
 
 
     def persist(self, items):
@@ -85,19 +97,17 @@ class BatchPersistence:
 
         """
         processes = self.get_impacted_processes(items)
-        if len(processes) > 0:
-            log.info(f"Reprocessing {len(processes)} instances")
-
-        log.info(processes)
         repository = Persistence(self.session)
         instances = repository.persist(items)
         repository.commit()
+        return processes
 
     def get_impacted_processes(self, items):
         older_data = pytz.UTC.localize(datetime.utcnow())
-        log.info(older_data)
         impacted_domain = set()
+        current_branch = "master"
         for item in items:
+            current_branch = item["_metadata"].get("branch", "master")
             if "modified_at" in item["_metadata"]:
                 date = parser.parse(item["_metadata"]["modified_at"])
             else:
@@ -106,9 +116,16 @@ class BatchPersistence:
                 older_data = date
             impacted_domain.add(item["_metadata"]["type"])
 
-
-
-        log.info(impacted_domain)
         log.info(f"Older data at {older_data}")
-        return process_instance.ProcessInstance().get_processes_after(older_data)
+        instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
+        deps = []
+        for instance in instances:
+            result = domain_dependency.DomainDependency().get_dependency_by_process_and_version(instance["processId"],instance["version"], impacted_domain)
+            if len(result) > 0:
+                instance["appName"] = result[0]["name"]
+                instance["branch"] = current_branch
+                deps.append(instance)
+        log.info("--------------------------------------------------------------")
+        log.info(deps)
+        return deps
 

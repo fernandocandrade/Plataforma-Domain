@@ -17,3 +17,11 @@ def head(instance_id):
     if resp.has_error:
         return {}
     return resp.data
+
+def first(instance_id):
+    url = base_url()
+    client = HttpClient()
+    resp = client.get(f"{url}/{instance_id}/first?app_origin=domainWorker")
+    if resp.has_error:
+        return {}
+    return resp.data

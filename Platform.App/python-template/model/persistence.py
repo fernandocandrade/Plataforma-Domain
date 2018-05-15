@@ -89,11 +89,18 @@ class Persistence(Component):
             instance = cls(**o)
             if not instance.modified:
                 instance.modified = datetime.utcnow()
+            branch = o["_metadata"].get("branch","master")
             del o['_metadata']
-            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
-            for k, v in o.items():
-                if hasattr(obj, k):
-                    setattr(obj, k, v)
+            obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
+            if not obj and branch != "master":
+                instance.from_id = o["id"]
+                instance.id = None
+                instance.branch = branch
+                self.session.add(instance)
+            else:
+                for k, v in o.items():
+                    if hasattr(obj, k):
+                        setattr(obj, k, v)
 
             yield instance
 
@@ -105,7 +112,7 @@ class Persistence(Component):
             if not instance.modified:
                 instance.modified = datetime.utcnow()
             del o['_metadata']
-            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
+            obj = self.session.query(cls).filter(cls.id == o["id"]).one_or_none()
             obj.deleted = True
 
     def is_to_create(self, obj):

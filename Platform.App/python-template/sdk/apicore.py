@@ -47,3 +47,6 @@ class ApiCore(Component):
         if result.status_code == 200:
             return result.data
         raise Exception(result.error_message)
+
+    def parse_array(self, lst):
+        return ";".join(lst)
