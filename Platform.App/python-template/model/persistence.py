@@ -3,6 +3,7 @@ import log
 from core.component import Component
 from sdk.branch_link import BranchLink
 from datetime import datetime
+from uuid import uuid4
 
 class Persistence(Component):
 
@@ -90,18 +91,28 @@ class Persistence(Component):
             if not instance.modified:
                 instance.modified = datetime.utcnow()
             branch = o["_metadata"].get("branch","master")
+
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
             if not obj and branch != "master":
-                instance.from_id = o["id"]
-                instance.id = None
-                instance.branch = branch
+                obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == "master").one()
+                setattr(instance,"from_id", obj.id)
+                setattr(instance,"id", uuid4())
+                setattr(instance,"branch", branch)
+                setattr(instance,"modified", instance.modified)
+                attrs = list(obj.__dict__.items()) + list(o.items())
+                log.info(attrs)
+                for k, v in (attrs):
+                    if hasattr(instance, k) and k not in {"_sa_instance_state", "id", "from_id", "branch", "modified"}:
+                        log.info(f"setting {k} with value {v}")
+                        setattr(instance, k, v)
+                log.info("recreating object")
+                log.info(instance.__dict__)
                 self.session.add(instance)
             else:
                 for k, v in o.items():
                     if hasattr(obj, k):
                         setattr(obj, k, v)
-
             yield instance
 
     def destroy(self, objs):

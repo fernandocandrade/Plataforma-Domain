@@ -73,8 +73,11 @@ class BatchPersistence:
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
             event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
+
+            processes = self.group_by_process_and_version(processes)
             if len(processes) > 0:
                 log.info(f"Reprocessing {len(processes)} instances")
+
             for p in processes:
                 log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']}")
                 head = self.get_head_of_process_memory(p["id"])
@@ -90,6 +93,16 @@ class BatchPersistence:
             log.critical(e)
             raise e
 
+
+    def group_by_process_and_version(self, processes):
+        exist = set()
+        result = []
+        for p in processes:
+            key = f"{p['processId']}:{p['version']}"
+            if not key in exist:
+                exist.add(key)
+                result.append(p)
+        return result
 
     def persist(self, items):
         """
