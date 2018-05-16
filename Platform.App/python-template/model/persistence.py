@@ -104,12 +104,12 @@ class Persistence(Component):
                 log.info(attrs)
                 for k, v in (attrs):
                     if hasattr(instance, k) and k not in {"_sa_instance_state", "rid", "from_id", "branch", "modified"}:
-                        log.info(f"setting {k} with value {v}")
                         setattr(instance, k, v)
                 log.info("recreating object")
                 log.info(instance.__dict__)
                 self.session.add(instance)
             else:
+                obj.modified = instance.modified
                 for k, v in o.items():
                     if hasattr(obj, k):
                         setattr(obj, k, v)
