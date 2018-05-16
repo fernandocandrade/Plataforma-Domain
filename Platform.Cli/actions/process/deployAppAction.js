@@ -115,12 +115,33 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.image = this.docker.getContainer(env);
                 operation.version = env.conf.app.newVersion;
                 env.image = operation.image;
-                this.saveOperationCore(env,operation).then((c)=>{
-                    resolve(env);
+                this.getMap(env).then(map => {
+                    operation.reprocessable = this.isReprocessable(map)
+                    this.saveOperationCore(env,operation).then((c)=>{
+                        resolve(env);
+                    });
                 });
             } catch (e) {
                 reject(e);
             }
+        });
+    }
+
+    isReprocessable(map) {
+        /**
+         * Verifica se uma app é reprocessável, apps que apenas criam objetos não são reprocessáveis
+         * não a necessidade de reexecutar apps que não tenham dependencia funcional de alguma entidade
+         */
+        var dep = this.getDependency(map)
+        return Object.keys(dep).length > 0
+    }
+    getMap(env) {
+        return new Promise((resolve, reject) => {
+            this.getFiles(env, "mapa", (ctx, v) => {
+                var yaml = require('js-yaml');
+                var map = yaml.safeLoad(v.content);
+                resolve(map);
+            });
         });
     }
 
