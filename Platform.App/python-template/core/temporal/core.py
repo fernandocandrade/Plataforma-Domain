@@ -19,7 +19,7 @@ def get_or_create_clock_entity(entity, period=effective_now()):
     clock_entity = session.query(clock_cls)\
         .filter(
             clock_cls.effective.contains(period),
-            clock_cls.entity_id == entity.id
+            clock_cls.entity_id == entity.rid
         ).one_or_none()
 
     if not clock_entity:
@@ -40,8 +40,8 @@ def get_or_create_entity_history(entity, field, clock):
     history_cls = entity._history[field]
 
     history_entity = session.query(history_cls).filter(
-        history_cls.entity_id == entity.id,
-        history_cls.clock_id == clock.id,
+        history_cls.entity_id == entity.rid,
+        history_cls.clock_id == clock.rid,
         history_cls.ticks.contains(clock.ticks),
     ).one_or_none()
 

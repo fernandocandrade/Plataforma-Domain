@@ -70,7 +70,7 @@ def pytest_namespace():
         def __tablename__(cls):
             return cls.__name__.lower()
 
-        id = Column(
+        rid = Column(
             postgresql.UUID(as_uuid=True),
             primary_key=True,
             default=uuid4)
@@ -122,7 +122,7 @@ def query_entity_clock(session, query_by_entity):
     def _query_entity_clock(entity, period):
         return query_by_entity(
             cls=entity._clock,
-            entity_id=entity.id,
+            entity_id=entity.rid,
         ).filter(entity._clock.effective.contains(period))
 
     return _query_entity_clock
@@ -135,7 +135,7 @@ def query_entity_history(session, query_by_entity):
 
         return query_by_entity(
             history,
-            entity.id,
+            entity.rid,
             history.value
         ).all()
 

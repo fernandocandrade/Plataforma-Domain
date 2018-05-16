@@ -32,7 +32,7 @@ class Query:
         query_select = self.build_select(projection)
         query = self.session.query(*query_select)
         if self.branch != "master":
-            query = query.filter(text(f"deleted = false and id not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
+            query = query.filter(text(f"deleted = false and rid not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
         else:
             query = query.filter(text(f"deleted = false and branch = 'master'"))
 
@@ -54,22 +54,24 @@ class Query:
         query_select.append(getattr(self.entity_cls, "deleted").label("destroy"))
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
-        history = history.filter(domain_entity.id==entity_id)
-        ranges = []
+        history = history.filter(domain_entity.id==entity_id).filter(domain_entity.branch == "master")
+
+        ranges = set()
         for f in query_select:
             parts = str(f.element).split(".")
             n = parts[1]
-            if n in ["id"]:
+            if n in { "rid", "id" }:
                 continue
-            ranges.append(entity+n+"history.ticks")
+            ranges.add(entity+n+"history.ticks")
         history = history.filter(text(f"not isEmpty({' * '.join(ranges)})"))
-
         ticks_fields = {
             c['name'] for c in history.column_descriptions
             if c['name'].endswith('_ticks')
         }
+        result = []
         for entity_history in history.all():
             entity_dict = entity_history._asdict()
+
             entity_dict["_metadata"] = {}
             entity_dict["_metadata"]["type"] = self.mapped_entity
             entity_dict["_metadata"]['version'] = 0
@@ -86,7 +88,6 @@ class Query:
             entity_dict.pop("modified")
             entity_dict.pop("branch")
             entity_dict.pop("from_id")
-
             for tick_field in ticks_fields:
                 if not entity_dict[tick_field]:
                     entity_dict.pop(tick_field)
@@ -94,7 +95,8 @@ class Query:
                 entity_dict["_metadata"]['version'] = max(entity_dict["_metadata"]['version'], entity_dict[tick_field])
                 entity_dict.pop(tick_field)
             if (version and entity_dict["_metadata"]['version'] == int(version)) or not version:
-                yield entity_dict
+                result.append(entity_dict)
+        return sorted(result, key=lambda x: x["_metadata"]["version"])
 
 
     def row2dict(self, rows, projection):

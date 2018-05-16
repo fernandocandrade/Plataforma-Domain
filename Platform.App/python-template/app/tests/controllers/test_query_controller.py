@@ -1,6 +1,6 @@
 from mock import patch
 from utils.http import HttpClient, ExecutionResult
-
+from uuid import uuid4
 from model.domain import conta
 
 
@@ -76,7 +76,8 @@ def test_get_data_from_map(session, test_client):
         assert resp[1]["saldo"] == 100
 
 def test_get_entity_history(session, test_client):
-    c = conta(titular="A", saldo=100)
+    id = uuid4()
+    c = conta(titular="A", saldo=100, id=id)
     session.add(c)
     session.commit()
 
@@ -88,7 +89,6 @@ def test_get_entity_history(session, test_client):
 
     with patch.object(HttpClient, 'get', return_value=apicore_map()) as mock_method:
         status_code, data = test_client.get_json(f'/Conta/Conta/history/{c.id}')
-
         assert status_code == 200
         assert len(data) == 3
 
