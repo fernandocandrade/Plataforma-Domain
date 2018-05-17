@@ -99,6 +99,9 @@ class BatchPersistence:
             event_to_reprocess = head["event"]
             event_to_reprocess["scope"] = "reprocessing"
             event_to_reprocess["branch"] = p["branch"]
+            event_to_reprocess["reprocessing"] = {}
+            event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
+            event_to_reprocess["reprocessing"]["version"] = p["version"]
             log.info(event_to_reprocess)
             event_manager.push(event_to_reprocess)
 
