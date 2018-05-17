@@ -40,7 +40,6 @@ class Query:
             where_clause = projection["where"]["query"]
             stmt = text(where_clause).bindparams(**projection["where"]["params"])
             query = query.filter(stmt)
-        log.info(str(query))
         if page and page_size:
             page -= 1
             query = query.slice(page * page_size, page * page_size + page_size)
