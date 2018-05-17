@@ -90,7 +90,7 @@ class BatchPersistence:
         self.instance_id = instance_id
         self.process_id = process_id
         processes = self.get_impacted_processes(items)
-        processes = self.group_by_process_and_version(processes)
+        #processes = self.group_by_process_and_version(processes)
         if len(processes) > 0:
                 log.info(f"Reprocessing {len(processes)} instances")
         for p in processes:
@@ -117,10 +117,6 @@ class BatchPersistence:
         return result
 
     def persist(self, items):
-        """
-        Identificar qual o b
-
-        """
         repository = Persistence(self.session)
         instances = repository.persist(items)
         repository.commit()
