@@ -1,18 +1,22 @@
 from model.persistence import Persistence
+from model.batch import BatchPersistence
 import json
 from mapper.builder import MapBuilder
 from database import create_session
 from dateutil import parser
 from flask import request
+import log
+import copy
 
 class CommandController:
     """ Command Controller persist data on domain """
 
-    def __init__(self, app_id, body, instance_id, reference_date):
+    def __init__(self, app_id, body, instance_id, reference_date, process_id):
         self.app_id = app_id
         self.body = body
         self.mapper = MapBuilder().build()
         self.instance_id = instance_id
+        self.process_id = process_id
         self.repository = Persistence(request.session)
         self.reference_date = reference_date
 
@@ -22,8 +26,10 @@ class CommandController:
             return []
 
         domain_obj = list(self.to_domain())
+        domain_copy = copy.deepcopy(domain_obj)
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
+        BatchPersistence(self.repository.session).dispatch_reprocessing_events(domain_copy, self.instance_id, self.process_id)
         return self.from_domain(instances)
 
     def to_domain(self):

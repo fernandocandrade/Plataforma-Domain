@@ -69,9 +69,10 @@ def query_history(app_id, entity, entity_id):
 def persist_map(app_id):
     """ Persist data on domain """
     instance_id = request.headers.get('Instance-Id')
+    process_id = request.headers.get('Process-Id')
     reference_date = request.headers.get('Reference-Date')
     body = json.loads(request.data)
-    controller = CommandController(app_id, body, instance_id, reference_date)
+    controller = CommandController(app_id, body, instance_id, reference_date, process_id)
     try:
         return jsonify(controller.persist())
     except Exception as excpt:
