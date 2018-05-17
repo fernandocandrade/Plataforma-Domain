@@ -88,6 +88,8 @@ class Persistence(Component):
             _type = o["_metadata"]["type"].lower()
             cls = globals()[_type]
             instance = cls(**o)
+            if not instance.deleted:
+                instance.deleted = False
             if not instance.modified:
                 instance.modified = datetime.utcnow()
             branch = o["_metadata"].get("branch","master")
@@ -111,7 +113,7 @@ class Persistence(Component):
             else:
                 obj.modified = instance.modified
                 for k, v in o.items():
-                    if hasattr(obj, k):
+                    if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified"}:
                         setattr(obj, k, v)
             yield instance
 

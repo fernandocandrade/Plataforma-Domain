@@ -7,11 +7,13 @@ from dateutil import parser
 from flask import request
 import log
 import copy
+from core.component import Component
 
-class CommandController:
+class CommandController(Component):
     """ Command Controller persist data on domain """
 
     def __init__(self, app_id, body, instance_id, reference_date, process_id):
+        Component.__init__(self)
         self.app_id = app_id
         self.body = body
         self.mapper = MapBuilder().build()
@@ -29,7 +31,8 @@ class CommandController:
         domain_copy = copy.deepcopy(domain_obj)
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
-        BatchPersistence(self.repository.session).dispatch_reprocessing_events(domain_copy, self.instance_id, self.process_id)
+        if not self.is_apicore():
+            BatchPersistence(self.repository.session).dispatch_reprocessing_events(domain_copy, self.instance_id, self.process_id)
         return self.from_domain(instances)
 
     def to_domain(self):
@@ -42,9 +45,6 @@ class CommandController:
 
             if "_metadata" in o and "modified_at" in o["_metadata"]:
                 curr["modified"] = parser.parse(o["_metadata"]["modified_at"])
-
-            curr["from_id"] = o.get("fromId")
-
             yield curr
 
     def from_domain(self, instances):

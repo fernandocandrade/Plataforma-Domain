@@ -32,15 +32,15 @@ class Query:
         query_select = self.build_select(projection)
         query = self.session.query(*query_select)
         if self.branch != "master":
-            query = query.filter(text(f"deleted = false and rid not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
+            query = query.filter(text(f"deleted is not True and rid not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
         else:
-            query = query.filter(text(f"deleted = false and branch = 'master'"))
+            query = query.filter(text(f"deleted is not True and branch = 'master'"))
 
         if 'where' in projection:
             where_clause = projection["where"]["query"]
             stmt = text(where_clause).bindparams(**projection["where"]["params"])
             query = query.filter(stmt)
-
+        log.info(str(query))
         if page and page_size:
             page -= 1
             query = query.slice(page * page_size, page * page_size + page_size)

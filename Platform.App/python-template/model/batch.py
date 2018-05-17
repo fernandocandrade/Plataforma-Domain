@@ -102,7 +102,6 @@ class BatchPersistence:
             event_to_reprocess["reprocessing"] = {}
             event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
             event_to_reprocess["reprocessing"]["version"] = p["version"]
-            log.info(event_to_reprocess)
             event_manager.push(event_to_reprocess)
 
 
@@ -145,7 +144,6 @@ class BatchPersistence:
 
         log.info(f"Older data at {older_data}")
         instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
-        log.info(instances)
         deps = []
         for instance in instances:
             result = domain_dependency.DomainDependency().get_dependency_by_process_and_version(instance["processId"],instance["version"], impacted_domain)
