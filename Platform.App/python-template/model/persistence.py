@@ -78,32 +78,27 @@ class Persistence(Component):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
             instance = globals()[_type](**o)
-            if not instance.modified:
-                instance.modified = datetime.utcnow()
             self.session.add(instance)
             yield instance
 
     def update(self, objs):
         for o in objs:
+            branch = o["_metadata"].get("branch","master")
             _type = o["_metadata"]["type"].lower()
             cls = globals()[_type]
             instance = cls(**o)
             if not instance.deleted:
                 instance.deleted = False
-            if not instance.modified:
-                instance.modified = datetime.utcnow()
-            branch = o["_metadata"].get("branch","master")
-
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
             if not obj and branch != "master":
+                #make a copy from master object to branch object
                 obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == "master").one()
                 setattr(instance,"from_id", obj.rid)
                 setattr(instance,"rid", uuid4())
                 setattr(instance,"branch", branch)
-                setattr(instance,"modified", instance.modified)
+                setattr(instance,"modified", obj.modified)
                 attrs = list(obj.__dict__.items()) + list(o.items())
-                log.info(attrs)
                 for k, v in (attrs):
                     if hasattr(instance, k) and k not in {"_sa_instance_state", "rid", "from_id", "branch", "modified"}:
                         setattr(instance, k, v)
@@ -111,7 +106,8 @@ class Persistence(Component):
                 log.info(instance.__dict__)
                 self.session.add(instance)
             else:
-                obj.modified = instance.modified
+                instance.modified = obj.modified
+                obj.modified = datetime.utcnow()
                 for k, v in o.items():
                     if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified"}:
                         setattr(obj, k, v)

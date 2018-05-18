@@ -7,7 +7,9 @@ from datetime import datetime
 import pytz
 import log
 import copy
-
+import hashlib
+import json
+from utils.pruu import log_on_pruu
 
 class BatchPersistence:
 
@@ -49,8 +51,6 @@ class BatchPersistence:
                 domain_obj = self.mapper.translator.to_domain(self.map["app_name"], item)
                 domain_obj["meta_instance_id"] = instance_id
                 domain_obj["branch"] = item["_metadata"].get("branch", "master")
-                domain_obj["from_id"] = item.get("fromId")
-                domain_obj["modified"] = item["_metadata"].get("modified_at", datetime.utcnow())
                 items.append(domain_obj)
         return items
 
@@ -76,7 +76,9 @@ class BatchPersistence:
             parts.append("done")
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
-            event_manager.push({"name":self.event_out, "instanceId":instance_id, "payload":{"instance_id":instance_id}})
+            evt = {"name":self.event_out, "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"] , "payload":{"instance_id":instance_id}}
+            event_manager.push(evt)
+            log_on_pruu("pushed_event", evt)
             self.dispatch_reprocessing_events(clone_items, self.instance_id, self.process_id)
 
         except Exception as e:
@@ -90,30 +92,42 @@ class BatchPersistence:
         self.instance_id = instance_id
         self.process_id = process_id
         processes = self.get_impacted_processes(items)
-        #processes = self.group_by_process_and_version(processes)
         if len(processes) > 0:
                 log.info(f"Reprocessing {len(processes)} instances")
+
+        events_to_execute = self.get_events_to_execute(processes)
+        for event in events_to_execute:
+            event["scope"] = "reprocessing"
+            event_manager.push(event)
+            log_on_pruu("pushed_event_reprocessing", event)
+
+    def get_events_to_execute(self, processes):
+        events_to_execute = []
         for p in processes:
             log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']}")
             head = self.get_head_of_process_memory(p["id"])
             event_to_reprocess = head["event"]
-            event_to_reprocess["scope"] = "reprocessing"
-            event_to_reprocess["branch"] = p["branch"]
             event_to_reprocess["reprocessing"] = {}
+            event_to_reprocess["reprocessing"]["executed_at"] = p["startExecution"]
             event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
+            event_to_reprocess["reprocessing"]["process_id"] = p["processId"]
             event_to_reprocess["reprocessing"]["version"] = p["version"]
-            event_manager.push(event_to_reprocess)
+            event_to_reprocess["reprocessing"]["payload_signature"] = hashlib.sha1(str(json.dumps(event_to_reprocess["payload"], sort_keys=True)).encode("utf-8")).hexdigest()
+            events_to_execute.append(event_to_reprocess)
+        log_on_pruu("get_events_to_execute", events_to_execute)
+        return events_to_execute
 
 
-
-    def group_by_process_and_version(self, processes):
+    def group_events(self, events):
         exist = set()
         result = []
-        for p in processes:
-            key = f"{p['processId']}:{p['version']}"
+        for event in events:
+            reprocessing = event["reprocessing"]
+            key = f"{reprocessing['processId']}:{reprocessing['version']}:{reprocessing['payload_signature']}:{event['branch']}"
             if not key in exist:
                 exist.add(key)
-                result.append(p)
+                result.append(event)
+        log_on_pruu("group_events",result)
         return result
 
     def persist(self, items):
@@ -141,13 +155,13 @@ class BatchPersistence:
         log.info(f"Older data at {older_data}")
         instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
         deps = []
+        log_on_pruu("get_impacted_processes", instances)
         for instance in instances:
             result = domain_dependency.DomainDependency().get_dependency_by_process_and_version(instance["processId"],instance["version"], impacted_domain)
             if len(result) > 0:
                 instance["appName"] = result[0]["name"]
                 instance["branch"] = current_branch
                 deps.append(instance)
-        log.info("--------------------------------------------------------------")
-        log.info(deps)
+        log_on_pruu("get_impacted_processes", deps)
         return deps
 
