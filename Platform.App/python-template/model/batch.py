@@ -105,9 +105,9 @@ class BatchPersistence:
     def get_events_to_execute(self, processes):
         events_to_execute = []
         for p in processes:
-            log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']}")
             head = self.get_head_of_process_memory(p["id"])
             event_to_reprocess = head["event"]
+            log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']} branch {event_to_reprocess['branch']}")
             event_to_reprocess["reprocessing"] = {}
             event_to_reprocess["reprocessing"]["executed_at"] = p["startExecution"]
             event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
@@ -149,7 +149,6 @@ class BatchPersistence:
                 older_data = date
             impacted_domain.add(type(item).__name__)
 
-        log.info(impacted_domain)
         log.info(f"Older data at {older_data}")
         instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
         deps = []
