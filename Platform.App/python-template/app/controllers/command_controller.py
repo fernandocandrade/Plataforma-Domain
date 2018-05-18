@@ -8,6 +8,7 @@ from flask import request
 import log
 import copy
 from core.component import Component
+from utils.pruu import log_on_pruu
 
 class CommandController(Component):
     """ Command Controller persist data on domain """
@@ -28,11 +29,11 @@ class CommandController(Component):
             return []
 
         domain_obj = list(self.to_domain())
-        domain_copy = copy.deepcopy(domain_obj)
+        #domain_copy = copy.deepcopy(domain_obj)
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
         if not self.is_apicore():
-            BatchPersistence(self.repository.session).dispatch_reprocessing_events(domain_copy, self.instance_id, self.process_id)
+            BatchPersistence(self.repository.session).dispatch_reprocessing_events(instances, self.instance_id, self.process_id)
         return self.from_domain(instances)
 
     def to_domain(self):
@@ -42,9 +43,6 @@ class CommandController(Component):
 
             if "_metadata" in o and "branch" in o["_metadata"]:
                 curr["branch"] = o["_metadata"]["branch"]
-
-            if "_metadata" in o and "modified_at" in o["_metadata"]:
-                curr["modified"] = parser.parse(o["_metadata"]["modified_at"])
             yield curr
 
     def from_domain(self, instances):

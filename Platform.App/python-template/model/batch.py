@@ -68,8 +68,9 @@ class BatchPersistence:
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
             log.info(f"should persist {len(items)} objects in database")
-            clone_items = copy.deepcopy(items)
-            self.persist(items)
+            #clone_items = copy.deepcopy(items)
+            instances = self.persist(items)
+            log_on_pruu("saved_items", items)
             log.info("objects persisted")
             parts = self.event["name"].split(".")
             parts.pop()
@@ -79,7 +80,7 @@ class BatchPersistence:
             evt = {"name":self.event_out, "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
             log_on_pruu("pushed_event", evt)
-            self.dispatch_reprocessing_events(clone_items, self.instance_id, self.process_id)
+            self.dispatch_reprocessing_events(instances, self.instance_id, self.process_id)
 
         except Exception as e:
             event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
@@ -134,34 +135,29 @@ class BatchPersistence:
         repository = Persistence(self.session)
         instances = repository.persist(items)
         repository.commit()
+        return instances
 
     def get_impacted_processes(self, items):
         older_data = pytz.UTC.localize(datetime.utcnow())
         impacted_domain = set()
         current_branch = "master"
         for item in items:
-            current_branch = item["_metadata"].get("branch", "master")
-            if "modified_at" in item["_metadata"]:
-                date = parser.parse(item["_metadata"]["modified_at"])
-                if date.tzinfo is None:
-                    date = pytz.UTC.localize(date)
-            else:
-                date = pytz.UTC.localize(datetime.utcnow())
+            current_branch = item.branch
+            date = pytz.UTC.localize(item.modified)
             log.info(f"{date} < {older_data}")
             if date < older_data:
                 older_data = date
-            impacted_domain.add(item["_metadata"]["type"])
+            impacted_domain.add(type(item).__name__)
 
+        log.info(impacted_domain)
         log.info(f"Older data at {older_data}")
         instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
         deps = []
-        log_on_pruu("get_impacted_processes", instances)
         for instance in instances:
             result = domain_dependency.DomainDependency().get_dependency_by_process_and_version(instance["processId"],instance["version"], impacted_domain)
             if len(result) > 0:
                 instance["appName"] = result[0]["name"]
                 instance["branch"] = current_branch
                 deps.append(instance)
-        log_on_pruu("get_impacted_processes", deps)
         return deps
 

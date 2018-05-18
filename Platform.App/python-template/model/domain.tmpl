@@ -31,6 +31,7 @@ class {{@key}}(Base, TemporalModelMixin):
             {{#join . ","}}"{{{name}}}": self.{{{name}}}{{/join}},
             "id": self.id,
             "branch":self.branch,
+            "modified":self.modified,
             "_metadata": self._metadata
         }
 

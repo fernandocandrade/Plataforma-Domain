@@ -4,6 +4,7 @@ from core.component import Component
 from sdk.branch_link import BranchLink
 from datetime import datetime
 from uuid import uuid4
+import json
 
 class Persistence(Component):
 
