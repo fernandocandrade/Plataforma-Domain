@@ -68,9 +68,7 @@ class BatchPersistence:
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
             log.info(f"should persist {len(items)} objects in database")
-            #clone_items = copy.deepcopy(items)
             instances = self.persist(items)
-            log_on_pruu("saved_items", items)
             log.info("objects persisted")
             parts = self.event["name"].split(".")
             parts.pop()
@@ -79,7 +77,6 @@ class BatchPersistence:
             log.info(f"pushing event {name} to event manager")
             evt = {"name":self.event_out, "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
-            log_on_pruu("pushed_event", evt)
             self.dispatch_reprocessing_events(instances, self.instance_id, self.process_id)
 
         except Exception as e:
@@ -93,29 +90,30 @@ class BatchPersistence:
         self.instance_id = instance_id
         self.process_id = process_id
         processes = self.get_impacted_processes(items)
-        if len(processes) > 0:
-                log.info(f"Reprocessing {len(processes)} instances")
+
 
         events_to_execute = self.get_events_to_execute(processes)
+        events_to_execute = self.group_events(events_to_execute)
+        if len(events_to_execute) > 0:
+            log.info(f"Reprocessing {len(events_to_execute)} events")
         for event in events_to_execute:
+            log.info(f"Need to re-execute {event['name']} from process {event['reprocessing']['app_name']} instance {event['reprocessing']['process_id']} branch {event['branch']}")
             event["scope"] = "reprocessing"
             event_manager.push(event)
-            log_on_pruu("pushed_event_reprocessing", event)
 
     def get_events_to_execute(self, processes):
         events_to_execute = []
         for p in processes:
             head = self.get_head_of_process_memory(p["id"])
             event_to_reprocess = head["event"]
-            log.info(f"Need to re-execute {p['origin_event_name']} from process {p['appName']} instance {p['id']} branch {event_to_reprocess['branch']}")
             event_to_reprocess["reprocessing"] = {}
             event_to_reprocess["reprocessing"]["executed_at"] = p["startExecution"]
             event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
+            event_to_reprocess["reprocessing"]["app_name"] = p["appName"]
             event_to_reprocess["reprocessing"]["process_id"] = p["processId"]
             event_to_reprocess["reprocessing"]["version"] = p["version"]
             event_to_reprocess["reprocessing"]["payload_signature"] = hashlib.sha1(str(json.dumps(event_to_reprocess["payload"], sort_keys=True)).encode("utf-8")).hexdigest()
             events_to_execute.append(event_to_reprocess)
-        log_on_pruu("get_events_to_execute", events_to_execute)
         return events_to_execute
 
 
@@ -123,12 +121,13 @@ class BatchPersistence:
         exist = set()
         result = []
         for event in events:
+            if event["branch"] != "master":
+                continue
             reprocessing = event["reprocessing"]
-            key = f"{reprocessing['processId']}:{reprocessing['version']}:{reprocessing['payload_signature']}:{event['branch']}"
+            key = f"{reprocessing['process_id']}:{reprocessing['version']}:{reprocessing['payload_signature']}:{event['branch']}"
             if not key in exist:
                 exist.add(key)
                 result.append(event)
-        log_on_pruu("group_events",result)
         return result
 
     def persist(self, items):
