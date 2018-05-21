@@ -4,8 +4,10 @@ from sdk import process_memory, event_manager, process_instance, domain_dependen
 from mapper.builder import MapBuilder
 from dateutil import parser
 from datetime import datetime
+from reprocessing import ReprocessingManager
 import pytz
 import log
+from uuid import uuid4
 import copy
 import hashlib
 import json
@@ -77,7 +79,7 @@ class BatchPersistence:
             log.info(f"pushing event {name} to event manager")
             evt = {"name":self.event_out, "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
-            self.dispatch_reprocessing_events(instances, self.instance_id, self.process_id)
+            ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
 
         except Exception as e:
             event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
@@ -85,77 +87,8 @@ class BatchPersistence:
             log.critical(e)
             raise e
 
-    def dispatch_reprocessing_events(self, items, instance_id, process_id):
-        log.info("Dispatching reprocessing events")
-        self.instance_id = instance_id
-        self.process_id = process_id
-        processes = self.get_impacted_processes(items)
-
-
-        events_to_execute = self.get_events_to_execute(processes)
-        events_to_execute = self.group_events(events_to_execute)
-        if len(events_to_execute) > 0:
-            log.info(f"Reprocessing {len(events_to_execute)} events")
-        for event in events_to_execute:
-            log.info(f"Need to re-execute {event['name']} from process {event['reprocessing']['app_name']} instance {event['reprocessing']['process_id']} branch {event['branch']}")
-            event["scope"] = "reprocessing"
-            event_manager.push(event)
-
-    def get_events_to_execute(self, processes):
-        events_to_execute = []
-        for p in processes:
-            head = self.get_head_of_process_memory(p["id"])
-            event_to_reprocess = head["event"]
-            event_to_reprocess["reprocessing"] = {}
-            event_to_reprocess["reprocessing"]["executed_at"] = p["startExecution"]
-            event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
-            event_to_reprocess["reprocessing"]["app_name"] = p["appName"]
-            event_to_reprocess["reprocessing"]["process_id"] = p["processId"]
-            event_to_reprocess["reprocessing"]["version"] = p["version"]
-            event_to_reprocess["reprocessing"]["payload_signature"] = hashlib.sha1(str(json.dumps(event_to_reprocess["payload"], sort_keys=True)).encode("utf-8")).hexdigest()
-            events_to_execute.append(event_to_reprocess)
-        return events_to_execute
-
-
-    def group_events(self, events):
-        exist = set()
-        result = []
-        for event in events:
-            if event["branch"] != "master":
-                continue
-            reprocessing = event["reprocessing"]
-            key = f"{reprocessing['process_id']}:{reprocessing['version']}:{reprocessing['payload_signature']}:{event['branch']}"
-            if not key in exist:
-                exist.add(key)
-                result.append(event)
-        return result
-
     def persist(self, items):
         repository = Persistence(self.session)
         instances = repository.persist(items)
         repository.commit()
         return instances
-
-    def get_impacted_processes(self, items):
-        older_data = pytz.UTC.localize(datetime.utcnow())
-        impacted_domain = set()
-        current_branch = "master"
-        for item in items:
-            current_branch = item.branch
-            date = pytz.UTC.localize(item.modified)
-            log.info(f"{date} < {older_data}")
-            if date < older_data:
-                older_data = date
-            impacted_domain.add(type(item).__name__)
-
-        log.info(f"Older data at {older_data}")
-        instances =  process_instance.ProcessInstance().get_processes_after(older_data, self.instance_id, self.process_id)
-        deps = []
-        for instance in instances:
-            result = domain_dependency.DomainDependency().get_dependency_by_process_and_version(instance["processId"],instance["version"], impacted_domain)
-            if len(result) > 0:
-                instance["appName"] = result[0]["name"]
-                instance["branch"] = current_branch
-                deps.append(instance)
-        return deps
-

@@ -1,5 +1,5 @@
 from model.persistence import Persistence
-from model.batch import BatchPersistence
+from reprocessing import ReprocessingManager
 import json
 from mapper.builder import MapBuilder
 from database import create_session
@@ -33,7 +33,7 @@ class CommandController(Component):
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
         if not self.is_apicore():
-            BatchPersistence(self.repository.session).dispatch_reprocessing_events(instances, self.instance_id, self.process_id)
+            ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
         return self.from_domain(instances)
 
     def to_domain(self):

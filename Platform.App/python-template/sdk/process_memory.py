@@ -9,6 +9,13 @@ def base_url():
     return f"{process_memory['scheme']}://{process_memory['host']}:{process_memory['port']}"
 
 
+def save_document(collection, data):
+    url = base_url()
+    client = HttpClient()
+    resp = client.post(f"{url}/{collection}?app_origin=domainWorker", data)
+    if resp.has_error:
+        return False
+    return True
 
 def head(instance_id):
     url = base_url()
