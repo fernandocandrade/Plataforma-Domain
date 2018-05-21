@@ -63,10 +63,12 @@ class ReprocessingManager:
             event_to_reprocess = head["event"]
             event_to_reprocess["reprocessing"] = {}
             event_to_reprocess["reprocessing"]["id"] = reprocessing_id
+            event_to_reprocess["reprocessing"]["event_tag"] = str(uuid4())
             event_to_reprocess["reprocessing"]["executed_at"] = p["startExecution"]
             event_to_reprocess["reprocessing"]["instance_id"] = p["id"]
             event_to_reprocess["reprocessing"]["app_name"]    = p["appName"]
             event_to_reprocess["reprocessing"]["process_id"]  = p["processId"]
+            event_to_reprocess["reprocessing"]["system_id"]   = p["systemId"]
             event_to_reprocess["reprocessing"]["version"]     = p["version"]
             event_to_reprocess["reprocessing"]["event_out"]   = head["eventOut"]
             event_to_reprocess["reprocessing"]["executed"]    = False
