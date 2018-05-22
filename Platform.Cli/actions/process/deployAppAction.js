@@ -166,9 +166,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                         "version": env.conf.app.newVersion,
                         "name": env.conf.app.name
                     }
-                    var persistList = dependency[entity].columns.map(f => {
+                    var persistList = dependency[entity].filters.map(f => {
                         var i = this.clone(dep);
-                        i.columnName = f;
+                        i.filter = f;
                         return i
                     });
                     list = list.concat(persistList);
@@ -198,6 +198,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                     dependency[entity] = {};
                     dependency[entity].model =  map[entity].model
                     dependency[entity].columns = Object.keys(map[entity]["fields"]).map(k => map[entity]["fields"][k]["column"])
+                    dependency[entity].filters = Object.keys(map[entity]["filters"]).map(k => map[entity]["filters"][k])
                     return false;
                 }
             }
