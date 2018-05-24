@@ -79,7 +79,7 @@ class BatchPersistence:
             log.info(f"pushing event {name} to event manager")
             evt = {"name":self.event_out, "tag":self.event["tag"] , "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"], "reprocessing":self.event["reprocessing"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
-            ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
+            #ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
 
         except Exception as e:
             event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})

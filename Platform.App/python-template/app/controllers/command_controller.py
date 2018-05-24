@@ -32,8 +32,8 @@ class CommandController(Component):
         #domain_copy = copy.deepcopy(domain_obj)
         instances = self.repository.persist(domain_obj)
         self.repository.commit()
-        if not self.is_apicore():
-            ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
+        #if not self.is_apicore():
+        #    ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
         return self.from_domain(instances)
 
     def to_domain(self):
