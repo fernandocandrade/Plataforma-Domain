@@ -5,23 +5,25 @@
 const CreateDomainAppAction = require("./domain/createAppAction")
 const SolutionAction = require("./solution/createSolutionAction")
 const CreateProcessAppAction = require("./process/createAppAction")
+const CreateDotNetProcessAppAction = require("./process/createDotNetAppAction")
 const CreatePresentationAppAction = require("./presentation/createAppAction")
- module.exports = class CreateAppAction{     
-    
-    constructor(){
+module.exports = class CreateAppAction {
+
+    constructor() {
         this.domainAction = new CreateDomainAppAction();
         this.processAction = new CreateProcessAppAction();
+        this.dotNetProcessAction = new CreateDotNetProcessAppAction();
         this.solutionAction = new SolutionAction();
         this.presentationAction = new CreatePresentationAppAction();
     }
-    
+
     /** 
      * @method exec
      * @param {String} type tipo da aplicação que será criada
      * @description Monta a estrutura básica de uma aplicação de dominio
-     * */ 
-    exec(type){
-        switch (type){
+     * */
+    exec(type) {
+        switch (type) {
             case "domain":
                 this.domainAction.create();
                 break;
@@ -31,11 +33,14 @@ const CreatePresentationAppAction = require("./presentation/createAppAction")
             case "process":
                 this.processAction.create();
                 break;
+            case "dotnet-process":
+                this.dotNetProcessAction.create();
+                break;
             case "presentation":
                 this.presentationAction.create();
                 break;
             default:
                 console.log(`Option ${type} not supported`);
-        }    
+        }
     }
- }
+}
