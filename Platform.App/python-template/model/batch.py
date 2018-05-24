@@ -61,7 +61,7 @@ class BatchPersistence:
         return "_metadata" in item and "changeTrack" in item['_metadata']
 
 
-    def run(self, instance_id, _sid, evt):
+    def run(self, instance_id):
         try:
             log.info(f"getting data from process memory with instance id {instance_id}")
             head = self.get_head_of_process_memory(instance_id)

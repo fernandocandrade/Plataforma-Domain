@@ -22,7 +22,7 @@ strategies = {
 
 try:
     batch = strategies[event](session)
-    batch.run(instance_id, solution_id, event)
+    batch.run(instance_id)
     log.info("Batch persist executed with success")
 except Exception as ex:
     log.critical(str(ex))
