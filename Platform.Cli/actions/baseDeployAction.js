@@ -94,32 +94,16 @@ module.exports = class BaseDeployAction{
         var operationCore = new OperationCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
-                operationCore.findByProcessId(env.conf.app.id).then(ops =>{
-                    operationCore.destroy(ops).then(()=>{
+                operationCore.findByEventInAndSystemId(env.conf.solution.id, operation.event_in).then(ops =>{
+                    if (ops.length > 0){
+                        Object.assign(ops[0], operation);
+                        operationCore.save(ops[0]).then(()=> resolve(ops[0])).catch(reject);
+                    }else{
                         operationCore.create(operation).then((newOp)=>{
-                            resolve(newOp[0]);
-                        });
-                    });
+                           resolve(newOp[0]);
+                       }).catch(reject);
+                    }
                 });
-            }catch(e){
-                reject(e);
-            }
-        });
-        return promise;
-    }
-
-    saveProcessEventsApiCore(env,processEvents){
-        var eventsCore = new EventCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
-        var promise = new Promise((resolve,reject)=>{
-            try{
-                eventsCore.findByProcessId(env.conf.app.id)
-                .then(events => {
-                    eventsCore.destroy(events).then(()=>{
-                        eventsCore.create(processEvents).then(()=>{
-                            resolve(env);
-                        }).catch(e => reject(e));
-                    }).catch(e => reject(e))
-                }).catch(e => reject(e));
             }catch(e){
                 reject(e);
             }

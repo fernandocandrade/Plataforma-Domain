@@ -73,19 +73,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
         }
     }
 
-    processEventCatalog(env, metadata) {
-        var events = eval(metadata.content);
-        var processEvents = [];
-        Object.keys(events).forEach(k => {
-            var processEvent = {};
-            processEvent.systemId = env.conf.solution.id;
-            processEvent.processId = env.conf.app.id;
-            processEvent.name = events[k];
-            processEvents.push(processEvent);
-        });
-        return this.saveProcessEventsApiCore(env, processEvents);
-    }
-
     processOperations(env, metadata) {
         var promise = new Promise((resolve, reject) => {
             try {
