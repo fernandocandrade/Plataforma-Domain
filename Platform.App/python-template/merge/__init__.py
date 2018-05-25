@@ -1,5 +1,6 @@
 import log
 from sdk.branch_link import BranchLink
+from sdk.branch import Branch
 from sdk.process_memory import head
 from sqlalchemy import text
 from model.domain import *
@@ -8,12 +9,14 @@ class MergeBranch:
     def __init__(self, session):
         self.session = session
         self.branch_link = BranchLink()
+        self.branch = Branch()
 
     def get_event(self, instance_id):
         context = head(instance_id)
         return context.get("event")
 
     def run(self, instance_id):
+        log.info("Running merge branch")
         event = self.get_event(instance_id)
         branch_name = event.get("payload",{}).get("branch")
         if not branch_name:
@@ -25,8 +28,10 @@ class MergeBranch:
             cls = globals()[_type]
             self.flip_data(cls, self.session, link.branch_name)
 
+        self.branch.set_merged(branch_name)
         self.session.commit()
-        log.info("Running merge branch")
+
+
 
     def flip_data(self, cls, session, branch):
         registers = session.query(cls).filter(text(f"branch = '{branch}'")).all()

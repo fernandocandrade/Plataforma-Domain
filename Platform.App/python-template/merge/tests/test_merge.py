@@ -3,6 +3,7 @@ from mock import patch
 import database
 from merge import MergeBranch
 from sdk.branch_link import BranchLink
+from sdk.branch import Branch
 from model.domain import conta
 from uuid import uuid4
 from sqlalchemy import text
@@ -42,19 +43,21 @@ def test_should_merge(session):
 
     with patch.object(MergeBranch, 'get_event', return_value=get_event()) as mock_event:
         with patch.object(BranchLink, 'get', return_value=get_branch_link()) as mock_branch_link:
-            merge = MergeBranch(session)
+             with patch.object(Branch, 'set_merged', return_value=[]) as mock_branch:
+                merge = MergeBranch(session)
 
-            #Act
-            merge.run("40393d75-a8ee-41f8-b16e-36c5368d352f")
+                #Act
+                merge.run("40393d75-a8ee-41f8-b16e-36c5368d352f")
 
-            #Assert
-            mock_event.assert_called()
-            mock_branch_link.assert_called()
-            merged = session.query(conta).filter(text("branch = 'master'")).all()
-            for i in merged:
-                assert i.saldo != 0
-            assert len(merged) == 2
-            old_branch = session.query(conta).filter(text("branch = 'cenario-01'")).all()
-            assert len(old_branch) == 0
-            history_branch = session.query(conta).filter(text("branch = 'merged:cenario-01'")).all()
-            assert len(history_branch) == 2
+                #Assert
+                mock_event.assert_called()
+                mock_branch_link.assert_called()
+                mock_branch.assert_called_with("cenario-01")
+                merged = session.query(conta).filter(text("branch = 'master'")).all()
+                for i in merged:
+                    assert i.saldo != 0
+                assert len(merged) == 2
+                old_branch = session.query(conta).filter(text("branch = 'cenario-01'")).all()
+                assert len(old_branch) == 0
+                history_branch = session.query(conta).filter(text("branch = 'merged:cenario-01'")).all()
+                assert len(history_branch) == 2
