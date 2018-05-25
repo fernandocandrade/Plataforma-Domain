@@ -55,5 +55,5 @@ class MergeBranch:
 
     def assign(self, _from, _to):
         for k, v in _from.__dict__.items():
-            if hasattr(_to, k) and k not in {"_sa_instance_state", "branch", "rid"}:
+            if hasattr(_to, k) and k not in {"_sa_instance_state", "branch", "rid", "from_id"}:
                 setattr(_to, k, v)
