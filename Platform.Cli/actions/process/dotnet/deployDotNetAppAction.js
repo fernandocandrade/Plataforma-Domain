@@ -17,12 +17,12 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
         if (!env.metamapa) {
             prep = prep.then((prepared) => this.copyFiles(prepared))
                 .then(context => this.publishProject(context))
-                //.then(context => this.registerSolution(context))
-                //.then(context => this.registerApp(context));
+                .then(context => this.registerSolution(context))
+                .then(context => this.registerApp(context));
         }
-        //prep = prep.then(context => this.uploadMaps(context))
-        //    .then(context => this.uploadMetadata(context));
-        //prep.then(this.finalize).catch(this.onError);
+        prep = prep.then(context => this.uploadMaps(context))
+            .then(context => this.uploadMetadata(context));
+        prep.then(this.finalize).catch(this.onError);
     }
 
     prepare(env) {
