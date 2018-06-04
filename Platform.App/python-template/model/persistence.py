@@ -1,20 +1,63 @@
 from model.domain import *
 import log
+from core.component import Component
+from sdk.branch_link import BranchLink
+from datetime import datetime
+from uuid import uuid4
+import json
 
-
-class Persistence:
+class Persistence(Component):
 
     def __init__(self, session):
+        super().__init__()
         self.session = session
+        self.branch_link = BranchLink()
 
     def commit(self):
         self.session.commit()
+
+    def link_branch(self, items):
+        if self.is_apicore():
+            return
+        current_links = self.branch_link.get_links()
+        new_links = self.get_branches_to_link(items)
+        new_links_to_persist = self.diff_branch_links(new_links, current_links)
+        self.branch_link.save(new_links_to_persist)
+
+    def diff_branch_links(self, incomming_links, current_links):
+        result = []
+        keys = [self.get_key_from_metadata(item) for item in current_links]
+        for l in incomming_links:
+            key = self.get_key_from_metadata(l)
+            if key in keys:
+                continue
+
+            branch = l.get("branch","master")
+            result.append({"entity": l["type"], "branchName":branch})
+        return result
+
+    def get_key_from_metadata(self,item):
+        return item.get("type", item.get("entity", ""))+":"+item.get("branch",item.get("branchName","master"))
+
+    def get_branches_to_link(self, items):
+        result = []
+        linked = set()
+        for item in items:
+            if "_metadata" not in item:
+                continue
+            key = self.get_key_from_metadata(item["_metadata"])
+            if key in linked:
+                continue
+            linked.add(key)
+            result.append(item["_metadata"])
+        return result
 
     def persist(self, objs):
         """ split object collection into 3 operation list for
             creating, updating, destroying looking for changeTrack
             on each object
         """
+        self.link_branch(objs)
         to_create = []
         to_update = []
         to_destroy = []
@@ -41,24 +84,45 @@ class Persistence:
 
     def update(self, objs):
         for o in objs:
+            branch = o["_metadata"].get("branch","master")
             _type = o["_metadata"]["type"].lower()
             cls = globals()[_type]
             instance = cls(**o)
+            if not instance.deleted:
+                instance.deleted = False
             del o['_metadata']
-            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
-            for k, v in o.items():
-                if hasattr(obj, k):
-                    setattr(obj, k, v)
-
+            obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
+            if not obj and branch != "master":
+                #make a copy from master object to branch object
+                obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == "master").one()
+                setattr(instance,"from_id", obj.rid)
+                setattr(instance,"rid", uuid4())
+                setattr(instance,"branch", branch)
+                setattr(instance,"modified", obj.modified)
+                attrs = list(obj.__dict__.items()) + list(o.items())
+                for k, v in (attrs):
+                    if hasattr(instance, k) and k not in {"_sa_instance_state", "rid", "from_id", "branch", "modified"}:
+                        setattr(instance, k, v)
+                log.info("recreating object")
+                self.session.add(instance)
+            else:
+                instance.modified = obj.modified
+                obj.modified = datetime.utcnow()
+                for k, v in o.items():
+                    if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified"}:
+                        setattr(obj, k, v)
             yield instance
 
     def destroy(self, objs):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
+            branch = o["_metadata"].get("branch","master")
             cls = globals()[_type]
             instance = cls(**o)
+            if not instance.modified:
+                instance.modified = datetime.utcnow()
             del o['_metadata']
-            obj = self.session.query(cls).filter(cls.id == o["id"]).one()
+            obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
             obj.deleted = True
 
     def is_to_create(self, obj):

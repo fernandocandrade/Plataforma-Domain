@@ -2,6 +2,7 @@ import os
 from model.persistence import Persistence
 from database import create_db, create_session
 from model.batch import BatchPersistence
+from merge import MergeBranch
 import log
 
 instance_id = os.environ.get("INSTANCE_ID", "undefined")
@@ -13,17 +14,9 @@ log.info("Executing batch persist")
 session = create_session()
 
 
-class Fork:
-    def __init__(self, session):
-        self.session = session
-
-    def run(self):
-        log.info('create fork')
-
-
 strategies = {
     f'{solution_id}.persist.request': BatchPersistence,
-    f'{solution_id}.fork.request': Fork,
+    f'{solution_id}.merge.request': MergeBranch,
 }
 
 

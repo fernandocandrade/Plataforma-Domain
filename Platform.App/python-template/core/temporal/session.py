@@ -25,7 +25,7 @@ class TemporalSession(orm.session.Session):
         """gets an existing or creates a new entity clock
            for a temporal model.
         """
-        if entity.id:
+        if entity.rid:
             clock = self.query(entity.__class__).clock(entity, period)
 
             if clock:
@@ -53,7 +53,7 @@ class TemporalSession(orm.session.Session):
         #if not new_value:
         #    return None, False
 
-        if entity.id:
+        if entity.rid:
             history = self.query(entity.__class__).field_history(
                 entity, field, clock)
 

@@ -45,7 +45,7 @@ class ModelBase(object):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    rid = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
 
 Base = declarative_base(cls=ModelBase)

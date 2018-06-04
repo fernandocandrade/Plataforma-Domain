@@ -112,6 +112,7 @@ def test_to_map():
         }
     }
     mapped = Translator(index).to_map('BankApp',domain)
+
     assert "saldo" in mapped
     assert "titular" in mapped
     assert domain["cl_saldo"] == mapped["saldo"]

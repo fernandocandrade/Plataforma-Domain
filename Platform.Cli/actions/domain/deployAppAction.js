@@ -47,7 +47,20 @@ module.exports = class DeployAppAction extends BaseDeployAction {
                 "event_in": env.conf.solution.id+".persist.request",
                 "event_out": env.conf.solution.id+".persist.done",
                 "image": env.docker.tag,
+                "version":env.conf.app.newVersion,
                 "name": env.conf.app.name+".persist",
+                "commit":true,
+                "processId": env.conf.app.id,
+                "systemId": env.conf.solution.id
+            });
+
+        }).then(()=>{
+            return this.saveOperationCore(env,{
+                "event_in": env.conf.solution.id+".merge.request",
+                "event_out": env.conf.solution.id+".merge.done",
+                "image": env.docker.tag,
+                "version":env.conf.app.newVersion,
+                "name": env.conf.app.name+".merge",
                 "commit":true,
                 "processId": env.conf.app.id,
                 "systemId": env.conf.solution.id
