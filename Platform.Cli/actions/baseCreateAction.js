@@ -13,11 +13,14 @@ module.exports = class BaseCreateAction{
      * @param {String} type É o tipo da app que esta sendo criada
      * @param {Function} callback Funcao chamada ao final da configuração da aplicação
      */
-    create(type, callback){       
+    create(type, tecnology, callback){       
         var solution = this.appInstance.getSolutionConfig(".");
         var plataforma = {};
         plataforma.app = {};
         plataforma.app.type = type;
+        if (tecnology) {
+            plataforma.app.tecnology = tecnology;
+        } 
         inquirer.prompt(this.getQuestions()).then(answers => {
             var name = answers["nome"];
             var path = process.cwd()+"/"+name;

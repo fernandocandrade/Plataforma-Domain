@@ -3,7 +3,7 @@ const uuidv4 = require('uuid/v4');
 const BaseAction = require("../baseCreateAction");
 var shell = require("shelljs");
 var fs = require("fs");
-
+const TecnologyApp = require("../tecnologyApp");
 
 module.exports = class CreateAppAction{
     constructor(){
@@ -12,7 +12,7 @@ module.exports = class CreateAppAction{
     }
 
     create(type){
-        this.baseAction.create("process",(plataforma)=>{
+        this.baseAction.create("process", TecnologyApp.node, (plataforma)=>{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process', path+"/spec");
             shell.touch(path+"/process/"+plataforma.app.name+".js");

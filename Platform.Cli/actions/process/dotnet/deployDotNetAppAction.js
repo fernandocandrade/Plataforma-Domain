@@ -1,24 +1,28 @@
 const fs = require("fs");
 const shell = require("shelljs");
 const os = require("os");
-const BaseDeployAction = require("../baseDeployAction");
-const DockerService = require("../../services/docker");
+const BaseDeployAction = require("../../baseDeployAction");
+const DockerService = require("../../../services/docker");
+
 module.exports = class DeployProcessAppAction extends BaseDeployAction {
+    
     constructor(appInstance) {
         super();
         this.appInstance = appInstance;
         this.docker = new DockerService();
     }
+
     deploy(env) {
         var prep = this.prepare(env);
         if (!env.metamapa) {
             prep = prep.then((prepared) => this.copyFiles(prepared))
-                .then(context => this.registerSolution(context))
-                .then(context => this.registerApp(context));
+                .then(context => this.publishProject(context))
+                //.then(context => this.registerSolution(context))
+                //.then(context => this.registerApp(context));
         }
-        prep = prep.then(context => this.uploadMaps(context))
-            .then(context => this.uploadMetadata(context));
-        prep.then(this.finalize).catch(this.onError);
+        //prep = prep.then(context => this.uploadMaps(context))
+        //    .then(context => this.uploadMetadata(context));
+        //prep.then(this.finalize).catch(this.onError);
     }
 
     prepare(env) {
@@ -40,10 +44,34 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             try {
                 var source = ".";
                 var dest = env.conf.fullPath;
+                
                 console.log("Copying Files");
-                shell.rm("-rf",env.conf.fullPath);
-                shell.mkdir("-p",env.conf.fullPath);
-                shell.cp("-R",".",env.conf.fullPath);
+                
+                shell.rm("-rf", dest);
+                shell.mkdir("-p", dest);
+                shell.cp("-R",source+"/mapa", dest + "/mapa");
+                shell.cp("-R",source+"/metadados", dest + "/metadados");
+                shell.cp(source+"/Dockerfile", dest);
+
+                resolve(env);
+            } catch (e) {
+                reject(e);
+            }
+        });
+        return promise;
+    }
+
+    publishProject(env) {
+        var promise = new Promise((resolve, reject) => {
+            try {
+                var source = ".";
+                var dest = env.conf.fullPath;
+                let consoleAppName = env.conf.app.name + '.Process';
+                
+                console.log("Publish Project");
+
+                shell.exec(`dotnet publish ${source}/process/${consoleAppName}/${consoleAppName}.csproj -o ${dest}/process`);
+
                 resolve(env);
             } catch (e) {
                 reject(e);

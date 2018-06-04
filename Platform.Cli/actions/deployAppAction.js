@@ -4,14 +4,18 @@
  */
 const AppInstance = require("../app_instance");
 const DeployProcessAppAction = require("./process/deployAppAction");
+const DeployDotNetProcessAppAction = require("./process/dotnet/deployDotNetAppAction");
 const DeployDomainAppAction = require("./domain/deployAppAction");
 const Env = require("../env/environment");
+const TecnologyApp = require("./tecnologyApp")
+
 module.exports = class DeployAppAction {
 
     constructor() {
         this.appInstance = new AppInstance();
         this.env = new Env();
         this.deployProcessAppAction = new DeployProcessAppAction(this.appInstance);
+        this.deployDotNetProcessAppAction = new DeployDotNetProcessAppAction(this.appInstance);
         this.deployDomainAppAction = new DeployDomainAppAction(this.appInstance);
     }
     exec(environment) {
@@ -26,7 +30,11 @@ module.exports = class DeployAppAction {
         env.metamapa = this.metamapa;
         switch (conf.app.type) {
             case "process":
-                this.deployProcessAppAction.deploy(env);
+                if (conf.app.tecnology == TecnologyApp.dotnet) {
+                    this.deployDotNetProcessAppAction.deploy(env);
+                } else {
+                    this.deployProcessAppAction.deploy(env);
+                }
                 break;
             case "presentation":
                 this.deployProcessAppAction.deploy(env);

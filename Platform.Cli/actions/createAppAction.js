@@ -5,8 +5,10 @@
 const CreateDomainAppAction = require("./domain/createAppAction")
 const SolutionAction = require("./solution/createSolutionAction")
 const CreateProcessAppAction = require("./process/createAppAction")
-const CreateDotNetProcessAppAction = require("./process/createDotNetAppAction")
+const CreateDotNetProcessAppAction = require("./process/dotnet/createDotNetAppAction")
 const CreatePresentationAppAction = require("./presentation/createAppAction")
+const TecnologyApp = require("./tecnologyApp")
+
 module.exports = class CreateAppAction {
 
     constructor() {
@@ -20,9 +22,20 @@ module.exports = class CreateAppAction {
     /** 
      * @method exec
      * @param {String} type tipo da aplicação que será criada
+     * @param {String} tecnology indica a tecnologia de programação utilizada pela aplicação que será criada, ex: node (default), dotnet.
      * @description Monta a estrutura básica de uma aplicação de dominio
      * */
-    exec(type) {
+    exec(type, tecnology) {
+
+        if (tecnology && tecnology != TecnologyApp.node && tecnology != TecnologyApp.dotnet) {
+            console.log(`Tecnology ${type} not supported. Use: ${TecnologyApp.node}, ${TecnologyApp.dotnet}`);
+            return;
+        }
+
+        if (!tecnology) {
+            console.log(`Tecnology not informed. Used default configuration: node`);
+        }
+
         switch (type) {
             case "domain":
                 this.domainAction.create();
@@ -31,10 +44,11 @@ module.exports = class CreateAppAction {
                 this.solutionAction.create();
                 break;
             case "process":
-                this.processAction.create();
-                break;
-            case "dotnet-process":
-                this.dotNetProcessAction.create();
+                if (tecnology == TecnologyApp.dotnet) {
+                    this.dotNetProcessAction.create();
+                } else {
+                    this.processAction.create();
+                }
                 break;
             case "presentation":
                 this.presentationAction.create();

@@ -29,6 +29,7 @@ program
   .version('0.0.1')
   .option('-r, --run', 'Start app container')
   .option('-n, --new [type]', 'Creates a new App')
+  .option('-t, --tecnology [tecnology]', 'Indica a tecnologia utilizada pelo App: node (default), dotnet.')
   .option('-d, --deploy [env]', 'Deploy App')
   .option('-c, --clean', 'Clean App')
   .option('-i, --install', 'Install Platform')
@@ -40,7 +41,7 @@ program
   .option('-un, --uninstall', 'Remove todos os componentes de plataforma')
   .parse(process.argv);
 
-if (program.new) createAppAction.exec(program.new);
+if (program.new) createAppAction.exec(program.new, program.tecnology);
 else if (program.install) installPlatformAction.exec();
 else if (program.stop) stopPlatformAction.exec();
 else if (program.start) startPlatformAction.exec();
