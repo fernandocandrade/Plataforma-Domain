@@ -7,6 +7,7 @@ const SolutionAction = require("./solution/createSolutionAction")
 const CreateProcessAppAction = require("./process/createAppAction")
 const CreateDotNetProcessAppAction = require("./process/dotnet/createDotNetAppAction")
 const CreatePresentationAppAction = require("./presentation/createAppAction")
+const CreateDotNetPresentationAppAction = require("./presentation/dotnet/createDotNetAppAction")
 const TecnologyApp = require("./tecnologyApp")
 
 module.exports = class CreateAppAction {
@@ -17,6 +18,7 @@ module.exports = class CreateAppAction {
         this.dotNetProcessAction = new CreateDotNetProcessAppAction();
         this.solutionAction = new SolutionAction();
         this.presentationAction = new CreatePresentationAppAction();
+        this.dotNetPresentationAction = new CreateDotNetPresentationAppAction();
     }
 
     /** 
@@ -51,7 +53,11 @@ module.exports = class CreateAppAction {
                 }
                 break;
             case "presentation":
-                this.presentationAction.create();
+                if (tecnology == TecnologyApp.dotnet) {
+                    this.dotNetPresentationAction.create();
+                } else {
+                    this.presentationAction.create();
+                }
                 break;
             default:
                 console.log(`Option ${type} not supported`);

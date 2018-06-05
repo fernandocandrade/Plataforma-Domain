@@ -7,7 +7,7 @@ module.exports = class CreatePresentationAppAction{
     }
 
     create(type){
-        this.baseAction.create("presentation",(plataforma)=>{
+        this.baseAction.create("presentation", TecnologyApp.node, (plataforma)=>{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/server',path+`/${plataforma.app.name}`,path+"/metadados",path+"/mapa");
             const Dockerfile = `
