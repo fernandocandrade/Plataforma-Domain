@@ -8,6 +8,7 @@ module.exports = class UpgradeComponentAction{
         }
         var path = os.homedir()+"/installed_plataforma";
         shell.cd(path+"/Plataforma-Installer");
+        shell.exec("git pull");
         components.forEach(component => {
             this.upgradeComponent(component);
         });

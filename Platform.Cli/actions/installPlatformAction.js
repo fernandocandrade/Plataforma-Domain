@@ -24,6 +24,8 @@ module.exports = class InstallPlatformAction{
                 shell.exec("git clone https://github.com/ONSBR/Plataforma-Installer.git");
                 shell.cd("Plataforma-Installer");
             }
+            shell.exec(`mkdir -p "${os.homedir()}/git-server/keys"`)
+            shell.exec(`mkdir -p "${os.homedir()}/git-server/repos"`)
             shell.exec("docker network rm plataforma_network");
             shell.exec("docker network create --driver=bridge plataforma_network");
             shell.exec("docker-compose build --no-cache");
