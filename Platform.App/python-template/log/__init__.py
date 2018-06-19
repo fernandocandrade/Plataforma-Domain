@@ -16,6 +16,6 @@ def disable_log():
 def debug(msg):
     root.debug(msg)
 def critical(msg):
-    root.critical(msg)
+    root.critical(msg, exc_info=msg)
 def info(msg):
     root.info(msg)
