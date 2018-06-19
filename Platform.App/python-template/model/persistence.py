@@ -99,9 +99,10 @@ class Persistence(Component):
                 setattr(instance,"rid", uuid4())
                 setattr(instance,"branch", branch)
                 setattr(instance,"modified", obj.modified)
+                setattr(instance,"created_at", obj.created_at)
                 attrs = list(obj.__dict__.items()) + list(o.items())
                 for k, v in (attrs):
-                    if hasattr(instance, k) and k not in {"_sa_instance_state", "rid", "from_id", "branch", "modified"}:
+                    if hasattr(instance, k) and k not in {"_sa_instance_state", "rid", "from_id", "branch", "modified", "created_at"}:
                         setattr(instance, k, v)
                 log.info("recreating object")
                 self.session.add(instance)
@@ -109,7 +110,7 @@ class Persistence(Component):
                 instance.modified = obj.modified
                 obj.modified = datetime.utcnow()
                 for k, v in o.items():
-                    if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified"}:
+                    if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified", "created_at"}:
                         setattr(obj, k, v)
             yield instance
 

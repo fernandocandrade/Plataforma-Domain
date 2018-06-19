@@ -32,6 +32,7 @@ class {{@key}}(Base, TemporalModelMixin):
             "id": self.id,
             "branch":self.branch,
             "modified":self.modified,
+            "created_at":self.created_at,
             "_metadata": self._metadata
         }
 
@@ -40,7 +41,7 @@ class {{@key}}(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted','modified', 'meta_instance_id', 'from_id', 'branch', {{#join . ","}}'{{{name}}}'{{/join}}, )
+        fields = ('deleted','modified','created_at', 'meta_instance_id', 'from_id', 'branch', {{#join . ","}}'{{{name}}}'{{/join}}, )
 
     {{#each . }}
     {{{@key}}} = Column({{{type}}})
@@ -50,6 +51,7 @@ class {{@key}}(Base, TemporalModelMixin):
     deleted = Column(sap.BOOLEAN(), default=False)
     meta_instance_id = Column(sap.UUID(as_uuid=True))
     modified = Column(DateTime(), default=datetime.utcnow())
+    created_at = Column(DateTime(), default=datetime.utcnow())
     branch = Column(String(), default='master')
     from_id = Column(sap.UUID(as_uuid=True), nullable=True)
 
