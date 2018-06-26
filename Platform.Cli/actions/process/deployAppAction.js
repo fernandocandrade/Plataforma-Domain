@@ -3,6 +3,10 @@ const shell = require("shelljs");
 const os = require("os");
 const BaseDeployAction = require("../baseDeployAction");
 const DockerService = require("../../services/docker");
+<<<<<<< HEAD
+=======
+const DependencyDomainCore = require("plataforma-sdk/services/api-core/dependencyDomain");
+>>>>>>> d34ca5d998d31f5bfe2f096ddf9fdca8f1933a28
 
 
 module.exports = class DeployProcessAppAction extends BaseDeployAction {
@@ -19,7 +23,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 .then(context => this.registerApp(context));
         }
         prep = prep.then(context => this.uploadMaps(context))
-            .then(context => this.uploadMetadata(context));
+            .then(context => this.uploadMetadata(context))
+            .then(context => this.uploadDomainDependency(context));
         prep.then(this.finalize).catch(this.onError);
     }
 
@@ -71,19 +76,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
         }
     }
 
-    processEventCatalog(env, metadata) {
-        var events = eval(metadata.content);
-        var processEvents = [];
-        Object.keys(events).forEach(k => {
-            var processEvent = {};
-            processEvent.systemId = env.conf.solution.id;
-            processEvent.processId = env.conf.app.id;
-            processEvent.name = events[k];
-            processEvents.push(processEvent);
-        });
-        return this.saveProcessEventsApiCore(env, processEvents);
-    }
-
     processOperations(env, metadata) {
         var promise = new Promise((resolve, reject) => {
             try {
@@ -111,15 +103,99 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.event_in = operation.event;
                 operation.event_out = `${operation.name}.done`;
                 operation.image = this.docker.getContainer(env);
+                operation.version = env.conf.app.newVersion;
                 env.image = operation.image;
-                this.saveOperationCore(env,operation).then((c)=>{
-                    resolve(env);
-                })
+                this.getMap(env).then(map => {
+                    operation.reprocessable = this.isReprocessable(map)
+                    this.saveOperationCore(env,operation).then((c)=>{
+                        resolve(env);
+                    });
+                });
             } catch (e) {
                 reject(e);
             }
         });
     }
+
+    isReprocessable(map) {
+        /**
+         * Verifica se uma app é reprocessável, apps que apenas criam objetos não são reprocessáveis
+         * não a necessidade de reexecutar apps que não tenham dependencia funcional de alguma entidade
+         */
+        var dep = this.getDependency(map)
+        return Object.keys(dep).length > 0
+    }
+    getMap(env) {
+        return new Promise((resolve, reject) => {
+            this.getFiles(env, "mapa", (ctx, v) => {
+                var yaml = require('js-yaml');
+                var map = yaml.safeLoad(v.content);
+                resolve(map);
+            });
+        });
+    }
+
+    uploadDomainDependency(env) {
+        return new Promise((resolve, reject)=>{
+            console.log("Compiling data dependency")
+            this.getFiles(env, "mapa", (ctx, v) => {
+                var yaml = require('js-yaml');
+                var map = yaml.safeLoad(v.content);
+                var dependency = this.getDependency(map);
+                var model = dependency.model;
+                if (Object.keys(dependency).length === 0) {
+                    resolve(env);
+                    return;
+                }
+                var list = [];
+                Object.keys(dependency).forEach(entity => {
+                    var dep = {
+                        "entity": dependency[entity].model,
+                        "systemId": env.conf.solution.id,
+                        "processId": env.conf.app.id,
+                        "version": env.conf.app.newVersion,
+                        "name": env.conf.app.name
+                    }
+                    var persistList = dependency[entity].filters.map(f => {
+                        var i = this.clone(dep);
+                        i.filter = f;
+                        return i
+                    });
+                    list = list.concat(persistList);
+                });
+                var api = new DependencyDomainCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
+                api.save(list).then(e => {
+                    resolve(env);
+                }).catch(reject);
+            });
+        });
+    };
+
+
+    getDependency(map) {
+        /**
+         * Para saber se uma process app tem uma dependencia funcional com alguma entidade do dominio
+         * devemos verificar se a process app faz algum filtro no domain
+         * o fato de realizar algum filtro no dominio já caracteriza uma dependencia funcional
+         * pois independente dos campos é muito arriscado, a principio, a plataforma julgar uma dependencia funcional
+         * observando modficações em campos de entidade
+         */
+        var dependency = {};
+        Object.keys(map).forEach(entity => {
+            if (map[entity]["filters"]) {
+                var filters = map[entity]["filters"]
+                if (Object.keys(filters).length > 0) {
+                    dependency[entity] = {};
+                    dependency[entity].model =  map[entity].model
+                    dependency[entity].columns = Object.keys(map[entity]["fields"]).map(k => map[entity]["fields"][k]["column"])
+                    dependency[entity].filters = Object.keys(map[entity]["filters"]).map(k => map[entity]["filters"][k])
+                    return false;
+                }
+            }
+        });
+        return dependency;
+    }
+
     registerApp(env) {
         var promise = new Promise((resolve, reject) => {
             var process = {};

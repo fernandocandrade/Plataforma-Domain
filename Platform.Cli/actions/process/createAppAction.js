@@ -16,7 +16,6 @@ module.exports = class CreateAppAction{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/mapa',path+'/metadados',path+'/process', path+"/spec");
             shell.touch(path+"/process/"+plataforma.app.name+".js");
-            shell.touch(path+"/metadados/EventCatalog.js");
             shell.touch(path+"/metadados/"+plataforma.app.name+".yaml");
 
             const Dockerfile = `
@@ -42,6 +41,9 @@ describe('Sum example', function () {
             var npmConfig = JSON.parse(fs.readFileSync(path+"/package.json","UTF-8"));
             npmConfig.scripts = {};
             npmConfig.scripts.test = "./node_modules/.bin/jasmine-node spec";
+            if (!npmConfig.dependencies){
+                npmConfig.dependencies = {};
+            }
             npmConfig.dependencies["plataforma-sdk"] = "git+https://github.com/ONSBR/Plataforma-SDK";
             fs.writeFileSync(path+"/package.json",JSON.stringify(npmConfig,null,4));
         })

@@ -11,7 +11,7 @@ def test_create_new_model_creates_model_clock(session, create_model, query_by_en
     user = create_model(User, name='Foo', age=20)
 
     # retrieve
-    clock = query_by_entity(User._clock, user.id).one()
+    clock = query_by_entity(User._clock, user.rid).one()
 
     # assert
     assert clock.ticks == 1
@@ -23,7 +23,7 @@ def test_update_model_increases_model_clock(session, create_model, update_model,
     update_model(user, name='Bar')
 
     # retrieve one and only one clock.
-    clock = query_by_entity(User._clock, user.id).one()
+    clock = query_by_entity(User._clock, user.rid).one()
 
     # assert
     assert clock.ticks == 2
@@ -34,8 +34,8 @@ def test_create_new_model_creates_fields_history(session, create_model, query_by
     user = create_model(User, name="Foo", age=20)
 
     # retrieve
-    age_history = query_by_entity(user._history['age'], user.id).one()
-    name_history = query_by_entity(user._history['name'], user.id).one()
+    age_history = query_by_entity(user._history['age'], user.rid).one()
+    name_history = query_by_entity(user._history['name'], user.rid).one()
 
     # assert
     assert age_history.value == 20
@@ -103,16 +103,6 @@ def test_delete_model_mark_clock_as_deleted(session, create_model, delete_model,
     assert user_clock.one().deleted == True
 
 
-def test_get_model_history(session, create_model, update_model):
-    # mock
-    user = create_model(User, name='Foo', age=20,)
-    update_model(user, name='Bar')
-
-    # act
-    user_db = session.query(User).history().one()
-
-    # assert
-    assert user_db.name == 'Bar' and user_db.age == 20
 
 
 def test_get_model_history_with_filter(session, create_model, update_model):
@@ -128,17 +118,6 @@ def test_get_model_history_with_filter(session, create_model, update_model):
     # assert
     assert user.name == 'Foo' and user.age == 21
 
-
-def test_get_model_history_at_specific_version(session, create_model, update_model):
-    #  mock
-    user = create_model(User, name='Foo', age=20,)
-    update_model(user, name='Bar')
-
-    # act
-    user = session.query(User).history(version=1).one()
-
-    # assert
-    assert user.name == 'Foo' and user.age == 20
 
 
 def test_create_1k_models(session):

@@ -34,7 +34,7 @@ class QueryController:
 
         return result
 
-    def history(self, entity_id):
+    def history(self, entity_id, version):
         entity = self.mapper.index.get_model_name(
             self.app_id, self.mapped_entity)
 
@@ -45,4 +45,4 @@ class QueryController:
 
         projection = projection[self.mapped_entity]
         return self.query_service.history(
-            self.app_id, self.mapped_entity, entity, projection, entity_id)
+            self.app_id, self.mapped_entity, entity, projection, entity_id, version)
