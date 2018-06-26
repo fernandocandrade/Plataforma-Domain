@@ -1,24 +1,28 @@
 const uuidv4 = require('uuid/v4');
+const Deployer = require('../../services/deployer');
+var RemoteContext = require("../../remote/remoteContext");
 module.exports = class CreateSolutionAction{
-    constructor(){}
+
+    constructor(){
+        this.remoteContext = new RemoteContext();
+        this.deployer = new Deployer(this.remoteContext);
+    }
 
     create(){
-        var shell = require('shelljs');      
+        var shell = require('shelljs');
         var inquirer = require('inquirer');
-        var fs = require("fs");        
+        var fs = require("fs");
         var plataforma = {};
         plataforma.solution = {};
         inquirer.prompt(this.getQuestions()).then(answers => {
-            var name = answers["nome"];
+            var name = answers["nome"].toLowerCase();
             var path = process.cwd()+"/"+name;
-            plataforma.solution.name = name;            
+            plataforma.solution.name = name;
             plataforma.solution.description = answers["descricao"];
             plataforma.solution.version = answers["versao"];
-            this.installAppPlatform(plataforma,(id)=>{
-                shell.mkdir('-p', path);
-                plataforma.solution.id = id;
-                fs.writeFileSync(path+"/plataforma.json",JSON.stringify(plataforma, null, 4),"UTF-8");
-            });            
+            plataforma.solution.id = uuidv4();
+            shell.mkdir('-p', path);
+            fs.writeFileSync(path+"/plataforma.json",JSON.stringify(plataforma, null, 4),"UTF-8");
         });
     }
 
@@ -27,7 +31,7 @@ module.exports = class CreateSolutionAction{
 
         var q0 = {
             type: "input",
-            default: "Solution1",
+            default: "solution1",
             name: "nome",
             message: "Nome da Solução"
         };
@@ -43,13 +47,8 @@ module.exports = class CreateSolutionAction{
             type: "input",
             name: "descricao",
             message: "Descrição"
-        };                    
+        };
         questions.push(q0,q2);
         return questions;
-    }
-    
-
-    installAppPlatform(platform, callback){
-        callback(uuidv4());
     }
 };
