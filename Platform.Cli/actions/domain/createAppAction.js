@@ -5,14 +5,14 @@ module.exports = class CreateDomainAppAction {
         this.baseAction = new BaseAction();
     }
 
-    /** 
+    /**
      * @method create
      * @description Monta a estrutura básica de uma aplicação de dominio
-     * */ 
+     * */
     create(type){
-        this.baseAction.create("domain",(plataforma)=>{
+        this.baseAction.create("domain","node",(plataforma)=>{
             var path = process.cwd()+"/"+plataforma.app.name;
             shell.mkdir('-p', path+'/Dominio',path+'/Migrations',path+'/Mapas');
-        });        
+        });
     }
 }
