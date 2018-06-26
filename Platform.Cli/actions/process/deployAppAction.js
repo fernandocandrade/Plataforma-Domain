@@ -3,10 +3,7 @@ const shell = require("shelljs");
 const os = require("os");
 const BaseDeployAction = require("../baseDeployAction");
 const DockerService = require("../../services/docker");
-<<<<<<< HEAD
-=======
 const DependencyDomainCore = require("plataforma-sdk/services/api-core/dependencyDomain");
->>>>>>> d34ca5d998d31f5bfe2f096ddf9fdca8f1933a28
 
 
 module.exports = class DeployProcessAppAction extends BaseDeployAction {
