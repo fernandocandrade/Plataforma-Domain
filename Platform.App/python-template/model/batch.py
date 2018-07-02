@@ -60,6 +60,12 @@ class BatchPersistence:
     def has_change_track(self, item):
         return "_metadata" in item and "changeTrack" in item['_metadata']
 
+    def get_entities(self, instance_id):
+        head = self.get_head_of_process_memory(instance_id)
+        log.info("extracting data from dataset")
+        self.extract_head(head)
+        log.info("getting items to persist")
+        return self.get_items_to_persist(self.entities, instance_id)
 
     def run(self, instance_id):
         try:

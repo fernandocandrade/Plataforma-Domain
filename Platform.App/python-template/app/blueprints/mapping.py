@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify
 from mapper.builder import MapBuilder
 from app.services import QueryService
 from app.controllers import QueryController, CommandController
+from model.batch import BatchPersistence
 import log
 
 
@@ -95,3 +96,10 @@ def show_mapper_cache():
 def disable_cache():
     MapBuilder.cache_enable = False
     return jsonify({"message":f"Cache enabled={MapBuilder.cache_enable}"})
+
+
+@mapping.route("/instance/<process_instance>/entities", methods=['GET'])
+def entities_by_process_instance(process_instance):
+    bat = BatchPersistence(None)
+    entities = bat.get_entities(process_instance)
+    return jsonify(entities)
