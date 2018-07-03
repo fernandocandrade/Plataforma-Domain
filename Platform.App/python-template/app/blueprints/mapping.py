@@ -80,6 +80,13 @@ def persist_map(app_id):
         r = {"status_code": 400, "message": str(excpt)}
         return jsonify(r), 400
 
+@mapping.route("/instance/<process_instance>/persist", methods=['POST'])
+def persist_entities_by_process_instance(process_instance):
+    controller = CommandController(None, None, None, None, None)
+    ok = controller.persist_by_instance(process_instance)
+    resp = {"message":ok}
+    return jsonify(resp)
+
 
 @mapping.route("/mapper/cache", methods=['PUT'])
 def enable_cache():
