@@ -98,7 +98,13 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.systemId = env.conf.solution.id;
                 operation.processId = env.conf.app.id;
                 operation.event_in = operation.event;
-                operation.event_out = `${operation.name}.done`;
+                var parts = operation.event.split(".")
+                if (parts[parts.length -1] == "request") {
+                    parts[parts.length -1] = "done"
+                    operation.event_out = parts.join(".");
+                }else{
+                    operation.event_out = `${operation.event}.done`;
+                }
                 operation.image = this.docker.getContainer(env);
                 operation.version = env.conf.app.newVersion;
                 env.image = operation.image;
