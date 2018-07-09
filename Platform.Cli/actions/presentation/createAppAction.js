@@ -1,6 +1,7 @@
 const BaseAction = require("../baseCreateAction");
 var shell = require("shelljs");
 var fs = require("fs");
+const TecnologyApp = require("../tecnologyApp");
 module.exports = class CreatePresentationAppAction{
     constructor(){
         this.baseAction = new BaseAction();
