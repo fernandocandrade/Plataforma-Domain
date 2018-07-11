@@ -32,6 +32,7 @@ class Index(Component):
                 yaml['map'][entity]['fields'][attr] = dict()
                 yaml['map'][entity]['fields'][attr]['column'] = attr
         for entity in yaml['map']:
+            add_attr(entity, "rid")
             add_attr(entity, "id")
             add_attr(entity, "meta_instance_id")
             add_attr(entity, "from_id")

@@ -119,10 +119,12 @@ class Query:
                 "branch":d["branch"],
                 "modified_at":d["modified"],
                 "origin": d["from_id"],
-                "instance_id": instance_id
+                "instance_id": instance_id,
+                "rid":d["rid"]
             }
             d.pop("branch")
             d.pop("from_id")
             d.pop("modified")
+            d.pop("rid")
             result.append(d)
         return result
