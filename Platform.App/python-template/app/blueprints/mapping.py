@@ -109,6 +109,4 @@ def disable_cache():
 def entities_by_process_instance(process_instance):
     bat = BatchPersistence(None)
     entities = bat.get_entities(process_instance)
-    for e in entities:
-        e["_metadata"] = {"type":e["_metadata"]["type"]}
     return jsonify(entities)
