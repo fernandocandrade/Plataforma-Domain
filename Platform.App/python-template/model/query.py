@@ -78,6 +78,7 @@ class Query:
             entity_dict["_metadata"]['origin'] = entity_dict["from_id"]
             entity_dict["_metadata"]["instance_id"] = entity_dict["meta_instance_id"]
             entity_dict["_metadata"]["modified_at"] = entity_dict["modified"]
+            entity_dict["_metadata"]["created_at"] = entity_dict["created_at"]
             entity_dict["id"] = entity_id
             if entity_dict["destroy"]:
                 entity_dict["_metadata"]["destroy"] = entity_dict["destroy"]
@@ -85,6 +86,7 @@ class Query:
             entity_dict.pop("destroy")
             entity_dict.pop("meta_instance_id")
             entity_dict.pop("modified")
+            entity_dict.pop("created_at")
             entity_dict.pop("branch")
             entity_dict.pop("from_id")
             for tick_field in ticks_fields:
@@ -118,6 +120,7 @@ class Query:
                 "type": self.mapped_entity,
                 "branch":d["branch"],
                 "modified_at":d["modified"],
+                "created_at":d["created_at"],
                 "origin": d["from_id"],
                 "instance_id": instance_id,
                 "rid":d["rid"]
@@ -126,5 +129,6 @@ class Query:
             d.pop("from_id")
             d.pop("modified")
             d.pop("rid")
+            d.pop('created_at')
             result.append(d)
         return result

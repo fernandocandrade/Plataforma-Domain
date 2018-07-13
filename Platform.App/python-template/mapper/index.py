@@ -38,6 +38,7 @@ class Index(Component):
             add_attr(entity, "from_id")
             add_attr(entity, "branch")
             add_attr(entity, "modified")
+            add_attr(entity, "created_at")
         return yaml
 
     def generate_index(self, yaml):
