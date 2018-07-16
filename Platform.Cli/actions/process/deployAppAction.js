@@ -126,7 +126,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
          * Verifica se uma app é reprocessável, apps que apenas criam objetos não são reprocessáveis
          * não a necessidade de reexecutar apps que não tenham dependencia funcional de alguma entidade
          */
-        if (operation.skip_reprocessing) {
+        if (operation.skip_reprocessing === true) {
             return false
         }
         var dep = this.getDependency(map)
