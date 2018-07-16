@@ -50,6 +50,7 @@ module.exports = class DeployAppAction extends BaseDeployAction {
                 "version":env.conf.app.newVersion,
                 "name": env.conf.app.name+".persist",
                 "commit":true,
+                "reprocessable":true,
                 "processId": env.conf.app.id,
                 "systemId": env.conf.solution.id
             });
@@ -62,6 +63,7 @@ module.exports = class DeployAppAction extends BaseDeployAction {
                 "version":env.conf.app.newVersion,
                 "name": env.conf.app.name+".merge",
                 "commit":true,
+                "reprocessable":false,
                 "processId": env.conf.app.id,
                 "systemId": env.conf.solution.id
             });
