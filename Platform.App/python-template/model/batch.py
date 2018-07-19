@@ -25,6 +25,11 @@ class BatchPersistence:
 
     def extract_head(self, head):
         self.event = head.get("event",{})
+        self.scope = self.event.get("scope")
+        if self.scope == None:
+            log.info("scope is None")
+            log.info(self.event)
+            raise "scope not found"
         self.instance_id = head.get("instanceId")
         self.process_id = head.get("processId")
         self.system_id = head.get("systemId")
@@ -76,7 +81,7 @@ class BatchPersistence:
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
             log.info(f"should persist {len(items)} objects in database")
-            instances = self.persist(items)
+            instances = self.persist(items,self.scope)
             log.info("objects persisted")
             parts = self.event["name"].split(".")
             parts.pop()
@@ -93,8 +98,8 @@ class BatchPersistence:
             log.critical(e)
             raise e
 
-    def persist(self, items):
+    def persist(self, items, scope):
         repository = Persistence(self.session)
-        instances = repository.persist(items)
+        instances = repository.persist(items, scope)
         repository.commit()
         return instances
