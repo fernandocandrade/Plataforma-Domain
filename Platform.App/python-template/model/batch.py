@@ -25,6 +25,11 @@ class BatchPersistence:
 
     def extract_head(self, head):
         self.event = head.get("event",{})
+        self.scope = self.event.get("scope")
+        if self.scope == None:
+            log.info("scope is None")
+            log.info(self.event)
+            raise "scope not found"
         self.instance_id = head.get("instanceId")
         self.process_id = head.get("processId")
         self.system_id = head.get("systemId")
@@ -60,6 +65,12 @@ class BatchPersistence:
     def has_change_track(self, item):
         return "_metadata" in item and "changeTrack" in item['_metadata']
 
+    def get_entities(self, instance_id):
+        head = self.get_head_of_process_memory(instance_id)
+        log.info("extracting data from dataset")
+        self.extract_head(head)
+        log.info("getting items to persist")
+        return self.get_items_to_persist(self.entities, instance_id)
 
     def run(self, instance_id):
         try:
@@ -70,14 +81,14 @@ class BatchPersistence:
             log.info("getting items to persist")
             items = self.get_items_to_persist(self.entities, instance_id)
             log.info(f"should persist {len(items)} objects in database")
-            instances = self.persist(items)
+            instances = self.persist(items,self.scope)
             log.info("objects persisted")
             parts = self.event["name"].split(".")
             parts.pop()
             parts.append("done")
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
-            evt = {"name":self.event_out, "tag":self.event["tag"] , "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"], "reprocessing":self.event["reprocessing"] , "payload":{"instance_id":instance_id}}
+            evt = {"name":self.event_out, "idempotencyKey":self.event["idempotencyKey"],"systemId":self.event["systemId"], "tag":self.event["tag"] , "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"], "reprocessing":self.event["reprocessing"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
             #ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
 
@@ -87,8 +98,8 @@ class BatchPersistence:
             log.critical(e)
             raise e
 
-    def persist(self, items):
+    def persist(self, items, scope):
         repository = Persistence(self.session)
-        instances = repository.persist(items)
+        instances = repository.persist(items, scope)
         repository.commit()
         return instances

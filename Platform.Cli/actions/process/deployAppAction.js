@@ -98,12 +98,19 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 operation.systemId = env.conf.solution.id;
                 operation.processId = env.conf.app.id;
                 operation.event_in = operation.event;
-                operation.event_out = `${operation.name}.done`;
+                var parts = operation.event.split(".")
+                if (parts[parts.length -1] == "request") {
+                    parts[parts.length -1] = "done"
+                    operation.event_out = parts.join(".");
+                }else{
+                    operation.event_out = `${operation.event}.done`;
+                }
+
                 operation.image = this.docker.getContainer(env);
                 operation.version = env.conf.app.newVersion;
                 env.image = operation.image;
                 this.getMap(env).then(map => {
-                    operation.reprocessable = this.isReprocessable(map)
+                    operation.reprocessable = this.isReprocessable(map, operation)
                     this.saveOperationCore(env,operation).then((c)=>{
                         resolve(env);
                     });
@@ -114,11 +121,14 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
         });
     }
 
-    isReprocessable(map) {
+    isReprocessable(map, operation) {
         /**
          * Verifica se uma app é reprocessável, apps que apenas criam objetos não são reprocessáveis
          * não a necessidade de reexecutar apps que não tenham dependencia funcional de alguma entidade
          */
+        if (operation.skip_reprocessing === true) {
+            return false
+        }
         var dep = this.getDependency(map)
         return Object.keys(dep).length > 0
     }

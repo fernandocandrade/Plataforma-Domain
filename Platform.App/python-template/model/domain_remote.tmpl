@@ -29,6 +29,7 @@ class {{$model}}(Base, TemporalModelMixin):
         return { {{range $attr, $params := $attrs}}
             "{{$attr}}":self.{{$attr}},{{end}}
             "id": self.id,
+            "rid": self.rid,
             "branch":self.branch,
             "modified":self.modified,
             "created_at":self.created_at,

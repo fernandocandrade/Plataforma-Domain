@@ -33,9 +33,9 @@ class TemporalMapper:
                 "ticks": int_range(lower=1),
                 "value": sa.Column(field_type, nullable=True),
                 "entity_id": foreign_key(table.name),
-                "entity": sa.orm.relationship(cls.__name__),
+                "entity": sa.orm.relationship(cls.__name__,cascade="all,delete"),
                 "clock_id": foreign_key(clock_name),
-                "clock": sa.orm.relationship(clock_name)
+                "clock": sa.orm.relationship(clock_name,cascade="all,delete")
             })
 
     def build_clock(self, cls, table):
@@ -48,7 +48,7 @@ class TemporalMapper:
             "ticks": sa.Column(sa.Integer, default=0),
             "effective": datetime_range(),
             "entity_id": foreign_key(table.name),
-            "entity": sa.orm.relationship(cls.__name__),
+            "entity": sa.orm.relationship(cls.__name__,cascade="all,delete"),
             "deleted": sa.Column(sa.Boolean, default=False),
         })
 

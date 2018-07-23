@@ -52,7 +52,7 @@ class Persistence(Component):
             result.append(item["_metadata"])
         return result
 
-    def persist(self, objs):
+    def persist(self, objs,scope):
         """ split object collection into 3 operation list for
             creating, updating, destroying looking for changeTrack
             on each object
@@ -71,8 +71,8 @@ class Persistence(Component):
             elif self.is_to_destroy(o):
                 to_destroy.append(o)
         result = list(self.create(to_create))
-        result += list(self.update(to_update))
-        self.destroy(to_destroy)
+        result += list(self.update(to_update,scope))
+        self.destroy(to_destroy,scope)
         return result
 
     def create(self, objs):
@@ -82,10 +82,11 @@ class Persistence(Component):
             self.session.add(instance)
             yield instance
 
-    def update(self, objs):
+    def update(self, objs,scope):
         for o in objs:
             branch = o["_metadata"].get("branch","master")
             _type = o["_metadata"]["type"].lower()
+            freeze = o["_metadata"].get("freeze",False)
             cls = globals()[_type]
             instance = cls(**o)
             if not instance.deleted:
@@ -98,6 +99,7 @@ class Persistence(Component):
                 setattr(instance,"from_id", obj.rid)
                 setattr(instance,"rid", uuid4())
                 setattr(instance,"branch", branch)
+                #setattr(instance,"modified", obj.modified)
                 setattr(instance,"modified", obj.modified)
                 setattr(instance,"created_at", obj.created_at)
                 attrs = list(obj.__dict__.items()) + list(o.items())
@@ -108,19 +110,20 @@ class Persistence(Component):
                 self.session.add(instance)
             else:
                 instance.modified = obj.modified
-                obj.modified = datetime.utcnow()
+                if scope == "execution" and not freeze:
+                    obj.modified = datetime.utcnow()
                 for k, v in o.items():
                     if hasattr(obj, k) and k not in {"rid", "from_id", "branch", "modified", "created_at"}:
                         setattr(obj, k, v)
             yield instance
 
-    def destroy(self, objs):
+    def destroy(self, objs,scope):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
             branch = o["_metadata"].get("branch","master")
             cls = globals()[_type]
             instance = cls(**o)
-            if not instance.modified:
+            if not instance.modified and scope == "execution":
                 instance.modified = datetime.utcnow()
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()

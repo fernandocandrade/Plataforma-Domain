@@ -46,7 +46,7 @@ def foreign_key(target_table, nullable=False):
     """
     return sa.Column(
         postgresql.UUID(as_uuid=True),
-        sa.ForeignKey(f'{target_table.lower()}.rid'),
+        sa.ForeignKey(f'{target_table.lower()}.rid',ondelete="cascade"),
         nullable=nullable)
 
 

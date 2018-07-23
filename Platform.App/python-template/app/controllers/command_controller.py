@@ -9,6 +9,7 @@ import log
 import copy
 from core.component import Component
 from utils.pruu import log_on_pruu
+from model.batch import BatchPersistence
 
 class CommandController(Component):
     """ Command Controller persist data on domain """
@@ -35,6 +36,12 @@ class CommandController(Component):
         #if not self.is_apicore():
         #    ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
         return self.from_domain(instances)
+
+    def persist_by_instance(self, process_instance):
+        bat = BatchPersistence(request.session)
+        bat.run(process_instance)
+        return "ok"
+
 
     def to_domain(self):
         for o in self.body:
