@@ -91,6 +91,7 @@ module.exports = class BaseDeployAction{
     }
 
     saveOperationCore(env,operation){
+        console.log(env)
         var operationCore = new OperationCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{

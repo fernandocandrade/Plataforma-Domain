@@ -28,13 +28,9 @@ class CommandController(Component):
         """ Persist data on domain """
         if not self.body:
             return []
-
         domain_obj = list(self.to_domain())
-        #domain_copy = copy.deepcopy(domain_obj)
-        instances = self.repository.persist(domain_obj)
+        instances = self.repository.persist(domain_obj,'execution')
         self.repository.commit()
-        #if not self.is_apicore():
-        #    ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
         return self.from_domain(instances)
 
     def persist_by_instance(self, process_instance):

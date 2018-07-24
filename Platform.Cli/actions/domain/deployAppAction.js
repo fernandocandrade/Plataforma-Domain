@@ -24,7 +24,9 @@ module.exports = class DeployAppAction extends BaseDeployAction {
         this.compiler.exec(_env).then(env =>{
             this.createDockerContainer(env).then(() => {
                 if (env.conf.app.name !== "apicore") {
-                    this.saveDomainToApiCore(env).then(() => this.saveToApiCore(env));
+                    this.saveDomainToApiCore(env).then(() => this.saveToApiCore(env)).catch(e => {
+                        console.log(e)
+                    });
                     //this.saveToApiCore(env);
                 } else {
                     console.log("App deployed");
@@ -68,6 +70,8 @@ module.exports = class DeployAppAction extends BaseDeployAction {
                 "systemId": env.conf.solution.id
             });
 
+        }).catch(e => {
+            console.log(e)
         });
     }
 
