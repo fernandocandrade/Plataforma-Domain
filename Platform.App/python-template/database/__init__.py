@@ -6,7 +6,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_utils import database_exists, create_database, drop_database
-
+from model import domain
 from settings.loader import Loader
 from core.temporal.session import sessionmaker
 
@@ -18,7 +18,8 @@ logging.getLogger('sqlalchemy.orm').setLevel(logging.FATAL)
 
 conf = Loader().load()
 db_host = conf["database"]["host"]
-db_name = conf["app"]["name"]
+#db_name = conf["app"]["name"]
+db_name = domain.get_db_name()
 db_user = conf["database"]["user"]
 conn_string = f'postgresql+psycopg2://{db_user}@{db_host}:5432/{db_name}'
 
