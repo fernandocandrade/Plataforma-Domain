@@ -1,7 +1,7 @@
 import json
 import os.path
 import errno
-
+import log
 
 def read_json(filename):
     if not os.path.exists(filename):
@@ -17,7 +17,7 @@ def read_json(filename):
 def load_config_file():
     """ Load confiuration file """
     config = read_json("plataforma.json")
-
+    log.info(config)
     config["database"] = {
         "name": config["app"]["name"],
         "host": os.environ.get("POSTGRES_HOST", "postgres"),
