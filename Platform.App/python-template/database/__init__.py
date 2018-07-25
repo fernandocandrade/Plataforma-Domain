@@ -20,6 +20,7 @@ conf = Loader().load()
 db_host = conf["database"]["host"]
 #db_name = conf["app"]["name"]
 db_name = domain.get_db_name()
+logging.info(db_name)
 db_user = conf["database"]["user"]
 conn_string = f'postgresql+psycopg2://{db_user}@{db_host}:5432/{db_name}'
 
