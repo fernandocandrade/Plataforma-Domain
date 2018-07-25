@@ -5,7 +5,7 @@ module.exports = class ConfigPlatformHostStep {
             var inquirer = require('inquirer');
             inquirer.prompt([{
                 type: "input",
-                default: "",
+                default: "http://localhost:6970",
                 name: "urlProd",
                 message: "Informe a URL da Plataforma de Produção"
             }]).then(answers => {

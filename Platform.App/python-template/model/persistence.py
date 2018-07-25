@@ -79,6 +79,8 @@ class Persistence(Component):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
             instance = globals()[_type](**o)
+            instance.modified = datetime.utcnow()
+            instance.created_at = datetime.utcnow()
             self.session.add(instance)
             yield instance
 

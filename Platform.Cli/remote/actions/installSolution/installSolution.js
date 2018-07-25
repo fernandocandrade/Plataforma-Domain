@@ -17,7 +17,7 @@ module.exports = class InstallSolution {
         var solution = info.solution;
         this.deployer.createSolution("production",solution).then((s)=>{
             console.log("solution installed on production");
-        });
+        }).catch(e => console.log("solution not installed ",e));
 
     }
 }

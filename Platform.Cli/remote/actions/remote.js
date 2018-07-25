@@ -17,6 +17,8 @@ module.exports = class Remote {
         stepper.exec(context).then(() => {
             context.enabled = true;
             context.persist();
+        }).catch(_ => {
+
         });
     }
 };

@@ -8,8 +8,10 @@ module.exports = class Deployer {
 
     uploadPublicKey(env, pk, solution, keyName) {
         return new Promise((resolve, reject) => {
-            var req = unirest("POST", `${this.context[env].url}:6970/api/v1.0.0/publickey/${solution}/${keyName}`);
+            var url = `${this.context[env].url}/api/v1.0.0/publickey/${solution}/${keyName}`
+            var req = unirest("POST", url);
             req.send(pk);
+
             req.end(function (res) {
                 if (res.error) reject(new Error(res.error));
                 resolve(res.body)
@@ -19,19 +21,21 @@ module.exports = class Deployer {
 
     createSolution(env, solution) {
         return new Promise((resolve, reject) => {
-            var req = unirest("POST", `${this.context[env].url}:6970/api/v1.0.0/solution`);
+            var url = `${this.context[env].url}/api/v1.0.0/solution`
+            var req = unirest("POST", url);
             req.headers({
                 "content-type": "application/json"
             });
             req.type("json");
-            req.send({
+            var body = {
                 "name": solution.name,
                 "version": solution.version,
                 "id": solution.id,
                 "description": solution.description
-            });
+            }
+            req.send(body);
             req.end(function (res) {
-                if (res.error) reject(new Error(res.error));
+                if (res.error) reject(res.body);
                 resolve(res.body);
             });
         });
@@ -39,7 +43,7 @@ module.exports = class Deployer {
 
     createApp(env, app) {
         return new Promise((resolve, reject) => {
-            var url = `${this.context[env].url}:6970/api/v1.0.0/solution/${app.systemId}/create/app`;
+            var url = `${this.context[env].url}/api/v1.0.0/solution/${app.systemId}/create/app`;
             //var url = "https://pruu.herokuapp.com/dump/teste"
             var req = unirest("POST", url);
             req.headers({
