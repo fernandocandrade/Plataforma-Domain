@@ -13,7 +13,7 @@ from app import create_app
 class SETTINGS:
     DB_HOST = "127.0.0.1"
     DB_PORT = 5432
-    DB_NAME = "app_name_1"
+    DB_NAME = "app_name"
     DB_USER = "postgres"
     DB_PASSWORD = ""
     KEEP_DB = False
