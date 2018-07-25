@@ -95,20 +95,5 @@ module.exports = class DeployAppAction extends BaseDeployAction {
         });
     }
 
-    saveToApiCore(env) {
-        var config = env.conf;
-        var appInfo = {
-            systemId: config.solution.id,
-            name: config.app.name,
-            host: this.docker.getContainerName(env),
-            type: "domain",
-            port: env.docker.port
-        };
-        this.installedAppCore = new InstalledAppCore(env.apiCore);
-        this.installedAppCore.create(appInfo).then(s => {
-            console.log("App deployed");
-        }).catch(e => {
-            console.log(e);
-        });
-    }
+
 };

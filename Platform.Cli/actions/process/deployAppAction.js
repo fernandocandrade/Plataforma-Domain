@@ -209,11 +209,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.systemId = env.conf.solution.id;
             process.id = env.conf.app.id;
             process.name = env.conf.app.name;
+            process.type = env.conf.app.type;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
             process.tag = this.docker.getContainer(env);
             this.docker.build(env, process.tag).then((r) => {
-                process.image = r.imageId;
                 //console.log("Docker publish...");
                 //this.docker.publish(env, process.tag).then(() => {
                     this.saveProcessToCore(env, process).then(() => {

@@ -5,7 +5,7 @@ const BaseDeployAction = require("../../baseDeployAction");
 const DockerService = require("../../../services/docker");
 
 module.exports = class DeployProcessAppAction extends BaseDeployAction {
-    
+
     constructor(appInstance) {
         super();
         this.appInstance = appInstance;
@@ -44,9 +44,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             try {
                 var source = ".";
                 var dest = env.conf.fullPath;
-                
+
                 console.log("Copying Files");
-                
+
                 shell.rm("-rf", dest);
                 shell.mkdir("-p", dest);
                 shell.cp("-R",source+"/mapa", dest + "/mapa");
@@ -67,7 +67,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 var source = ".";
                 var dest = env.conf.fullPath;
                 let consoleAppName = env.conf.app.name + '.Process';
-                
+
                 console.log("Publish Project");
 
                 shell.exec(`dotnet publish ${source}/process/${consoleAppName}/${consoleAppName}.csproj -o ${dest}/process`);
@@ -152,11 +152,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.systemId = env.conf.solution.id;
             process.id = env.conf.app.id;
             process.name = env.conf.app.name;
+            process.type = env.conf.app.type;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
             process.tag = this.docker.getContainer(env);
             this.docker.build(env, process.tag).then((r) => {
-                process.image = r.imageId;
                 //console.log("Docker publish...");
                 //this.docker.publish(env, process.tag).then(() => {
                     this.saveProcessToCore(env, process).then(() => {

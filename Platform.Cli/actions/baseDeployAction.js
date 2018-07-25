@@ -6,6 +6,7 @@ const MapCore = require("plataforma-sdk/services/api-core/map")
 const ProcessCore = require("plataforma-sdk/services/api-core/process")
 const EventCore = require("plataforma-sdk/services/api-core/event")
 const OperationCore = require("plataforma-sdk/services/api-core/operation")
+const InstalledAppCore = require("plataforma-sdk/services/api-core/installedApp")
 
 module.exports = class BaseDeployAction{
 
@@ -67,27 +68,47 @@ module.exports = class BaseDeployAction{
     }
 
     saveProcessToCore(env,process){
-        var processCore = new ProcessCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
-        var promise = new Promise((resolve,reject)=>{
-            try{
-                //TODO mudar para o metodo save
-                processCore.findById(process.id).then((process)=>{
-                    if (!process){
-                        processCore.create(process).then(()=>{
-                            resolve(env);
-                        }).catch(reject);
-                    }else{
-                        processCore.save(process).then(()=>{
-                            resolve(env);
-                        }).catch(reject);
-                    }
+        return this.saveToApiCore(env);
 
-                }).catch(reject);
-            }catch(e){
-                reject(e);
+    }
+
+    saveToApiCore(env) {
+        return new Promise((resolve,reject)=>{
+            var config = env.conf;
+            var appInfo = {
+                systemId: config.solution.id,
+                name: config.app.name,
+                host: this.docker.getContainerName(env),
+                type: config.app.type,
+                id: config.app.id,
+                port: env.docker ? env.docker.port : "8088"
+            };
+            if (appInfo.type === "process"){
+                delete appInfo.port
+                delete appInfo.host
             }
-        });
-        return promise;
+            this.installedAppCore = new InstalledAppCore(env.apiCore);
+
+            this.installedAppCore.findById(appInfo.id).then(found => {
+                if (found.length === 0) {
+                    this.installedAppCore.create(appInfo).then(s => {
+                        console.log("App deployed");
+                        resolve(s)
+                    }).catch(e => {
+                        reject(e);
+                    });
+                }else{
+                    this.installedAppCore.save(appInfo).then(s => {
+                        console.log("App deployed");
+                        resolve(s)
+                    }).catch(e => {
+                        reject(e)
+                    });
+                }
+            }).catch(e => console.log(e))
+        })
+
+
     }
 
     saveOperationCore(env,operation){

@@ -14,7 +14,7 @@ module.exports = class DockerService{
                 if(dockerfile){
                   cmd = `docker build . -f ${dockerfile} --tag ${tag}  --no-cache`;
                 }
-                console.log(cmd);
+
                 var imageId = shell.exec(cmd).stdout.toString();
                 resolve({imageId:imageId});
             }catch(e){
