@@ -33,7 +33,7 @@ class Query:
         query = self.session.query(*query_select)
         if self.branch == "all":
             query = query.filter(text(f"deleted is not True"))
-        if self.branch != "master":
+        elif self.branch != "master":
             query = query.filter(text(f"deleted is not True and rid not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
         else:
             query = query.filter(text(f"deleted is not True and branch = 'master'"))
