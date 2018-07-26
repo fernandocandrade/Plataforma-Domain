@@ -5,6 +5,7 @@ from mapper.builder import MapBuilder
 from dateutil import parser
 from datetime import datetime
 from reprocessing import ReprocessingManager
+from sdk import operation
 import pytz
 import log
 from uuid import uuid4
@@ -19,6 +20,7 @@ class BatchPersistence:
         self.session = session
         self.process_id = None
         self.instance_id = None
+        self.operationService = operation.Operation()
 
     def get_head_of_process_memory(self, instance_id):
         return process_memory.head(instance_id)
@@ -88,7 +90,10 @@ class BatchPersistence:
             parts.append("done")
             name = ".".join(parts)
             log.info(f"pushing event {name} to event manager")
-            evt = {"name":self.event_out, "idempotencyKey":self.event["idempotencyKey"],"systemId":self.event["systemId"], "tag":self.event["tag"] , "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"], "reprocessing":self.event["reprocessing"] , "payload":{"instance_id":instance_id}}
+            operation = self.operationService.find_by_name_and_version(self.event["name"],self.event["version"])
+            if not operation:
+                raise Exception(f"operation not found from event {self.event['name']} in version {self.event['version']}")
+            evt = {"name":operation.event_out, "version":operation.version, "idempotencyKey":self.event["idempotencyKey"],"systemId":self.event["systemId"], "tag":self.event["tag"] , "instanceId":instance_id, "scope":self.event["scope"], "branch": self.event["branch"], "reprocessing":self.event["reprocessing"] , "payload":{"instance_id":instance_id}}
             event_manager.push(evt)
             #ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
 
