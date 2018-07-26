@@ -31,6 +31,8 @@ class Query:
     def execute(self, projection, page=None, page_size=None):
         query_select = self.build_select(projection)
         query = self.session.query(*query_select)
+        if self.branch == "all":
+            query = query.filter(text(f"deleted is not True"))
         if self.branch != "master":
             query = query.filter(text(f"deleted is not True and rid not in (select from_id from {self.entity.lower()} where from_id is not null and branch = '{self.branch}') and branch in ('master', '{self.branch}')"))
         else:
