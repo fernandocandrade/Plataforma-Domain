@@ -52,6 +52,7 @@ module.exports = class BaseDeployAction{
             try{
                 map.systemId = env.conf.solution.id;
                 map.processId = env.conf.app.id;
+                map.version = env.conf.app.newVersion;
                 map.name = map.name.split(".")[0];
                 mapCore.findByProcessId(map.processId).then(m =>{
                     mapCore.destroy(m).then(()=>{
@@ -98,33 +99,19 @@ module.exports = class BaseDeployAction{
                         reject(e);
                     });
                 }else{
-                    this.installedAppCore.save(appInfo).then(s => {
-                        console.log("App deployed");
-                        resolve(s)
-                    }).catch(e => {
-                        reject(e)
-                    });
+                    resolve(found)
                 }
             }).catch(e => console.log(e))
         })
-
-
     }
 
     saveOperationCore(env,operation){
         var operationCore = new OperationCore({scheme:env.apiCore.scheme, host:env.apiCore.host,port:env.apiCore.port});
         var promise = new Promise((resolve,reject)=>{
             try{
-                operationCore.findByEventInAndSystemId(env.conf.solution.id, operation.event_in).then(ops =>{
-                    if (ops.length > 0){
-                        Object.assign(ops[0], operation);
-                        operationCore.save(ops[0]).then(()=> resolve(ops[0])).catch(reject);
-                    }else{
-                        operationCore.create(operation).then((newOp)=>{
-                           resolve(newOp[0]);
-                       }).catch(reject);
-                    }
-                });
+                operationCore.create(operation).then((newOp)=>{
+                    resolve(newOp[0]);
+                }).catch(reject);
             }catch(e){
                 reject(e);
             }
