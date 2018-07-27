@@ -66,11 +66,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             try {
                 var source = ".";
                 var dest = env.conf.fullPath;
-                let consoleAppName = env.conf.app.name + '.Process';
+                let consoleAppName = env.conf.app.name;
 
-                console.log("Publish Project");
+                console.log("Publish Project. Dest: " + dest);
 
-                shell.exec(`dotnet publish ${source}/process/${consoleAppName}/${consoleAppName}.csproj -o ${dest}/process`);
+                shell.exec(`dotnet publish ${source}/process/${consoleAppName}.csproj -o ${dest}/process`);
 
                 resolve(env);
             } catch (e) {

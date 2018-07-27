@@ -12,22 +12,21 @@ module.exports = class CreatePresentationAppAction{
         this.baseAction.create("presentation", TecnologyApp.dotnet, (plataforma)=>{
             
             var path = process.cwd()+"/"+plataforma.app.name;
-            shell.mkdir('-p', path+'/server',path+`/${plataforma.app.name}`,path+"/metadados",path+"/mapa");
+            shell.mkdir('-p', path+'/server',path+"/metadados",path+"/mapa");
             
             shell.touch(path + "/metadados/" + plataforma.app.name + ".yaml");
             
-            shell.exec(`dotnet new solution -n ${plataforma.app.name} -o ${path}/server/`);
+            shell.exec(`dotnet new solution -n ${plataforma.app.name} -o ${path}/`);
             
-            let webAppName = plataforma.app.name + '.Presentation';
-            shell.mkdir('-p', `${path}/server/${webAppName}`);
-            shell.exec(`dotnet new webapi -n ${webAppName} -o ${path}/server/${webAppName}`);
+            let webAppName = plataforma.app.name;
+            shell.exec(`dotnet new webapi -n ${webAppName} -o ${path}/server`);
             
             shell.exec(`dotnet new -i NUnit3.DotNetNew.Template`);
-            let testProjectName = webAppName + '.Tests';
-            shell.exec(`dotnet new nunit -n ${testProjectName} -o ${path}/server/${testProjectName}`);
+            let testProjectName = webAppName + '.UnitTest';
+            shell.exec(`dotnet new nunit -n ${testProjectName} -o ${path}/test/unit/${testProjectName}`);
             
-            shell.exec(`dotnet sln ${path}/server/${plataforma.app.name}.sln add` + 
-                ` ${path}/server/${webAppName}/${webAppName}.csproj ${path}/server/${testProjectName}/${testProjectName}.csproj`);
+            shell.exec(`dotnet sln ${path}/${plataforma.app.name}.sln add` + 
+                ` ${path}/server/${webAppName}.csproj ${path}/test/unit/${testProjectName}.csproj`);
             
             const Dockerfile = `
 FROM microsoft/dotnet:2.1-sdk
