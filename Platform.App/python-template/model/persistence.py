@@ -61,6 +61,7 @@ class Persistence(Component):
         to_create = []
         to_update = []
         to_destroy = []
+        to_recover = []
         for o in objs:
             if not self.is_valid_changed_obj(o):
                 continue
@@ -70,17 +71,25 @@ class Persistence(Component):
                 to_update.append(o)
             elif self.is_to_destroy(o):
                 to_destroy.append(o)
+            elif self.is_to_recover(o):
+                to_recover.append(o)
         result = list(self.create(to_create))
         result += list(self.update(to_update,scope))
+        result += list(self.recover(to_recover,scope))
         self.destroy(to_destroy,scope)
         return result
 
     def create(self, objs):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
+            rid = o["_metadata"].get("rid",None)
+            if not rid:
+                log.info("rid not pass will be created a new one")
+                rid = uuid4()
             instance = globals()[_type](**o)
             instance.modified = datetime.utcnow()
             instance.created_at = datetime.utcnow()
+            instance.rid = rid
             self.session.add(instance)
             yield instance
 
@@ -131,6 +140,19 @@ class Persistence(Component):
             obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
             obj.deleted = True
 
+    def recover(self, objs,scope):
+        for o in objs:
+            _type = o["_metadata"]["type"].lower()
+            branch = o["_metadata"].get("branch","master")
+            cls = globals()[_type]
+            instance = cls(**o)
+            if not instance.modified and scope == "execution":
+                instance.modified = datetime.utcnow()
+            del o['_metadata']
+            obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
+            obj.deleted = False
+            yield obj
+
     def is_to_create(self, obj):
         return obj["_metadata"]["changeTrack"] == "create"
 
@@ -139,6 +161,9 @@ class Persistence(Component):
 
     def is_to_destroy(self, obj):
         return obj["_metadata"]["changeTrack"] == "destroy" and "id" in obj
+
+    def is_to_recover(self, obj):
+        return obj["_metadata"]["changeTrack"] == "recover" and "id" in obj
 
     def is_valid_changed_obj(self, obj):
         if not "_metadata" in obj:
