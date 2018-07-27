@@ -98,7 +98,7 @@ class BatchPersistence:
             #ReprocessingManager(self.process_id, self.instance_id).dispatch_reprocessing_events(instances)
 
         except Exception as e:
-            event_manager.push({"name":"system.process.persist.error", "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
+            event_manager.push({"name":"system.process.persist.error", "tag":self.event["tag"], "instanceId":instance_id, "payload":{"instance_id":instance_id, "origin":self.event}})
             log.info("exception occurred")
             log.critical(e)
             raise e
