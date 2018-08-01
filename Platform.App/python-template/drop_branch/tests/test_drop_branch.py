@@ -40,10 +40,10 @@ def test_should_drop(session):
             drop = DropBranch(session)
 
             #Act
-            drop.drop("cenario-01")
+            drop.drop("cenario-01","user")
             #Assert
             mock_branch_link.assert_called()
-            mock_branch.assert_called_with("cenario-01")
+            mock_branch.assert_called_with("cenario-01","user")
             old_branch = session.query(conta).filter(text("branch = 'cenario-01'")).all()
             assert len(old_branch) == 0
             history_branch = session.query(conta).filter(text("branch = 'dropped:cenario-01'")).all()

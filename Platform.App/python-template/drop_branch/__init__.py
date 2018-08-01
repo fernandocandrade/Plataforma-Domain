@@ -10,7 +10,7 @@ class DropBranch:
         self.branch_link = BranchLink()
         self.branch = Branch()
 
-    def drop(self, branch_name):
+    def drop(self, branch_name, user):
         log.info(f"Dropping {branch_name}")
         if not branch_name:
             raise Exception(f"branch name should be passed! received:{branch_name}")
@@ -22,7 +22,7 @@ class DropBranch:
             log.info(f"Dropping {_type}")
             self.drop_branch_entity(cls, self.session, link.branch_name)
         log.info("Dropping branch on apicore")
-        self.branch.set_dropped(branch_name)
+        self.branch.set_dropped(branch_name, user)
         log.info("Commiting changes to database")
         self.session.commit()
         log.info("Branch dropped with success")
