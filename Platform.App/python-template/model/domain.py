@@ -26,6 +26,7 @@ class conta(Base, TemporalModelMixin):
         self.branch = branch
         self.from_id = from_id
         self.modified = kwargs.get('modified',datetime.utcnow())
+        self.created_at = kwargs.get('modified',datetime.utcnow())
 
     def dict(self):
         return {
@@ -39,7 +40,7 @@ class conta(Base, TemporalModelMixin):
         return cls.__name__.lower()
 
     class Temporal:
-        fields = ('deleted', 'titular', 'saldo', 'meta_instance_id', 'modified', 'from_id', 'branch' )
+        fields = ('deleted', 'titular', 'saldo', 'meta_instance_id', 'modified', 'created_at', 'from_id', 'branch' )
 
     titular = Column(String)
     saldo = Column(Integer)
@@ -48,5 +49,6 @@ class conta(Base, TemporalModelMixin):
     deleted = Column(sap.BOOLEAN())
     meta_instance_id = Column(sap.UUID(as_uuid=True))
     modified = Column(DateTime(), default=datetime.utcnow())
+    created_at = Column(DateTime(), default=datetime.utcnow())
     branch = Column(String, default='master')
     from_id = Column(sap.UUID(as_uuid=True))
