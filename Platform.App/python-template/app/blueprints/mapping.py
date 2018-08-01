@@ -87,6 +87,15 @@ def persist_entities_by_process_instance(process_instance):
     resp = {"message":ok}
     return jsonify(resp)
 
+@mapping.route("/dropBranch", methods=['POST'])
+def drop_branch():
+    branch = request.args.get('branch')
+    user = request.args.get('user')
+    controller = CommandController(None, None, None, None, None)
+    ok = controller.drop_branch(branch,user)
+    resp = {"message":ok}
+    return jsonify(resp)
+
 
 @mapping.route("/mapper/cache", methods=['PUT'])
 def enable_cache():

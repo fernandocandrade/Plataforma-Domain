@@ -16,6 +16,7 @@ def apicore_map():
     r["_metadata"]["type"] = "map"
     r["_metadata"]["instance_id"] = "62141389-2ef2-4715-8675-a670ad7a00cc"
     r["_metadata"]["branch"] = "master"
+
     res.data = [r]
     return res
 
