@@ -44,10 +44,13 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             try {
                 var source = ".";
                 var dest = env.conf.fullPath;
+
                 console.log("Copying Files");
-                shell.rm("-rf",env.conf.fullPath);
-                shell.mkdir("-p",env.conf.fullPath);
-                shell.cp("-R",".",env.conf.fullPath);
+
+                shell.rm("-rf",dest);
+                shell.mkdir("-p",dest);
+                shell.cp("-R",source,dest);
+                
                 resolve(env);
             } catch (e) {
                 reject(e);
