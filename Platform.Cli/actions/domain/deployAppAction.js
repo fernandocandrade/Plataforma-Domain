@@ -7,6 +7,7 @@ const shell = require("shelljs");
 const os = require("os");
 const InstalledAppCore = require("plataforma-sdk/services/api-core/installedApp");
 const DomainModelCore = require("plataforma-sdk/services/api-core/domainModel");
+const System = require("plataforma-sdk/services/api-core/system");
 const BaseDeployAction = require("../baseDeployAction");
 const uuid = require("uuid/v4");
 var yaml = require('js-yaml');
@@ -21,7 +22,10 @@ module.exports = class DeployAppAction extends BaseDeployAction {
         this.compiler = new CompileAppAction(appInstance);
     }
     deploy(_env) {
-        this.compiler.exec(_env).then(env =>{
+        this.compiler.exec(_env)
+        .then(()=>{
+            return this.saveSystem(_env)
+        }).then(env =>{
             this.createDockerContainer(env).then(() => {
                 if (env.conf.app.name !== "apicore") {
                     this.saveDomainToApiCore(env).then(() => this.saveToApiCore(env)).catch(e => {
@@ -75,6 +79,20 @@ module.exports = class DeployAppAction extends BaseDeployAction {
         });
     }
 
+    saveSystem(env) {
+        return new Promise((resolve,reject)=>{
+            var systemCore  = new System(env.apiCore)
+            systemCore.findById(env.conf.solution.id).then(found =>{
+                if (found.length === 0) {
+                    systemCore.create(env.conf.solution).then(()=>{
+                        resolve(env)
+                    }).catch(reject)
+                }else{
+                    resolve(env)
+                }
+            }).catch(reject)
+        })
+    }
 
     saveDomainToApiCore(env){
         return new Promise((resolve, reject)=>{
