@@ -44,10 +44,24 @@ module.exports = class DockerService{
 
     run(env,tag){
       return new Promise((resolve,reject)=>{
+          var labels = ""
           var externalPort = "8087";
+          var portExternal = ""
           if (env.conf.app.type === "presentation"){
             externalPort = "8088";
             env.docker.port = "8088";
+            labels += ` --label traefik.backend=${env.conf.app.name}`
+            labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
+            labels += ` --label traefik.docker.network=plataforma_network`
+            labels += ` --label traefik.port=${env.docker.port}`
+          }else if (env.conf.app.type === "domain"){
+              portExternal = `-p 8087:9110`
+              externalPort = "8087";
+              env.docker.port = "9110";
+              labels += ` --label traefik.backend=${env.conf.app.name}`
+              labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
+              labels += ` --label traefik.docker.network=plataforma_network`
+              labels += ` --label traefik.port=${env.docker.port}`
           }
           var _e = "";
           if(env.variables){
@@ -56,7 +70,7 @@ module.exports = class DockerService{
             })
           }
           var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
-          var cmd = `docker run -d --network=plataforma_network -p  ${externalPort}:${env.docker.port} -p ${debugPort}:9229 ${_e} --name ${this.getContainerName(env)} ${tag}`;
+          var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
           console.log(cmd);
           shell.exec(cmd);
           resolve();

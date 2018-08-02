@@ -50,3 +50,20 @@ class Branch(ApiCore):
             }
             to_up.append(data)
         self.persist(to_up)
+
+    def set_dropped(self, branch, user):
+        branches = self.find_by_name(branch)
+        if not branches:
+            raise Exception(f"branch {branch} in system id {self.system_id()}")
+        to_up = []
+        for b in branches:
+            data = {}
+            data["id"] = b.id
+            data["owner"] = user
+            data["status"] = "dropped"
+            data["_metadata"] = {
+                "type":"branch",
+                "changeTrack":"update"
+            }
+            to_up.append(data)
+        self.persist(to_up)

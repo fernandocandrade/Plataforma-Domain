@@ -10,6 +10,7 @@ import copy
 from core.component import Component
 from utils.pruu import log_on_pruu
 from model.batch import BatchPersistence
+from drop_branch import DropBranch
 
 class CommandController(Component):
     """ Command Controller persist data on domain """
@@ -36,6 +37,12 @@ class CommandController(Component):
     def persist_by_instance(self, process_instance):
         bat = BatchPersistence(request.session)
         bat.run(process_instance)
+        return "ok"
+
+    def drop_branch(self, branch, user):
+        log.info(f"Branch {branch} will be dropped by {user}")
+        drop = DropBranch(request.session)
+        drop.drop(branch,user)
         return "ok"
 
 
