@@ -45,6 +45,7 @@ module.exports = class DockerService{
     run(env,tag){
       return new Promise((resolve,reject)=>{
           var labels = ""
+          var externalPort = "8087";
           var portExternal = ""
           if (env.conf.app.type !== "process"){
             externalPort = "8088";
