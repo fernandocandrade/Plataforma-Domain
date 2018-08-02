@@ -15,8 +15,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     deploy(env) {
         var prep = this.prepare(env);
         if (!env.metamapa) {
-            prep = prep.then((prepared) => this.copyFiles(prepared))
-                .then(context => this.publishProject(context))
+            prep = prep.then((prepared) => this.publishProject(prepared))
+                .then(context => this.copyFiles(context))
                 .then(context => this.registerSolution(context))
                 .then(context => this.registerApp(context));
         }
@@ -47,8 +47,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 console.log("Copying Files");
 
-                shell.rm("-rf", dest);
-                shell.mkdir("-p", dest);
                 shell.cp("-R",source+"/mapa", dest + "/mapa");
                 shell.cp("-R",source+"/metadados", dest + "/metadados");
                 shell.cp(source+"/Dockerfile", dest);
@@ -69,7 +67,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 let consoleAppName = env.conf.app.name;
 
                 console.log("Publish Project. Dest: " + dest);
-
+                
+                shell.rm("-rf", dest);
+                shell.mkdir("-p", dest);
+                
                 shell.exec(`dotnet publish ${source}/process/${consoleAppName}.csproj -o ${dest}/process`);
 
                 resolve(env);
@@ -156,6 +157,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
             process.tag = this.docker.getContainer(env);
+
+            shell.cd(process.relativePath);
+
             this.docker.build(env, process.tag).then((r) => {
                 //console.log("Docker publish...");
                 //this.docker.publish(env, process.tag).then(() => {
