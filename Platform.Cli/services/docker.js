@@ -44,8 +44,8 @@ module.exports = class DockerService{
 
     run(env,tag){
       return new Promise((resolve,reject)=>{
-          var externalPort = "8087";
           var labels = ""
+          var portExternal = ""
           if (env.conf.app.type !== "process"){
             externalPort = "8088";
             env.docker.port = "8088";
@@ -54,6 +54,9 @@ module.exports = class DockerService{
             labels += ` --label traefik.docker.network=plataforma_network`
             labels += ` --label traefik.port=${env.docker.port}`
           }
+          if (env.conf.app.type === "domain"){
+              portExternal = `-p 8087:9110`
+          }
           var _e = "";
           if(env.variables){
             Object.keys(env.variables).forEach(k => {
@@ -61,7 +64,7 @@ module.exports = class DockerService{
             })
           }
           var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
-          var cmd = `docker run -d --network=plataforma_network -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
+          var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
           console.log(cmd);
           shell.exec(cmd);
           resolve();
