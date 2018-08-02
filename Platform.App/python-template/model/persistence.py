@@ -138,7 +138,8 @@ class Persistence(Component):
                 instance.modified = datetime.utcnow()
             del o['_metadata']
             obj = self.session.query(cls).filter(cls.id == o["id"]).filter(cls.branch == branch).one_or_none()
-            obj.deleted = True
+            if obj:
+                obj.deleted = True
 
     def recover(self, objs,scope):
         for o in objs:
