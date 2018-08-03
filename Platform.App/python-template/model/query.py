@@ -55,7 +55,7 @@ class Query:
         query_select.append(getattr(self.entity_cls, "deleted").label("destroy"))
         history = self.session.query(domain_entity).history(
             fields=query_select, period=self.reference_date)
-        history = history.filter(domain_entity.id==entity_id).filter(domain_entity.branch == "master")
+        history = history.filter(domain_entity.id==entity_id)#.filter(domain_entity.branch == "master")
 
         ranges = set()
         for f in query_select:
