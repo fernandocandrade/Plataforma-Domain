@@ -24,7 +24,7 @@ log.info(db_name)
 db_user = conf["database"]["user"]
 conn_string = f'postgresql+psycopg2://{db_user}@{db_host}:5432/{db_name}'
 
-engine = create_engine(conn_string, convert_unicode=True, isolation_level="READ UNCOMMITTED")
+engine = create_engine(conn_string, convert_unicode=True, isolation_level="READ_UNCOMMITTED",pool_size=20, max_overflow=0)
 session_factory = sessionmaker(bind=engine)
 db_session = scoped_session(session_factory)
 
