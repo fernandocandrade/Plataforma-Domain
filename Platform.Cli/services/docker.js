@@ -47,6 +47,12 @@ module.exports = class DockerService{
           var labels = ""
           var externalPort = "8087";
           var portExternal = ""
+          var _e = "";
+          if(env.variables){
+            Object.keys(env.variables).forEach(k => {
+              _e = `${_e} -e ${k}=${env.variables[k]}`;
+            })
+          }
           if (env.conf.app.type === "presentation"){
             externalPort = "8088";
             env.docker.port = "8088";
@@ -54,26 +60,36 @@ module.exports = class DockerService{
             labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
             labels += ` --label traefik.docker.network=plataforma_network`
             labels += ` --label traefik.port=${env.docker.port}`
+            var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
+            var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
+            console.log(cmd);
+            shell.exec(cmd);
+            resolve();
           }else if (env.conf.app.type === "domain"){
-              portExternal = `-p 8087:9110`
+              //portExternal = `-p 8087:9110`
               externalPort = "8087";
               env.docker.port = "9110";
               labels += ` --label traefik.backend=${env.conf.app.name}`
               labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
               labels += ` --label traefik.docker.network=plataforma_network`
               labels += ` --label traefik.port=${env.docker.port}`
+              var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
+              var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
+              console.log(cmd);
+              shell.exec(cmd);
+              labels = ""
+              labels += ` --label traefik.backend=${env.conf.app.name}`
+              labels += ` --label "traefik.maestro-${env.conf.app.name}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.name}"`
+              labels += ` --label traefik.docker.network=plataforma_network`
+              labels += ` --label traefik.port=${env.docker.port}`
+              var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
+              var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name maestro-${this.getContainerName(env)} ${tag}`;
+              console.log(cmd);
+              shell.exec(cmd);
+              resolve();
           }
-          var _e = "";
-          if(env.variables){
-            Object.keys(env.variables).forEach(k => {
-              _e = `${_e} -e ${k}=${env.variables[k]}`;
-            })
-          }
-          var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
-          var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
-          console.log(cmd);
-          shell.exec(cmd);
-          resolve();
+
+
       });
     }
 
