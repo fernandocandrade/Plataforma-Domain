@@ -112,7 +112,10 @@ module.exports = class DockerService{
       return new Promise((resolve,reject)=>{
           var cmd = `docker rm --force ${this.getContainerName(env)}`;
           shell.exec(cmd);
-          resolve();
+          if (env.conf.app.type === "domain"){
+            var cmd = `docker rm --force maestro-${this.getContainerName(env)}`;
+            shell.exec(cmd);
+          }
         resolve();
       });
     }
