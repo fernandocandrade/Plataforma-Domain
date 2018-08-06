@@ -82,10 +82,10 @@ class Persistence(Component):
     def create(self, objs):
         for o in objs:
             _type = o["_metadata"]["type"].lower()
-            rid = o["_metadata"].get("rid",None)
-            if not rid:
-                log.info("rid not pass will be created a new one")
-                rid = uuid4()
+            #rid = o["_metadata"].get("rid",None)
+            #if not rid:
+            #    log.info("rid not pass will be created a new one")
+            rid = uuid4()
             instance = globals()[_type](**o)
             instance.modified = datetime.utcnow()
             instance.created_at = datetime.utcnow()
