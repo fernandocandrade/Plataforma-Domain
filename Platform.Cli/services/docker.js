@@ -77,16 +77,20 @@ module.exports = class DockerService{
               var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name ${this.getContainerName(env)} ${tag}`;
               console.log(cmd);
               shell.exec(cmd);
-              labels = ""
-              labels += ` --label traefik.backend=${env.conf.app.name}`
-              labels += ` --label "traefik.maestro-${env.conf.app.name}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.name}"`
-              labels += ` --label traefik.docker.network=plataforma_network`
-              labels += ` --label traefik.port=${env.docker.port}`
-              var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
-              var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name maestro-${this.getContainerName(env)} ${tag}`;
-              console.log(cmd);
-              shell.exec(cmd);
-              resolve();
+              console.log("waiting 15s")
+              setTimeout(()=>{
+                labels = ""
+                labels += ` --label traefik.backend=${env.conf.app.name}`
+                labels += ` --label "traefik.maestro-${env.conf.app.name}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.name}"`
+                labels += ` --label traefik.docker.network=plataforma_network`
+                labels += ` --label traefik.port=${env.docker.port}`
+                var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
+                var cmd = `docker run -d --network=plataforma_network ${portExternal} -p ${debugPort}:9229 ${_e} ${labels} --name maestro-${this.getContainerName(env)} ${tag}`;
+                console.log(cmd);
+                shell.exec(cmd);
+                resolve();
+              },15000)
+
           }
 
 
