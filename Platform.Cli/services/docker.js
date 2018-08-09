@@ -11,11 +11,12 @@ module.exports = class DockerService{
         var promise = new Promise((resolve,reject)=>{
             try{
                 var labels = `--label app_name=${env.conf.app.name}`
+                labels += ` --label system_id=${env.conf.solution.id}`
+                labels += ` --label process_id=${env.conf.app.id}`
                 var cmd = `docker build . --tag ${tag} ${labels}  --no-cache`;
                 if(dockerfile){
                   cmd = `docker build . -f ${dockerfile} ${labels} --tag ${tag}  --no-cache`;
                 }
-
                 var imageId = shell.exec(cmd).stdout.toString();
                 resolve({imageId:imageId});
             }catch(e){
@@ -46,6 +47,8 @@ module.exports = class DockerService{
     run(env,tag){
       return new Promise((resolve,reject)=>{
           var labels = `--label app_name=${env.conf.app.name}`
+          labels += ` --label system_id=${env.conf.solution.id}`
+          labels += ` --label process_id=${env.conf.app.id}`
           var externalPort = "8087";
           var portExternal = ""
           var _e = "";
@@ -81,6 +84,8 @@ module.exports = class DockerService{
               console.log("waiting 15s")
               setTimeout(()=>{
                 labels = `--label app_name=${env.conf.app.name}`
+                labels += ` --label system_id=${env.conf.solution.id}`
+                labels += ` --label process_id=${env.conf.app.id}`
                 labels += ` --label traefik.backend=${env.conf.app.name}`
                 labels += ` --label "traefik.maestro-${env.conf.app.name}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.name}"`
                 labels += ` --label traefik.docker.network=plataforma_network`
