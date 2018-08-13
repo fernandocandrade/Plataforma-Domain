@@ -54,12 +54,8 @@ module.exports = class BaseDeployAction{
                 map.processId = env.conf.app.id;
                 map.version = env.conf.app.newVersion;
                 map.name = map.name.split(".")[0];
-                mapCore.findByProcessId(map.processId).then(m =>{
-                    mapCore.destroy(m).then(()=>{
-                        mapCore.create(map).then(()=>{
-                            resolve(env);
-                        }).catch(reject);
-                    });
+                mapCore.create(map).then(()=>{
+                    resolve(env);
                 }).catch(reject);
             }catch(e){
                 reject(e);
