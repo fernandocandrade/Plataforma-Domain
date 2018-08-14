@@ -19,24 +19,40 @@ class MergeBranch:
     def run(self, instance_id):
         log.info("Running merge branch")
         event = self.get_event(instance_id)
-        branch_name = event.get("payload",{}).get("branch")
-        log.info(f"Merging {branch_name} into master")
-        if not branch_name:
-            raise Exception(f"branch name should be passed! received:{branch_name}")
-        log.info("Gettings branch links")
-        links = self.branch_link.get_links_by_branch(branch_name)
-        for link in links:
-            _type = link.entity.lower()
-            cls = globals()[_type]
-            log.info(f"Flipping {_type}")
-            self.flip_data(cls, self.session, link.branch_name)
-        log.info("Closing branch on apicore")
-        self.branch.set_merged(branch_name)
-        log.info("Commiting changes to database")
-        self.session.commit()
-        log.info("Merge success")
-        event["name"] = event["name"].replace(".request",".done")
-        event_manager.push(event)
+        try:
+            branch_name = event.get("payload",{}).get("branch")
+            log.info(f"Merging {branch_name} into master")
+            if not branch_name:
+                raise Exception(f"branch name should be passed! received:{branch_name}")
+            log.info("Gettings branch links")
+            links = self.branch_link.get_links_by_branch(branch_name)
+            for link in links:
+                _type = link.entity.lower()
+                cls = globals()[_type]
+                log.info(f"Flipping {_type}")
+                self.flip_data(cls, self.session, link.branch_name)
+            log.info("Closing branch on apicore")
+            self.branch.set_merged(branch_name)
+            log.info("Commiting changes to database")
+            self.session.commit()
+            log.info("Merge success")
+            event["name"] = event["name"].replace(".request",".done")
+            event_manager.push(event)
+        except Exception as ex:
+            log.critical(ex)
+            if event:
+                event["name"] = event["name"].replace(".request",".error")
+                event["payload"]["message"] = str(ex)
+                event_manager.push(event)
+            else:
+                event = {}
+                event["name"] = "domain.merge.error"
+                event["instanceId"] = instance_id
+                event["payload"] = {}
+                event["payload"]["instanceId"] = instance_id
+                event["payload"]["message"] = str(ex)
+                event_manager.push(event)
+
 
 
 
