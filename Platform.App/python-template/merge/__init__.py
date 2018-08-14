@@ -52,6 +52,7 @@ class MergeBranch:
                 event["payload"]["instanceId"] = instance_id
                 event["payload"]["message"] = str(ex)
                 event_manager.push(event)
+            raise ex
 
 
 
