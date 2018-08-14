@@ -4,6 +4,7 @@ from sdk.branch import Branch
 from sdk.process_memory import head
 from sqlalchemy import text
 from model.domain import *
+from sdk import event_manager
 
 class MergeBranch:
     def __init__(self, session):
@@ -34,6 +35,8 @@ class MergeBranch:
         log.info("Commiting changes to database")
         self.session.commit()
         log.info("Merge success")
+        event["name"] = event["name"].replace(".request",".done")
+        event_manager.push(event)
 
 
 
