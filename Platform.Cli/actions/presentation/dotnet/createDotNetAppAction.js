@@ -23,7 +23,7 @@ module.exports = class CreatePresentationAppAction{
             
             shell.exec(`dotnet new -i NUnit3.DotNetNew.Template`);
             let testProjectName = webAppName + '.UnitTest';
-            shell.exec(`dotnet new nunit -n ${testProjectName} -o ${path}/test/unit/${testProjectName}`);
+            shell.exec(`dotnet new nunit -n ${testProjectName} -o ${path}/test/unit`);
             
             shell.exec(`dotnet sln ${path}/${plataforma.app.name}.sln add` + 
                 ` ${path}/server/${webAppName}.csproj ${path}/test/unit/${testProjectName}.csproj`);
