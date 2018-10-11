@@ -70,8 +70,12 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 console.log("Publish Project");
 
-                shell.exec(`dotnet publish ${source}/server/${webAppName}.csproj -o ${dest}/server`);
+                shell.cd("view");
+                shell.exec(`ng build --base-href /${webAppName}/ --deploy-url /${webAppName}/`);
+                shell.cd("..");
 
+                shell.exec(`dotnet publish ${source}/server/${webAppName}.csproj -o ${dest}/server`);
+                
                 resolve(env);
             } catch (e) {
                 reject(e);
