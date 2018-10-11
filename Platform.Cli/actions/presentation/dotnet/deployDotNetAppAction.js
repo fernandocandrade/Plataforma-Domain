@@ -155,7 +155,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.type = env.conf.app.type;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
-            console.log(env);
+            
             process.tag = this.docker.getContainer(env);
             shell.cd(process.relativePath);
             this.docker.build(env, process.tag).then((r) => {
