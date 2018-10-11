@@ -155,7 +155,9 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.type = env.conf.app.type;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
+            console.log(env);
             process.tag = this.docker.getContainer(env);
+            shell.cd(process.relativePath);
             this.docker.build(env, process.tag).then((r) => {
                 //console.log("Docker publish...");
                 //this.docker.publish(env, process.tag).then(() => {
@@ -167,6 +169,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                             env.variables = {};
                             env.variables["API_MODE"] = true;
                             env.variables["SYSTEM_ID"] = env.conf.solution.id;
+                            env.variables["PROCESS_ID"] = env.conf.app.id;
                             this.docker.run(env, process.tag).then(r => resolve(env));
                         });
                     }else{
