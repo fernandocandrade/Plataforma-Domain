@@ -49,8 +49,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 shell.rm("-rf", dest);
                 shell.mkdir("-p", dest);
-                shell.cp("-R",source+"/mapa", dest + "/mapa");
-                shell.cp("-R",source+"/metadados", dest + "/metadados");
+                shell.cp("-R",source+"/Mapa", dest + "/Mapa");
+                shell.cp("-R",source+"/Metadados", dest + "/Metadados");
                 shell.cp(source+"/Dockerfile", dest);
 
                 resolve(env);
@@ -67,14 +67,17 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 var source = ".";
                 var dest = env.conf.fullPath;
                 let webAppName = env.conf.app.name;
+                let dockerName = env.conf.app.docker;
 
                 console.log("Publish Project");
 
-                shell.cd("view");
-                shell.exec(`ng build --base-href /${webAppName}/ --deploy-url /${webAppName}/`);
-                shell.cd("..");
+                if (fs.existsSync(`${source}/View`)) {
+                    shell.cd("View");
+                    shell.exec(`ng build --base-href /${dockerName}/ --deploy-url /${dockerName}/`);
+                    shell.cd("..");
+                }
                 
-                var cmdPublish = `dotnet publish ${source}/server/${webAppName}.csproj -o ${dest}/server`; 
+                var cmdPublish = `dotnet publish ${source}/Server/${webAppName}.Web/${webAppName}.Web.csproj -o ${dest}/Server`; 
                 console.log(cmdPublish);
                 shell.exec(cmdPublish);
                 
@@ -87,11 +90,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     }
 
     uploadMaps(env) {
-        return this.getFiles(env, "mapa", (ctx, v) => this.saveMapToCore(ctx, v));
+        return this.getFiles(env, "Mapa", (ctx, v) => this.saveMapToCore(ctx, v));
     }
 
     uploadMetadata(env) {
-        var promise = this.getFiles(env, "metadados", (ctx, v) => this.processMetadata(ctx, v));
+        var promise = this.getFiles(env, "Metadados", (ctx, v) => this.processMetadata(ctx, v));
         return promise;
     }
 
