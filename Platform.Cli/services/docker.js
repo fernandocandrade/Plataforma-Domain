@@ -10,7 +10,7 @@ module.exports = class DockerService{
     build(env,tag, dockerfile){
         var promise = new Promise((resolve,reject)=>{
             try{
-                var labels = `--label app_name=${env.conf.app.docker}`
+                var labels = `--label app_name=${env.conf.app.name}`
                 labels += ` --label system_id=${env.conf.solution.id}`
                 labels += ` --label process_id=${env.conf.app.id}`
                 var cmd = `docker build . --tag ${tag} ${labels}  --no-cache`;
@@ -46,7 +46,7 @@ module.exports = class DockerService{
 
     run(env,tag){
       return new Promise((resolve,reject)=>{
-          var labels = `--label app_name=${env.conf.app.docker}`
+          var labels = `--label app_name=${env.conf.app.name}`
           labels += ` --label system_id=${env.conf.solution.id}`
           labels += ` --label process_id=${env.conf.app.id}`
           var externalPort = "8087";
@@ -60,8 +60,8 @@ module.exports = class DockerService{
           if (env.conf.app.type === "presentation"){
             externalPort = "8088";
             env.docker.port = "8088";
-            labels += ` --label traefik.backend=${env.conf.app.docker}`
-            labels += ` --label "traefik.${env.conf.app.docker}.frontend.rule=PathPrefixStrip: /${env.conf.app.docker}"`
+            labels += ` --label traefik.backend=${env.conf.app.name}`
+            labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
             labels += ` --label traefik.docker.network=plataforma_network`
             labels += ` --label traefik.port=${env.docker.port}`
             var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
@@ -73,8 +73,8 @@ module.exports = class DockerService{
               //portExternal = `-p 8087:9110`
               externalPort = "8087";
               env.docker.port = "9110";
-              labels += ` --label traefik.backend=${env.conf.app.docker}`
-              labels += ` --label "traefik.${env.conf.app.docker}.frontend.rule=PathPrefixStrip: /${env.conf.app.docker}"`
+              labels += ` --label traefik.backend=${env.conf.app.name}`
+              labels += ` --label "traefik.${env.conf.app.name}.frontend.rule=PathPrefixStrip: /${env.conf.app.name}"`
               labels += ` --label traefik.docker.network=plataforma_network`
               labels += ` --label traefik.port=${env.docker.port}`
               var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
@@ -83,11 +83,11 @@ module.exports = class DockerService{
               shell.exec(cmd);
               console.log("waiting 15s")
               setTimeout(()=>{
-                labels = `--label app_name=${env.conf.app.docker}`
+                labels = `--label app_name=${env.conf.app.name}`
                 labels += ` --label system_id=${env.conf.solution.id}`
                 labels += ` --label process_id=${env.conf.app.id}`
-                labels += ` --label traefik.backend=${env.conf.app.docker}`
-                labels += ` --label "traefik.maestro-${env.conf.app.docker}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.docker}"`
+                labels += ` --label traefik.backend=${env.conf.app.name}`
+                labels += ` --label "traefik.maestro-${env.conf.app.name}.frontend.rule=PathPrefixStrip: /maestro-${env.conf.app.name}"`
                 labels += ` --label traefik.docker.network=plataforma_network`
                 labels += ` --label traefik.port=${env.docker.port}`
                 var debugPort ="7" + (Math.floor(Math.random() * 1000)).toString();
@@ -112,9 +112,9 @@ module.exports = class DockerService{
     }
 
     getContainerName(env){
-      var name = env.conf.app.docker;
+      var name = env.conf.app.name;
       if (env.conf.solution.name !== "plataforma"){
-        name = `${env.conf.solution.name}-${env.conf.app.docker}`;
+        name = `${env.conf.solution.name}-${env.conf.app.name}`;
       }
       return name;
     }
@@ -132,13 +132,14 @@ module.exports = class DockerService{
 
     getContainer(env,worker){
       if (worker){
-        return `registry:5000/${env.conf.app.docker}_${worker}:${env.conf.app.newVersion}`;
+        return `registry:5000/${env.conf.app.name}_${worker}:${env.conf.app.newVersion}`;
       }
-      return `registry:5000/${env.conf.app.docker}:${env.conf.app.newVersion}`;
+      return `registry:5000/${env.conf.app.name}:${env.conf.app.newVersion}`;
     }
 
     getContainerLocal(env){
-      return `localhost:5000/${env.conf.app.docker}:${env.conf.app.newVersion}`;
+        return `localhost:5000/${env.conf.app.name}:${env.conf.app.newVersion}`;
     }
+
 
 };
