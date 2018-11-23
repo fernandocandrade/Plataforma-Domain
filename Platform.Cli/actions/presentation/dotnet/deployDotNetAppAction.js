@@ -49,8 +49,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 shell.rm("-rf", dest);
                 shell.mkdir("-p", dest);
-                shell.cp("-R",source+"/Mapa", dest + "/Mapa");
-                shell.cp("-R",source+"/Metadados", dest + "/Metadados");
+                shell.cp("-R",source+"/mapa", dest + "/mapa");
+                shell.cp("-R",source+"/metadados", dest + "/metadados");
                 shell.cp(source+"/Dockerfile", dest);
 
                 resolve(env);
@@ -67,20 +67,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 var source = ".";
                 var dest = env.conf.fullPath;
                 let webAppName = env.conf.app.name;
-                let dockerName = env.conf.app.docker;
 
                 console.log("Publish Project");
 
-                if (fs.existsSync(`${source}/View`)) {
-                    shell.cd("View");
-                    shell.exec(`ng build --base-href /${dockerName}/ --deploy-url /${dockerName}/`);
-                    shell.cd("..");
-                }
-                
-                var cmdPublish = `dotnet publish ${source}/Server/${webAppName}.Web/${webAppName}.Web.csproj -o ${dest}/Server`; 
-                console.log(cmdPublish);
-                shell.exec(cmdPublish);
-                
+                shell.exec(`dotnet publish ${source}/server/${webAppName}.csproj -o ${dest}/server`);
+
                 resolve(env);
             } catch (e) {
                 reject(e);
@@ -90,11 +81,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     }
 
     uploadMaps(env) {
-        return this.getFiles(env, "Mapa", (ctx, v) => this.saveMapToCore(ctx, v));
+        return this.getFiles(env, "mapa", (ctx, v) => this.saveMapToCore(ctx, v));
     }
 
     uploadMetadata(env) {
-        var promise = this.getFiles(env, "Metadados", (ctx, v) => this.processMetadata(ctx, v));
+        var promise = this.getFiles(env, "metadados", (ctx, v) => this.processMetadata(ctx, v));
         return promise;
     }
 
@@ -164,9 +155,7 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
             process.type = env.conf.app.type;
             process.relativePath = env.conf.fullPath;
             process.deployDate = new Date();
-            
             process.tag = this.docker.getContainer(env);
-            shell.cd(process.relativePath);
             this.docker.build(env, process.tag).then((r) => {
                 //console.log("Docker publish...");
                 //this.docker.publish(env, process.tag).then(() => {
@@ -178,7 +167,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                             env.variables = {};
                             env.variables["API_MODE"] = true;
                             env.variables["SYSTEM_ID"] = env.conf.solution.id;
-                            env.variables["PROCESS_ID"] = env.conf.app.id;
                             this.docker.run(env, process.tag).then(r => resolve(env));
                         });
                     }else{
