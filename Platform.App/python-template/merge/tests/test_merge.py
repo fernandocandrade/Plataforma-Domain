@@ -10,6 +10,7 @@ from sqlalchemy import text
 
 def get_event():
     return {
+        "name": "event.name",
         "payload":{
             "branch":"cenario-01"
         }
