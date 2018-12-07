@@ -9,8 +9,20 @@ module.exports = class Environment{
         };
     }
 
+    vsts(){
+        return {
+            apiCore:{
+                host:"172.17.0.1",
+                scheme: "http",
+                port:"9110"
+            }
+        };
+    }
+    
     getEnv(env){
         switch(env){
+            case "vsts":
+                return this.vsts();
             case "local":
                 return this.local();
             default:
