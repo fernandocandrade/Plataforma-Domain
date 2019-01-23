@@ -27,6 +27,10 @@ module.exports = class DeployAppAction {
             return;
         }
         var conf = this.appInstance.getAppConfig();
+		if (!conf.app.docker) {
+			conf.app.docker = conf.app.name;
+		}
+		
         var env = this.env.getEnv(environment);
         env.conf = conf;
         env.metamapa = this.metamapa;

@@ -47,8 +47,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 console.log("Copying Files");
 
-                shell.cp("-R",source+"/mapa", dest + "/mapa");
-                shell.cp("-R",source+"/metadados", dest + "/metadados");
+                shell.rm("-rf", dest);
+                shell.mkdir("-p", dest);
+                shell.cp("-R",source+"/Mapa", dest + "/Mapa");
+                shell.cp("-R",source+"/Metadados", dest + "/Metadados");
                 shell.cp(source+"/Dockerfile", dest);
 
                 resolve(env);
@@ -71,8 +73,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 shell.rm("-rf", dest);
                 shell.mkdir("-p", dest);
                 
-                shell.exec(`dotnet publish ${source}/process/${consoleAppName}.csproj -o ${dest}/process`);
-
+				var cmdPublish = `dotnet publish ${source}/Process/${consoleAppName}.Process/${consoleAppName}.Process.csproj -o ${dest}/Process`; 
+                console.log(cmdPublish);
+                shell.exec(cmdPublish);
+				
                 resolve(env);
             } catch (e) {
                 reject(e);

@@ -14,7 +14,9 @@ module.exports = class AppInstance{
     getAppConfig(){
         var fs = require("fs");
         if (fs.existsSync("./plataforma.json")){
-            return JSON.parse(fs.readFileSync("./plataforma.json","UTF-8"));
+            var retorno = JSON.parse(fs.readFileSync("./plataforma.json","UTF-8"));
+            if (retorno.app && !retorno.app.docker) retorno.app.docker = retorno.app.name;
+            return retorno;
         }
         return {};
     }
