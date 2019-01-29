@@ -15,8 +15,8 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     deploy(env) {
         var prep = this.prepare(env);
         if (!env.metamapa) {
-            prep = prep.then((prepared) => this.publishProject(prepared))
-                .then(context => this.copyFiles(context))
+            prep = prep.then((prepared) => this.copyFiles(prepared))
+                .then(context => this.publishProject(context))
                 .then(context => this.registerSolution(context))
                 .then(context => this.registerApp(context));
         }
@@ -46,9 +46,10 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
                 var dest = env.conf.fullPath;
 
                 console.log("Copying Files");
-
+				
                 shell.rm("-rf", dest);
                 shell.mkdir("-p", dest);
+								
                 shell.cp("-R",source+"/Mapa", dest + "/Mapa");
                 shell.cp("-R",source+"/Metadados", dest + "/Metadados");
                 shell.cp(source+"/Dockerfile", dest);
@@ -70,9 +71,6 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
 
                 console.log("Publish Project. Dest: " + dest);
                 
-                shell.rm("-rf", dest);
-                shell.mkdir("-p", dest);
-                
 				var cmdPublish = `dotnet publish ${source}/Process/${consoleAppName}.Process/${consoleAppName}.Process.csproj -o ${dest}/Process`; 
                 console.log(cmdPublish);
                 shell.exec(cmdPublish);
@@ -86,11 +84,11 @@ module.exports = class DeployProcessAppAction extends BaseDeployAction {
     }
 
     uploadMaps(env) {
-        return this.getFiles(env, "mapa", (ctx, v) => this.saveMapToCore(ctx, v));
+        return this.getFiles(env, "Mapa", (ctx, v) => this.saveMapToCore(ctx, v));
     }
 
     uploadMetadata(env) {
-        var promise = this.getFiles(env, "metadados", (ctx, v) => this.processMetadata(ctx, v));
+        var promise = this.getFiles(env, "Metadados", (ctx, v) => this.processMetadata(ctx, v));
         return promise;
     }
 
